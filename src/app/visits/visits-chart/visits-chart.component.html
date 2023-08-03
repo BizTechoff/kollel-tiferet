@@ -1,0 +1,62 @@
+<div class="chart-container">
+  <div class="chart-chart">
+    <div class="chart-top">
+      <div style="display: flex; flex-direction: column;" (click)="this.rootmenu()">
+        <div>
+          <img src="/assets/Logo Colel Chabad.png" alt="Frame14430" class="chabad-colel-logo" />
+          <!-- <img src="/assets/playground_assets/chabadLogo.svg" alt="Frame14430" class="chabad-get-chessed-logo" /> -->
+        </div>
+        <div>
+          <img src="/assets/logo.ahavat.eliyau.svg" alt="Frame14430" class="ahavat-eliyau-logo" />
+        </div>
+      </div>
+      <app-branch-group (groupChanged)="this.groupChanged()"></app-branch-group>
+      <div class="chart-userinfo">
+        <span class="chart-text"><span>{{ remult.user?.name }}</span></span>
+        <div class="chart-location">
+          <span class="chart-text2"><span>{{ remult.user?.isAdmin?'':remult.user?.isDonor?'':'ראש כולל' }} {{
+              remult.user?.branchName?.replace('כולל','') }}</span></span>
+          <img src="/assets/playground_assets/locationicon9141-tasn.svg" alt="locationicon9141"
+            class="chart-locationicon" />
+        </div>
+      </div>
+    </div>
+    <div class="chart-nav">
+      <div class="chart-viewaslist" *ngIf="(remult.user?.isAdmin || remult.user?.isDonor) && !this.showAsList"
+        (click)="this.list()">
+        <div class="chart-frame19">
+          <img src="/assets/playground_assets/frame169145-0vm.svg" alt="Frame169145" class="chart-frame16" />
+          <img src="/assets/playground_assets/frame179146-sbjd.svg" alt="Frame179146" class="chart-frame17" />
+          <img src="/assets/playground_assets/frame189146-d3qdj.svg" alt="Frame189146" class="chart-frame18" />
+        </div>
+      </div>
+      <div class="chart-viewasgraph" *ngIf="(remult.user?.isAdmin || remult.user?.isDonor) && this.showAsList"
+        (click)="this.list()">
+        <img src="/assets/playground_assets/ellipse19147-lhwp-200w.png" alt="Ellipse19147" class="chart-ellipse1" />
+        <img src="/assets/playground_assets/line29147-9a3d.svg" alt="Line29147" class="chart-line2" />
+        <img src="/assets/playground_assets/line39147-70ol.svg" alt="Line39147" class="chart-line3" />
+      </div>
+      <div class="chart-title">
+        <span class="chart-text4"><span>מצב נוכחות</span></span>
+      </div>
+      <img src="/assets/playground_assets/back9142-tm14.svg" alt="back9142" class="chart-back" (click)="this.back()" />
+    </div>
+    <div class="chart-data">
+      <div class="chart-dataviewas">
+        <div class="graph" *ngIf="!this.showAsList">
+          <canvas style="width: 100%; height: 100%;" baseChart [colors]="pieChartColors" [data]="pieChartDataStatuses"
+            [labels]="pieChartLabelsStatuses" [chartType]="pieChartType" [options]="pieChartOptionsByStatuses"
+            [plugins]="pieChartPlugins" [legend]="pieChartLegend" (chartClick)="chartClicked($event)">
+          </canvas>
+        </div>
+        <div class="report" *ngIf="this.showAsList">
+          <app-visits-report [group]="this.query.group"></app-visits-report>
+        </div>
+      </div>
+      <div class="chart-close" (click)="this.close()">
+        <img src="/assets/playground_assets/rectangle19148-kcz.svg" alt="Rectangle19148" class="chart-rectangle1" />
+        <span class="chart-text6"><span>סגור</span></span>
+      </div>
+    </div>
+  </div>
+</div>
