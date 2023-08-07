@@ -34,7 +34,7 @@ export async function generateUploadURL(action: string, fName: string, branch: s
     let result = ''
     const s3 = await s3Client()
     if (s3) {
-        let key = 'kollel/' + (excel
+        let key = 'kollel-tiferet/' + (excel
             ? 'excel/tenants' + '/' + branch + "/" + fName
             : 'dev' + '/' + branch + "/" + fName)
         console.log(`upload.key: ${key}`)
@@ -55,7 +55,7 @@ export async function download(fileName = '', branch = '') {
     if (fileName?.trim().length) {
         const s3 = await s3Client()
         if (s3) {
-            let key = 'kollel/' + 'excel/tenants' + '/' + branch + "/" + fileName
+            let key = 'kollel-tiferet/' + 'excel/tenants' + '/' + branch + "/" + fileName
             const params = ({
                 Bucket: process.env['AWS_S3_IAM_BTO_APP_BUCKET']!,
                 Key: key
@@ -120,7 +120,7 @@ export async function downloadByLink(link = '') {
             if (s3) {
                 const params = ({
                     Bucket: process.env['AWS_S3_IAM_BTO_APP_BUCKET']!,
-                    Key: 'kollel/' + key
+                    Key: 'kollel-tiferet/' + key
                 })
                 var fileStream = await s3.getObject(params).createReadStream()
 

@@ -3,7 +3,7 @@ import { ChartOptions, ChartType } from 'chart.js';
 import { Color, Label, SingleDataSet } from 'ng2-charts';
 import { remult } from 'remult';
 import { BranchGroup } from '../../branches/branchGroup';
-import { openDialog, RouteHelperService } from '../../common-ui-elements';
+import { RouteHelperService, openDialog } from '../../common-ui-elements';
 import { firstDateOfWeek, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
 import { JobController } from '../../jobs/jobController';
 import { terms } from '../../terms';

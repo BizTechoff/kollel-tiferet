@@ -1,6 +1,7 @@
 import { Entity, Field, Fields, IdEntity, isBackend, remult, Validators } from "remult";
 import { Branch } from "../branches/branch";
 import { mobileFromDb, mobileToDb } from "../common/mobileFunc";
+import { terms } from "../terms";
 import { User } from "../users/user";
 
 @Entity<Tenant>('tenants', {
@@ -52,6 +53,15 @@ export class Tenant extends IdEntity {
     volunteers = [] as User[]
 
     volunteersNames = this.volunteers.map(u => u.name) //.join(', ')
+
+    // @DataControl<Tenant, Branch>({
+    //     valueChange: (row, col) => {
+    //         // if (row._.isNew()) 
+    //         {
+    //             row.payment = col?.value?.payment
+    //         } 
+    //     }
+    // })
 
     @Field<Tenant, Branch>(() => Branch, {
         caption: 'כולל',
@@ -133,7 +143,8 @@ export class Tenant extends IdEntity {
     fooddeliveryarea = 0;
 
     @Fields.string<Tenant>({
-        caption: 'סלולרי',
+        caption: 'נייד',
+        validate: [Validators.required.withMessage(terms.required), Validators.uniqueOnBackend.withMessage(terms.unique)],
         valueConverter: {
             fromDb: col => mobileFromDb(mobileToDb(col) as string),
             toDb: col => mobileToDb(col) as string
@@ -150,6 +161,37 @@ export class Tenant extends IdEntity {
         caption: 'ת.ז'
     })
     idNumber = ''
+
+    @Fields.string<Tenant>({
+        caption: 'בנק'
+    })
+    payBank = ''
+
+    @Fields.string<Tenant>({
+        caption: 'סניף'
+    })
+    payBranch = ''
+
+    @Fields.string<Tenant>({
+        caption: 'חשבון'
+    })
+    payAccount = ''
+
+    @Fields.string<Tenant>({
+        caption: 'מספר משלם'
+    })
+    payNumber = ''
+
+    @Fields.number<Tenant>({
+        caption: 'תשלום',
+        validate: (row, col) => {
+            if (!(+col?.value >= 100 ?? false)) {
+                col.error = 'מינימום תשלום ₪100'
+            }
+        },
+        displayValue: (row, col) => col + '₪'
+    })
+    payment = 100;
 
     @Fields.string<Tenant>({
         caption: 'הערות לכתובת'

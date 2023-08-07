@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { remult } from 'remult';
 import { Branch } from '../../branches/branch';
+import { BranchGroup } from '../../branches/branchGroup';
 import { RouteHelperService } from '../../common-ui-elements';
 import { UIToolsService } from '../../common/UIToolsService';
 import { uploader } from '../../common/uploader';
@@ -10,12 +11,11 @@ import { terms } from '../../terms';
 import { User } from '../../users/user';
 import { UserMenuComponent } from '../../users/user-menu/user-menu.component';
 import { UserController } from '../../users/userController';
+import { TenantVolunteer } from '../TenantVolunteer';
 import { Tenant } from '../tenant';
 import { TenantController } from '../tenantController';
-import { TenantsComponent } from '../tenants/tenants.component';
-import { TenantVolunteer } from '../TenantVolunteer';
 import { TenantVolunteerController } from '../tenantVolunteerController';
-import { BranchGroup } from '../../branches/branchGroup';
+import { TenantsComponent } from '../tenants/tenants.component';
 
 @Component({
   selector: 'app-tenant',
@@ -32,7 +32,7 @@ export class TenantComponent implements OnInit {
   page = 1
   tenantPhotoLink = ''
   title = ''
-  group!:BranchGroup
+  group!: BranchGroup
 
   args!: {
     id: string
@@ -92,7 +92,13 @@ export class TenantComponent implements OnInit {
   async reloadId() {
     this.tenant = undefined!
     if (this.args.id?.trim().length) {
-      this.tenant = await this.query.getTenant(this.args.id)
+      this.query.id = this.args.id
+      this.tenant = await remult.repo(Tenant).findId(this.args.id, { useCache: false })
+      // await this.query.getTenantById()
+      console.log('client:', this.tenant.id)
+      // await remult.repo(Tenant).findId(this.args.id, { useCache: false })
+      // await this.query.getTenant(this.args.id)
+      // console.log('client:', this.tenant.$.id.metadata.caption)
       // if (this.tenant.birthday) {
       //   console.log('this.tenant.birthday',this.tenant.birthday)//,resetDateTime( this.tenant.birthday))
       //   var date = new Date(this.tenant.birthday)

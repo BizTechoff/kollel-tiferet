@@ -36,6 +36,8 @@ export class UserMenuComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.group = BranchGroup.fromId(remult.user!.group)
     // await this.groupChanged()
+    // console.log(this.group)
+    // console.log(remult.user)
   }
 
   async logout() {

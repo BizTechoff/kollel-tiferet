@@ -14,12 +14,12 @@ import { NewsBranch } from '../app/news/newsBranch';
 import { NewsController } from '../app/news/newsController';
 import { NewsUser } from '../app/news/newsUser';
 import { Notification } from '../app/notifications/notification';
+import { TenantVolunteer } from '../app/tenants/TenantVolunteer';
 import { Tenant } from '../app/tenants/tenant';
 import { TenantController } from '../app/tenants/tenantController';
-import { TenantVolunteer } from '../app/tenants/TenantVolunteer';
 import { TenantVolunteerController } from '../app/tenants/tenantVolunteerController';
-import { RegisterController } from '../app/users/registerController';
 import { SignInController } from '../app/users/SignInController';
+import { RegisterController } from '../app/users/registerController';
 import { User } from '../app/users/user';
 import { UserBranch } from '../app/users/userBranch';
 import { UserController } from '../app/users/userController';
@@ -43,9 +43,9 @@ export const api = remultExpress({
     //     return ui
     // },
     dataProvider: async () => {
-        // if (process.env['NODE_ENV'] === "production")
-        return createPostgresConnection({ configuration: "heroku", sslInDev: !(process.env['DEV_MODE'] === 'DEV') })
-        // return undefined; 
+        if (process.env['NODE_ENV'] === "production")
+            return createPostgresConnection({ configuration: "heroku", sslInDev: !(process.env['DEV_MODE'] === 'DEV') })
+        return undefined;
     },
     initApi: async remult => {
         try {
@@ -54,14 +54,14 @@ export const api = remultExpress({
                 let branch = await branchRepo.insert({
                     name: 'הנהלה',
                     address: 'הכנסת אורחים 1 ירושלים',
-                    email: 'kollel@gmail.com',
+                    email: 'kollel-tiferet@gmail.com',
                     system: true,
                     group: undefined
                 })
-            } 
+            }
         } catch (err) {
             console.log('initApi-err', err)
         }
- 
+
     }
 });

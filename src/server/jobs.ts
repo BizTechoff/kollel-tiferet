@@ -41,7 +41,7 @@ export const runEveryFullHours = async () => {
         }, firstCall);
     }
     else {
-        // await api.withRemult(undefined!, undefined!, async () => await createWeeklyVisits());
+        await api.withRemult(undefined!, undefined!, async () => await createDailyVisits());
     }
     // const Hour = 60 * 60 * 1000;
     // const currentDate = new Date()
@@ -108,11 +108,15 @@ const jobsRun = async () => {
             //     break;
             // }
 
+            case DayOfWeek.sunday.value:
+            case DayOfWeek.monday.value:
+            case DayOfWeek.tuesday.value:
+            case DayOfWeek.wednesday.value:
             case DayOfWeek.thursday.value: {
                 let hour = now.getHours()
                 if (hour >= 3 && hour <= 4)//3am
                 {
-                    await createWeeklyVisits()
+                    await createDailyVisits()
                     // if (enableAllJobs) {
                     //     await createTenantTwoWeeksMissing()// to manager
                     //     await createVolunteerTwoWeeksMissing()// to volunteer
@@ -952,6 +956,69 @@ async function createWeeklyVisits() {
     }
     catch (error) {
         await logJob(today, 'createWeeklyVisits', JosStatus.error, error)
+    }
+    return result
+}
+
+async function createDailyVisits() {
+    let result = 0
+    let today = resetDateTime(new Date())
+    let fdate = today // firstDateOfWeek(today)
+    let tdate = today //lastDateOfWeek(today)
+
+    let job = await remult.repo(Job).findFirst({
+        name: 'createDailyVisits',
+        date: { "$gte": fdate, "$lte": tdate },
+        status: [JosStatus.done, JosStatus.processing]
+    })
+    if (job) {
+        if (job.status === JosStatus.done) {
+            console.log(`Job 'createDailyVisits' already done`)
+        } else if (job.status === JosStatus.processing) {
+            console.log(`Job 'createDailyVisits' still running`)
+        }
+        return
+    }
+
+    await logJob(today, 'createDailyVisits', JosStatus.processing, '')
+    console.log(`createDailyVisits..`)
+    try {
+        let counter = 0
+        let bCounter = await remult.repo(Branch).count({ system: false, active: true })
+        for await (const branch of remult.repo(Branch).query({ where: { system: false, active: true } })) {
+            ++counter
+            console.log('branch', branch.name, `${counter}/${bCounter}`)
+            let visitsCounter = 0
+            for await (const tenant of remult.repo(Tenant).query({ where: { active: true, branch: branch }, orderBy: { name: 'asc' } })) {
+                console.log('tenant', tenant.name)
+                let visit = await remult.repo(Visit).findFirst(
+                    {
+                        branch: branch,
+                        tenant: tenant,
+                        date: today
+                    },
+                    { createIfNotFound: true })
+                if (visit.isNew()) {
+                    await remult.repo(Visit).save(visit)
+                    ++result
+                }
+                // for await (const tv of remult.repo(TenantVolunteer).query({ where: { tenant: tenant } })) {
+                //     let vv = await remult.repo(VisitVolunteer).findFirst(
+                //         {
+                //             visit: visit,
+                //             volunteer: tv.volunteer
+                //         },
+                //         { createIfNotFound: true })
+                //     if (vv.isNew()) {
+                //         await remult.repo(VisitVolunteer).save(vv)
+                //     }
+                // }
+            }
+        }
+        await logJob(today, 'createDailyVisits', JosStatus.done, '')
+    }
+    catch (error) {
+        await logJob(today, 'createDailyVisits', JosStatus.error, error)
     }
     return result
 }

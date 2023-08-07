@@ -37,7 +37,8 @@ export const terms = {
     createdBy: 'נוצר ע"י',
     modified: 'השתנה',
     modifiedBy: 'השתנה ע"י',
-    required: 'חובה'
+    required: 'חובה',
+    unique: 'קיים'
 }
 
  

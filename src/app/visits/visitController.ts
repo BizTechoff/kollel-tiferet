@@ -333,6 +333,7 @@ export class VisitController extends ControllerBase {
                     visits: {
                         tenant: string,
                         tenantIdNumber: string,
+                        payment: number,
                         tenantRemark: string,
                         volunteers: string[],
                         delivered: string,
@@ -459,6 +460,7 @@ export class VisitController extends ControllerBase {
                             visits: {
                                 tenant: string,
                                 tenantIdNumber: string,
+                                payment: number,
                                 tenantRemark: string,
                                 volunteers: string[],
                                 delivered: string,
@@ -489,6 +491,7 @@ export class VisitController extends ControllerBase {
                         visits: {
                             tenant: string,
                             tenantIdNumber: string,
+                            payment: number,
                             tenantRemark: string,
                             volunteers: string[],
                             delivered: string,
@@ -523,6 +526,7 @@ export class VisitController extends ControllerBase {
                     visits: [] as {
                         tenant: string,
                         tenantIdNumber: string,
+                        payment: number,
                         tenantRemark: string,
                         volunteers: string[],
                         delivered: string,
@@ -548,6 +552,7 @@ export class VisitController extends ControllerBase {
                 foundWeek.visits.push({
                     tenant: v.tenant.name,
                     tenantIdNumber: v.tenant.idNumber,
+                    payment: v.tenant.payment,
                     tenantRemark: v.remark,
                     volunteers: volunteers,
                     delivered: v.status === VisitStatus.delivered ? 'כן' : '',
@@ -759,6 +764,8 @@ export class VisitController extends ControllerBase {
                     aoa[fm.row + 1][fw.col + 2] = 'איחרו'
                     aoa[fm.row + 1][fw.col + 3] = 'נוכחו'
                     aoa[fm.row + 1][fw.col + 4] = 'הערות'
+                    if(remult.user)
+                    aoa[fm.row + 1][fw.col + 5] = 'תשלום'
 
                     let tw = totalWeek.find(tw => tw.week === w.week)
                     if (tw) {
@@ -787,6 +794,7 @@ export class VisitController extends ControllerBase {
                         aoa[rr][fw.col + 2] = v.delivered
                         aoa[rr][fw.col + 3] = v.visited
                         aoa[rr][fw.col + 4] = v.tenantRemark
+                        aoa[rr][fw.col + 5] = v.payment + ''
                         // console.log('w.branch', b.branch, 'b.week', w.week, 'v.tenant', v.tenant, 'rr', rr, 'fw.row', fb.row, 'aoa.length', aoa.length)
                     }
                 }

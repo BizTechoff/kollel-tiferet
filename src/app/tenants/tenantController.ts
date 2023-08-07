@@ -1,26 +1,28 @@
-import { Allow, BackendMethod, Controller, ControllerBase, remult } from "remult";
+import { Allow, BackendMethod, Controller, ControllerBase, Fields } from "remult";
 import { Branch } from "../branches/branch";
-import { UserBranch } from "../users/userBranch";
-import { Tenant } from "./tenant";
 import { TenantVolunteer } from "./TenantVolunteer";
+import { Tenant } from "./tenant";
 
-@Controller('tenant')
+@Controller('tenant-service')
 export class TenantController extends ControllerBase {
+
+    @Fields.string<TenantController>()
+    id = ''
 
     @BackendMethod({ allowed: Allow.authenticated })
     async getTenants(active = true) {
-        let tenants = await remult.repo(Tenant).find({
+        let tenants = await this.remult!.repo(Tenant).find({
             where: {
                 active: active,
                 branch: {
-                    $id: (await remult.repo(Branch).find({ where: { active: true, id: remult.user!.branch } }))
+                    $id: (await this.remult!.repo(Branch).find({ where: { active: true, id: this.remult!.user!.branch } }))
                         .map(b => b.id)
                 }
             },
             orderBy: { name: 'asc', address: 'asc' }
         })
 
-        let volunteers = await remult.repo(TenantVolunteer).find({
+        let volunteers = await this.remult!.repo(TenantVolunteer).find({
             where: {
                 tenant: tenants//,
                 // volunteer: (await remult.repo(UserBranch).find({ where: { branch: { $id: remult.user?.branch! } } }))
@@ -40,16 +42,19 @@ export class TenantController extends ControllerBase {
     }
 
     @BackendMethod({ allowed: Allow.authenticated })
-    async getTenant(id: string) {
-        let result!: Tenant
-        if (id?.trim().length) {
-            result = await remult.repo(Tenant).findId(id, {})
-            if (result) {
-                result.volunteers = (await remult.repo(TenantVolunteer).find({ where: { tenant: result } }))
-                    .map(r => r.volunteer)
-            }
-        }
-        return result
+    async getTenantById() {
+        console.log('server',this.id)
+        return await this.remult!.repo(Tenant).findId(this.id, { useCache: false })
+        // let result!: Tenant
+        // if (id?.trim().length) {
+        //     result = await remult.repo(Tenant).findId(id, { useCache: false })
+        //     if (result) {
+        //         result.volunteers = (await remult.repo(TenantVolunteer).find({ where: { tenant: result } }))
+        //             .map(r => r.volunteer)
+        //     }
+        // }
+        // console.log('server:', result.$.id.metadata.caption)
+        // return result
     }
 
 }

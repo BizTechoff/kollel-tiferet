@@ -52,30 +52,91 @@
       <img src="/assets/playground_assets/back2031-qvn.svg" alt="back2031" class="manager-back" (click)="this.back()" />
     </div>
     <div class="manager-data">
-      <div class="manager-dataviewas">
+      <div *ngIf="this.tenant.$" class="manager-dataviewas">
         <div class="manager-cardcontent1">
           <span class="manager-text10">
-            <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
-              type="text" [(ngModel)]="this.tenant.name"></span>
-          <span class="manager-text12"><span>:שם</span></span>
+            <data-control dir="rtl" [field]="this.tenant.$.name"></data-control>
+            <!-- <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
+              type="text" [(ngModel)]="this.tenant.name"> -->
+          </span>
+          <!-- <span class="manager-text12"><span>:שם</span></span> -->
         </div>
+        <div class="manager-cardcontent1">
+          <span class="manager-text10">
+            <data-control dir="rtl" [field]="this.tenant.$.mobile"></data-control>
+            <!-- <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
+              type="text" [(ngModel)]="this.tenant.name"> -->
+          </span>
+          <!-- <span class="manager-text12"><span>:שם</span></span> -->
+        </div>
+        <!-- <div class="manager-cardcontent2">
+          <span class="manager-text14">
+            <data-control dir="rtl" [field]="this.tenant.$.idNumber"></data-control> -->
+        <!-- <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
+              type="text" [(ngModel)]="this.tenant.idNumber"> -->
+        <!-- </span> -->
+        <!-- <span class="manager-text16"><span>:ת.ז</span></span> -->
+        <!-- </div> -->
+        <!-- <div style="padding-bottom: 10px;"> -->
+          <!-- <fieldset dir="rtl" style="border-radius: 15px;">
+            <legend>פרטי תשלום</legend> -->
+            <div class="manager-cardcontent2">
+              <span class="manager-text14">
+                <data-control dir="rtl" [field]="this.tenant.$.idNumber"></data-control>
+                <!-- <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
+                type="text" [(ngModel)]="this.tenant.payBank"> -->
+              </span>
+              <!-- <span class="manager-text16"><span>:בנק</span></span> -->
+            </div>
+            <div class="manager-cardcontent2">
+              <span class="manager-text14">
+                <data-control dir="rtl" [field]="this.tenant.$.payBank"></data-control>
+                <!-- <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
+                type="text" [(ngModel)]="this.tenant.payBank"> -->
+              </span>
+              <!-- <span class="manager-text16"><span>:בנק</span></span> -->
+            </div>
+            <!-- <div style="display: flex; flex-direction: row; width: 100%;"> -->
+            <!-- style="width: 80px;" -->
+            <div class="manager-cardcontent2">
+              <span class="manager-text14">
+                <data-control dir="rtl" [field]="this.tenant.$.payBranch"></data-control>
+                <!-- <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
+                type="text" [(ngModel)]="this.tenant.payBranch"> -->
+              </span>
+              <!-- <span class="manager-text16"><span>:סניף</span> -->
+              <!-- </span> -->
+            </div>
+            <div class="manager-cardcontent2">
+              <span class="manager-text14">
+                <data-control dir="rtl" [field]="this.tenant.$.payAccount"></data-control>
+                <!-- <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
+                type="text" [(ngModel)]="this.tenant.payAccount"></span>
+            <span class="manager-text16"><span>:חשבון</span> -->
+              </span>
+            </div>
+            <!-- </div> -->
+            <div class="manager-cardcontent2">
+              <span class="manager-text14">
+                <data-control dir="rtl" [field]="this.tenant.$.payment"></data-control>
+                <!-- <div style="display: flex; flex-direction: row;">
+                  <data-control dir="rtl" [field]="this.tenant.$.payment"></data-control>
+                  <span style="vertical-align: bottom; padding-top: 25px;">₪</span>
+                </div> -->
+                <!-- <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
+                type="text" [(ngModel)]="this.tenant.payAccount"></span>
+            <span class="manager-text16"><span>:חשבון</span> -->
+              </span>
+            </div>
+          <!-- </fieldset>k -->
+        <!-- </div> -->
         <div class="manager-cardcontent2">
           <span class="manager-text14">
-            <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
-              type="text" [(ngModel)]="this.tenant.idNumber"></span>
-          <span class="manager-text16"><span>:ת.ז</span></span>
-        </div>
-        <div class="manager-cardcontent2">
-          <span class="manager-text14">
-            <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
+            <data-control dir="rtl" [field]="this.tenant.$.address"></data-control>
+            <!-- <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
               type="text" [(ngModel)]="this.tenant.address"></span>
-          <span class="manager-text16"><span>:כתובת</span></span>
-        </div>
-        <div class="manager-cardcontent2">
-          <span class="manager-text14">
-            <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
-              type="text" [(ngModel)]="this.tenant.phone"></span>
-          <span class="manager-text16"><span>:טלפון</span></span>
+          <span class="manager-text16"><span>:כתובת</span> -->
+          </span>
         </div>
         <!-- <div class="manager-cardcontent2" (click)="this.setDate()">
           <span class="manager-text14">
@@ -83,8 +144,8 @@
               type="date" [(ngModel)]="this.tenant.birthday"></span>
           <span class="manager-text16"><span>:ת.לידה</span></span>
         </div> -->
-            <!-- <span>{{ this.tenant.birthday | date:'yyyy-MM-dd' }}</span> -->
-            <!-- <data-control [field]="this.tenant.$.birthday"></data-control> -->
+        <!-- <span>{{ this.tenant.birthday | date:'yyyy-MM-dd' }}</span> -->
+        <!-- <data-control [field]="this.tenant.$.birthday"></data-control> -->
         <!-- <div class="manager-cardcontent2">
           <span class="manager-text14">
             <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
@@ -99,9 +160,11 @@
         </div> -->
         <div class="manager-cardcontent3">
           <span class="manager-text18">
-            <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
+            <data-control dir="rtl" [field]="this.tenant.$.remark"></data-control>
+            <!-- <input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);"
               type="text" [(ngModel)]="this.tenant.remark"></span>
-          <span class="manager-text20"><span>:הערה</span></span>
+          <span class="manager-text20"><span>:הערה</span> -->
+          </span>
         </div>
         <hr />
         <!-- <div class="manager-cardcontent3">

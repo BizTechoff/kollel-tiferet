@@ -47,6 +47,16 @@ export class Branch extends IdEntity {
     })
     name = '';
 
+    @Fields.number<Branch>({
+        validate: (row, col) => {
+            if (!(+col?.value >= 100 ?? false)) {
+                col.error = 'מינימום תשלום ₪100'
+            }
+        },
+        caption: 'תשלום'
+    })
+    payment = 100;
+
     @Fields.string<Branch>({
         // validate: [Validators.required],
         caption: 'כתובת'
