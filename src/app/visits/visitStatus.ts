@@ -9,4 +9,3 @@ export class VisitStatus {
     static delivered = new VisitStatus('מסרתי', 'green', 'delivered')
     constructor(public caption = '', public color = '', public id = '') { }
 }
- 

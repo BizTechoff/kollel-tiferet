@@ -39,6 +39,7 @@ export class BranchComponent implements OnInit {
       this.title = 'הוספת כולל חדש'
       this.branch = remult.repo(Branch).create()
       this.branch.group = BranchGroup.fromId(remult.user!.group)
+      // this.branch.payment = 
     }
   }
 

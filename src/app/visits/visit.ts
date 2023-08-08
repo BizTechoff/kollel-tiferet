@@ -21,7 +21,7 @@ import { VisitStatus } from "./visitStatus";
     },
     saving: async row => {
         if (isBackend()) {
-            if (row.isNew()) {
+            if (row._.isNew()) {
                 row.created = new Date()
                 row.createdBy = remult.user?.id!
             }

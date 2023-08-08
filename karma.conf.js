@@ -25,7 +25,7 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/kollel'),
+      dir: require('path').join(__dirname, './coverage/kollel-tiferet'),
       subdir: '.',
       reporters: [
         { type: 'html' },

@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { remult } from 'remult';
 import { RouteHelperService } from '../../common-ui-elements';
-import { firstDateOfWeek, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
 import { UIToolsService } from '../../common/UIToolsService';
+import { firstDateOfWeek, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
 import { uploader } from '../../common/uploader';
 import { terms } from '../../terms';
 import { User } from '../../users/user';
@@ -13,9 +13,9 @@ import { VolunteerComponent } from '../../users/volunteer/volunteer.component';
 import { Visit } from '../visit';
 import { VisitVolunteer } from '../visit-volunteer';
 import { VisitController } from '../visitController';
-import { VisitsComponent } from '../visits/visits.component';
 import { VisitStatus } from '../visitStatus';
 import { VisitVolunteerController } from '../visitVolunteerController';
+import { VisitsComponent } from '../visits/visits.component';
 
 @Component({
   selector: 'app-visit',
@@ -118,7 +118,7 @@ export class VisitComponent implements OnInit {
   isVisited() {
     return this.visit?.status?.id === VisitStatus.visited.id
   }
- 
+
   async visited() {
     if (this.visit) {
       if (this.visit.status === VisitStatus.visited) {
@@ -129,7 +129,9 @@ export class VisitComponent implements OnInit {
         this.visit.status = VisitStatus.visited
         this.visit.statusModified = new Date()
       }
+      console.log('client:', 'before', `{ status: ${this.visit.status.id}, id: ${this.visit.id} }`)
       await remult.repo(Visit).save(this.visit)
+      console.log('client:', `{ status: ${this.visit.status.id} }`)
     }
   }
 

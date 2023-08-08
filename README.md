@@ -4,7 +4,7 @@ This project is a starter project for using remult & angular that already has a 
 
 To use in a new project:
 ```sh
-npx degit biatechoff/kollel.git kollel
+npx degit biatechoff/kollel-tiferet.git kollel
 cd kollel
 npm i
 ```

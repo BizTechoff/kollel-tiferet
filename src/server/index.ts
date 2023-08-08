@@ -11,9 +11,7 @@ import { download, generateUploadURL } from './aws-s3';
 import { getRequestMiddleware } from './getRequestMiddleware';
 import './jobs';
 import { runEveryFullHours } from './jobs';
-import { migrate } from './migration';
-import { SqlDatabase } from 'remult';
- 
+
 config(); //loads the configuration from the .env file
 // process.env['TZ'] = 'Asia/Jerusalem'
 // SqlDatabase.LogToConsole = true 
@@ -35,7 +33,7 @@ async function startup() {
             csrf({ ignoreMethods: ["post"] })(req, res, next);
         else
             csrf({})(req, res, next);
-    }); 
+    });
     app.use("/api", (req, res, next) => {
         res.cookie("XSRF-TOKEN", req.csrfToken());
         next();
@@ -54,7 +52,7 @@ async function startup() {
     // await createWeeklyVisits()
 
     // migrate()
-  
+
     app.get("/api/s3Url", async (req, res) => {//?key=[key]&f=[fname]&branch=[branch]
         // console.log('upload.10')
         let result: { url: string, error: string } = { url: '', error: '' };
@@ -106,7 +104,7 @@ async function startup() {
         res.send(JSON.stringify(result));
     })
 
-    app.use(express.static('dist/kollel'));
+    app.use(express.static('dist/kollel-tiferet'));
     app.use('/*', async (req, res) => {
         req.session
         if (req.headers.accept?.includes("json")) {
@@ -115,7 +113,7 @@ async function startup() {
             return;
         }
         try {
-            res.sendFile(process.cwd() + '/dist/kollel/index.html');
+            res.sendFile(process.cwd() + '/dist/kollel-tiferet/index.html');
         } catch (err) {
             res.sendStatus(500);
         }

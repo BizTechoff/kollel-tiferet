@@ -41,7 +41,7 @@ export const runEveryFullHours = async () => {
         }, firstCall);
     }
     else {
-        await api.withRemult(undefined!, undefined!, async () => await createDailyVisits());
+        // await api.withRemult(undefined!, undefined!, async () => await createDailyVisits());
     }
     // const Hour = 60 * 60 * 1000;
     // const currentDate = new Date()
@@ -76,7 +76,7 @@ const jobsRun = async () => {
     if (isProduction) {
 
         // await createVolunteerThreeWeeksMissing()
-        let enableAllJobs = (process.env['JOBS_ENABLE_ALL'] ?? 'false') === 'true'
+        // let enableAllJobs = (process.env['JOBS_ENABLE_ALL'] ?? 'false') === 'true'
 
         // if (now.getDate() === 1) {
         //     // now is the last month + 1 

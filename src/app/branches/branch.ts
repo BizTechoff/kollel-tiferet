@@ -50,10 +50,10 @@ export class Branch extends IdEntity {
     @Fields.number<Branch>({
         validate: (row, col) => {
             if (!(+col?.value >= 100 ?? false)) {
-                col.error = 'מינימום תשלום ₪100'
+                col.error = 'מינימום ₪100'
             }
         },
-        caption: 'תשלום'
+        caption: 'תשלום חודשי בש"ח'
     })
     payment = 100;
 

@@ -318,6 +318,7 @@ export class VisitController extends ControllerBase {
     @BackendMethod({ allowed: Allow.authenticated })
     async exportVisits() {
 
+        const fieldsCount = 7
         let data = [] as {
             month: string,
             branches: {
@@ -326,6 +327,7 @@ export class VisitController extends ControllerBase {
                 totalVolunteers: number,
                 totalDelivered: number,
                 totalVisited: number,
+                totalPayment: number,
                 weeksCounter: string[],
                 // deletedWeeks: [],//???????????????????????????????????????????????????
                 weeks: {
@@ -341,6 +343,7 @@ export class VisitController extends ControllerBase {
                     }[],
                     totalTenants: number,
                     totalVolunteers: number,
+                    totalPayment: number,
                     totalDelivered: number,
                     totalVisited: number
                 }[]
@@ -348,55 +351,55 @@ export class VisitController extends ControllerBase {
         }[]
 
         // build visits-volunteers
-        let visitVolunteers = [] as { visitId: string, volunteersNames: string[] }[]
-        for await (const vv of remult.repo(VisitVolunteer).query({
-            where: {
-                visit: await remult.repo(Visit).find({
-                    where: {
-                        $and: [
-                            this.actual
-                                ? {
-                                    $or: [
-                                        { status: VisitStatus.delivered },
-                                        { status: VisitStatus.visited }
-                                    ]
-                                }
-                                : {}
-                        ],
-                        branch: remult.user?.isManager
-                            ? { $id: remult.user.branch }
-                            : await remult.repo(Branch).find({
-                                where:
-                                {
-                                    active: true,
-                                    system: false,
-                                    group: this.group === BranchGroup.all
-                                        ? undefined!
-                                        : this.group
-                                }
-                            }),
-                        date: {
-                            "$gte": this.fdate,
-                            "$lte": this.tdate
-                        }
-                    }
-                })
-            }
-        })) {
-            let found = visitVolunteers.find(v => v.visitId === vv.visit.id)
-            if (!found) {
-                found = { visitId: vv.visit.id, volunteersNames: [] as string[] }
-                visitVolunteers.push(found)
-            }
-            if (!found.volunteersNames.includes(vv.volunteer.name)) {
-                found.volunteersNames.push(vv.volunteer.name)
-            }
-        }
+        // let visitVolunteers = [] as { visitId: string, volunteersNames: string[] }[]
+        // for await (const vv of remult.repo(VisitVolunteer).query({
+        //     where: {
+        //         visit: await remult.repo(Visit).find({
+        //             where: {
+        //                 $and: [
+        //                     this.actual
+        //                         ? {
+        //                             $or: [
+        //                                 { status: VisitStatus.delivered },
+        //                                 { status: VisitStatus.visited }
+        //                             ]
+        //                         }
+        //                         : {}
+        //                 ],
+        //                 branch: remult.user?.isManager
+        //                     ? { $id: remult.user.branch }
+        //                     : await remult.repo(Branch).find({
+        //                         where:
+        //                         {
+        //                             active: true,
+        //                             system: false,
+        //                             group: this.group === BranchGroup.all
+        //                                 ? undefined!
+        //                                 : this.group
+        //                         }
+        //                     }),
+        //                 date: {
+        //                     "$gte": this.fdate,
+        //                     "$lte": this.tdate
+        //                 }
+        //             }
+        //         })
+        //     }
+        // })) {
+        //     let found = visitVolunteers.find(v => v.visitId === vv.visit.id)
+        //     if (!found) {
+        //         found = { visitId: vv.visit.id, volunteersNames: [] as string[] }
+        //         visitVolunteers.push(found)
+        //     }
+        //     if (!found.volunteersNames.includes(vv.volunteer.name)) {
+        //         found.volunteersNames.push(vv.volunteer.name)
+        //     }
+        // }
 
         let weeksOrder = [] as { monthKey: string, month: string, weeks: { key: string, week: string }[] }[]
 
-        let branchWeek = [] as { key: string, volunteers: string[] }[]
-        let totalWeek = [] as { week: string, tt: number, tvol: number, td: number, tv: number }[]
+        let branchWeek = [] as { key: string /*, volunteers: string[]*/ }[]
+        let totalWeek = [] as { week: string, tt: number, tvol: number, td: number, tv: number, tpay: number }[]
 
         // build data
         for await (const v of remult.repo(Visit).query({
@@ -431,6 +434,8 @@ export class VisitController extends ControllerBase {
             orderBy: { branch: 'asc', date: "asc" }
         })) {
 
+            const tenantPayment = (v?.tenant?.payment ?? 0) / 4
+
             let month = `חודש ${hebrewMonths[v.date.getMonth()]}`
 
             // set monthsWeeks
@@ -454,6 +459,7 @@ export class VisitController extends ControllerBase {
                         totalVolunteers: number,
                         totalDelivered: number,
                         totalVisited: number,
+                        totalPayment: number,
                         weeksCounter: string[],
                         weeks: {
                             week: string,
@@ -469,6 +475,7 @@ export class VisitController extends ControllerBase {
                             totalTenants: number,
                             totalVolunteers: number,
                             totalDelivered: number,
+                            totalPayment: number,
                             totalVisited: number
                         }[]
                     }[]
@@ -485,6 +492,7 @@ export class VisitController extends ControllerBase {
                     totalVolunteers: 0,
                     totalDelivered: 0,
                     totalVisited: 0,
+                    totalPayment: 0,
                     weeksCounter: [] as string[],
                     weeks: [] as {
                         week: string,
@@ -500,6 +508,7 @@ export class VisitController extends ControllerBase {
                         totalTenants: number,
                         totalVolunteers: number,
                         totalDelivered: number,
+                        totalPayment: number,
                         totalVisited: number
                     }[]
                 }
@@ -535,46 +544,63 @@ export class VisitController extends ControllerBase {
                     totalTenants: 0,
                     totalVolunteers: 0,
                     totalDelivered: 0,
+                    totalPayment: 0,
                     totalVisited: 0
                 }
                 foundBranch.weeks.push(foundWeek)
                 foundBranch.weeksCounter.push(foundWeek.week)
             }
 
-            let f = visitVolunteers.find(vv => vv.visitId === v.id)
+            // let f = visitVolunteers.find(vv => vv.visitId === v.id)
 
-            let volunteers = f ? f.volunteersNames : []
-            foundBranch.totalTenants += 1
+            // let volunteers = f ? f.volunteersNames : []
+
+            let foundTenant = foundWeek.visits.find(itm => itm.tenant === v.tenant.name)
+            console.log('server:', foundTenant ?? 'NULL')
+            if (!foundTenant) {
+                foundBranch.totalTenants += 1
+                foundBranch.totalPayment += tenantPayment
+            }
+            console.log('server:', `{foundBranch.totalTenants: ${foundBranch.totalTenants}}`)
             foundBranch.totalDelivered += v.status === VisitStatus.delivered ? 1 : 0
             foundBranch.totalVisited += v.status === VisitStatus.visited ? 1 : 0
 
-            if (this.detailed) {
-                foundWeek.visits.push({
-                    tenant: v.tenant.name,
-                    tenantIdNumber: v.tenant.idNumber,
-                    payment: v.tenant.payment,
-                    tenantRemark: v.remark,
-                    volunteers: volunteers,
-                    delivered: v.status === VisitStatus.delivered ? 'כן' : '',
-                    visited: v.status === VisitStatus.visited ? 'כן' : ''
-                })
+            if (!foundTenant) {
+                foundWeek.totalTenants += 1
+                foundWeek.totalPayment += tenantPayment
             }
-            foundWeek.totalTenants += 1
             foundWeek.totalDelivered += v.status === VisitStatus.delivered ? 1 : 0
             foundWeek.totalVisited += v.status === VisitStatus.visited ? 1 : 0
+
+            if (this.detailed) {
+                if (!foundTenant) {
+                    foundTenant = {
+                        tenant: v.tenant.name,
+                        tenantIdNumber: v.tenant.idNumber,
+                        payment: tenantPayment,
+                        tenantRemark: v.remark,
+                        volunteers: [] as string[],// volunteers,
+                        delivered: '0',// v.status === VisitStatus.delivered ? 'כן' : '',
+                        visited: '0'//v.status === VisitStatus.visited ? 'כן' : ''
+                    }
+                    foundWeek.visits.push(foundTenant)
+                }
+                foundTenant.delivered = (parseInt(foundTenant.delivered) + (v.status === VisitStatus.delivered ? 1 : 0)) + ''//todo:
+                foundTenant.visited = (parseInt(foundTenant.visited) + (v.status === VisitStatus.visited ? 1 : 0)) + ''//?????
+            }
 
             let key = foundBranch.branch + '-' + foundWeek.week
             let fbw = branchWeek.find(bw => bw.key === key)
             if (!fbw) {
-                fbw = { key: key, volunteers: [] as string[] }
+                fbw = { key: key /*, volunteers: [] as string[]*/ }
                 branchWeek.push(fbw)
             }
-            for (const vol of volunteers) {
-                if (!fbw.volunteers.includes(vol)) {
-                    fbw.volunteers.push(vol)
-                    foundWeek.totalVolunteers += 1
-                }
-            }
+            // for (const vol of volunteers) {
+            //     if (!fbw.volunteers.includes(vol)) {
+            //         fbw.volunteers.push(vol)
+            //         foundWeek.totalVolunteers += 1
+            //     }
+            // }
         }// for each visit
 
         for (let mi = data.length - 1; mi >= 0; --mi) {
@@ -643,13 +669,15 @@ export class VisitController extends ControllerBase {
                 for (const w of b.weeks) {
                     let tw = totalWeek.find(ww => ww.week === w.week)
                     if (!tw) {
-                        tw = { week: w.week, tt: 0, tvol: 0, td: 0, tv: 0 }
+                        tw = { week: w.week, tt: 0, tvol: 0, td: 0, tv: 0, tpay: 0 }
                         totalWeek.push(tw)
                     }
                     tw.tt += w.totalTenants
                     tw.td += w.totalDelivered
                     tw.tv += w.totalVisited
                     tw.tvol += w.totalVolunteers
+                    tw.tpay += w.totalPayment
+                    console.log('server:', `{ w.totalTenants: ${w.totalTenants} }`)
                 }
             }
         }
@@ -695,7 +723,7 @@ export class VisitController extends ControllerBase {
                     if (!fw) {
                         fw = {
                             week: w.week,
-                            col: motiindex * 6 + 2,
+                            col: motiindex * fieldsCount + 2,
                             visits: w.visits.length
                         }
                         fb.weeks.push(fw)
@@ -764,9 +792,9 @@ export class VisitController extends ControllerBase {
                     aoa[fm.row + 1][fw.col + 2] = 'איחרו'
                     aoa[fm.row + 1][fw.col + 3] = 'נוכחו'
                     aoa[fm.row + 1][fw.col + 4] = 'הערות'
-                    if(remult.user)
-                    aoa[fm.row + 1][fw.col + 5] = 'תשלום'
-
+                    if (remult.user?.isAdmin || remult.user?.isDonor) {
+                        aoa[fm.row + 1][fw.col + 5] = 'תשלום'
+                    }
                     let tw = totalWeek.find(tw => tw.week === w.week)
                     if (tw) {
                         if (!remult.user?.isManager) {
@@ -774,13 +802,20 @@ export class VisitController extends ControllerBase {
                             // aoa[fm.row + 2][fw.col + 1] = tw.tvol.toString()
                             aoa[fm.row + 2][fw.col + 2] = tw.td.toString()
                             aoa[fm.row + 2][fw.col + 3] = tw.tv.toString()
+                            if (remult.user?.isAdmin || remult.user?.isDonor) {
+                                aoa[fm.row + 2][fw.col + 5] = tw.tpay.toString()// סה"כ כל שבוע
+                            }
                         }
                     }
 
                     aoa[fb.row][fw.col] = w.totalTenants.toString()
+                    console.log('server:', `{ w.totalTenants: ${w.totalTenants} }`)
                     // aoa[fb.row][fw.col + 1] = w.totalVolunteers.toString()
                     aoa[fb.row][fw.col + 2] = w.totalDelivered.toString()
                     aoa[fb.row][fw.col + 3] = w.totalVisited.toString()
+                    if (remult.user?.isAdmin || remult.user?.isDonor) {
+                        aoa[fb.row][fw.col + 5] = w.totalPayment.toString()// סה"כ כל כולל
+                    }
                     let rr = fb.row
                     for (const v of w.visits) {
                         rr += 1
@@ -794,7 +829,9 @@ export class VisitController extends ControllerBase {
                         aoa[rr][fw.col + 2] = v.delivered
                         aoa[rr][fw.col + 3] = v.visited
                         aoa[rr][fw.col + 4] = v.tenantRemark
-                        aoa[rr][fw.col + 5] = v.payment + ''
+                        if (remult.user?.isAdmin || remult.user?.isDonor) {
+                            aoa[rr][fw.col + 5] = v.payment + ''// סה"כ כל אברך
+                        }
                         // console.log('w.branch', b.branch, 'b.week', w.week, 'v.tenant', v.tenant, 'rr', rr, 'fw.row', fb.row, 'aoa.length', aoa.length)
                     }
                 }

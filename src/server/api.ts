@@ -43,9 +43,9 @@ export const api = remultExpress({
     //     return ui
     // },
     dataProvider: async () => {
-        if (process.env['NODE_ENV'] === "production")
+        // if (process.env['NODE_ENV'] === "production")
             return createPostgresConnection({ configuration: "heroku", sslInDev: !(process.env['DEV_MODE'] === 'DEV') })
-        return undefined;
+        // return undefined;
     },
     initApi: async remult => {
         try {

@@ -183,10 +183,10 @@ export class Tenant extends IdEntity {
     payNumber = ''
 
     @Fields.number<Tenant>({
-        caption: 'תשלום',
+        caption: 'תשלום חודשי בש"ח',
         validate: (row, col) => {
             if (!(+col?.value >= 100 ?? false)) {
-                col.error = 'מינימום תשלום ₪100'
+                col.error = 'מינימום ₪100'
             }
         },
         displayValue: (row, col) => col + '₪'

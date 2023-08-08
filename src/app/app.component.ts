@@ -14,7 +14,6 @@ import { SignInController } from './users/SignInController';
 import { User } from './users/user';
 import { UserMenuComponent } from './users/user-menu/user-menu.component';
 import { UserVolunteerThanksComponent } from './users/user-volunteer-thanks/user-volunteer-thanks.component';
-import { VisitsExportComponent } from './visits/visits-export/visits-export.component';
 import { VisitsFinishedMessagesComponent } from './visits/visits-finished-messages/visits-finished-messages.component';
 
 @Component({

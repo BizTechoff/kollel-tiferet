@@ -64,6 +64,7 @@ export class TenantComponent implements OnInit {
       this.tenant.active = true
       this.tenant.branch = await remult.repo(Branch).findId(remult.user!.branch)
       this.tenant.address = this.tenant.branch?.name
+      this.tenant.payment = this.tenant.branch?.payment ?? 0
     }
   }
 
