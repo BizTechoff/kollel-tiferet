@@ -13,6 +13,8 @@
       <img src="/assets/playground_assets/location1722-oo9.svg" alt="location1722" class="frame-location" />
       <span class="frame-text04"><span> {{ remult.user?.isAdmin?'':remult.user?.isDonor?'':'ראש כולל' }} {{
           remult.user?.branchName?.replace('כולל','') }} </span></span>
+      <!-- <span style="font-size: large; font-weight: bolder; background-color: transparent; color: white; stroke: rgba(38, 195, 234, 1); stroke-width: 5px;">{{
+          this.selectedDate | date:'dd/MM/yyyy' }}</span> -->
     </div>
     <!-- <img
         src="/assets/playground_assets/frame1724-4bvm.svg"
@@ -134,15 +136,15 @@
           </div>
         </div>
       </div> -->
-      <div style="display: flex; flex-direction: column;" (click)="this.rootmenu()">
-        <div>
-          <img src="/assets/Logo Colel Chabad.png" alt="Frame14430" class="chabad-colel-logo" />
-          <!-- <img src="/assets/playground_assets/chabadLogo.svg" alt="Frame14430" class="chabad-get-chessed-logo" /> -->
-        </div>
-        <div>
-          <img src="/assets/logo.ahavat.eliyau.svg" alt="Frame14430" class="ahavat-eliyau-logo" />
-        </div>
+    <div style="display: flex; flex-direction: column;" (click)="this.rootmenu()">
+      <div>
+        <img src="/assets/Logo Colel Chabad.png" alt="Frame14430" class="chabad-colel-logo" />
+        <!-- <img src="/assets/playground_assets/chabadLogo.svg" alt="Frame14430" class="chabad-get-chessed-logo" /> -->
       </div>
+      <div>
+        <img src="/assets/logo.ahavat.eliyau.svg" alt="Frame14430" class="ahavat-eliyau-logo" />
+      </div>
+    </div>
     <div class="frame-group3" (click)="this.ok()">
       <img src="/assets/playground_assets/rectangle11754-40re.svg" alt="Rectangle11754" class="frame-rectangle1" />
       <span class="frame-text06"><span>אישור</span></span>

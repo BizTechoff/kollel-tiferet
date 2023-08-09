@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { remult } from 'remult';
 import { RouteHelperService } from '../../common-ui-elements';
 import { UIToolsService } from '../../common/UIToolsService';
-import { firstDateOfWeek, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
+import { resetDateTime } from '../../common/dateFunc';
 import { uploader } from '../../common/uploader';
 import { terms } from '../../terms';
 import { User } from '../../users/user';
@@ -30,9 +30,11 @@ export class VisitComponent implements OnInit {
   vQuery = new VisitVolunteerController()
   page = 1
   volunteers = [] as VisitVolunteer[]
+  selectedDate = resetDateTime(new Date())
 
   args!: {
-    id: string//,
+    id: string,
+    date:Date
     // volId?: string
   }
   constructor(
@@ -51,9 +53,10 @@ export class VisitComponent implements OnInit {
 
     //console.log(`VisitComponent: { this.route.snapshot.paramMap: ${JSON.stringify(this.route.snapshot.paramMap)}}`)
     if (!this.args) {
-      this.args = { id: '' }
+      this.args = { id: '', date: new Date() }
     }
     this.args.id = this.route.snapshot.paramMap.get('id') ?? '';
+    this.args.date = new Date(this.route.snapshot.paramMap.get('date') ?? '');
     // this.args.volId = this.route.snapshot.paramMap.get('volId') ?? '';
     // this.args.fdate = resetDateTime(new Date(this.route.snapshot.paramMap.get('fdate') ?? ''));
     // this.args.tdate = resetDateTime(new Date(this.route.snapshot.paramMap.get('tdate') ?? ''));
@@ -64,9 +67,9 @@ export class VisitComponent implements OnInit {
   }
 
   async reload() {
-    let today = resetDateTime(new Date())
-    this.query.fdate = firstDateOfWeek(today)
-    this.query.tdate = lastDateOfWeek(today)
+    let today = resetDateTime(this.args.date)
+    this.query.fdate = today //firstDateOfWeek(today)
+    this.query.tdate = today //lastDateOfWeek(today)
     this.visits = await this.query.getVisits()
     this.visit = undefined!
     if (this.args.id?.trim().length) {

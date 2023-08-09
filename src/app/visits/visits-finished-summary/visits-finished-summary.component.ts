@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { remult } from 'remult';
 import { RouteHelperService } from '../../common-ui-elements';
-import { firstDateOfWeek, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
+import { resetDateTime } from '../../common/dateFunc';
 import { terms } from '../../terms';
 import { UserMenuComponent } from '../../users/user-menu/user-menu.component';
 import { VisitController } from '../visitController';
 import { VisitsChartComponent } from '../visits-chart/visits-chart.component';
 import { VisitsFinishedMessagesComponent } from '../visits-finished-messages/visits-finished-messages.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-visits-finished-summary',
@@ -16,9 +17,11 @@ import { VisitsFinishedMessagesComponent } from '../visits-finished-messages/vis
 export class VisitsFinishedSummaryComponent implements OnInit {
 
   query = new VisitController()
+  selectedDate!: Date
 
   constructor(
-    private routeHelper: RouteHelperService) {
+    private routeHelper: RouteHelperService,
+    private route: ActivatedRoute) {
   }
   terms = terms;
   remult = remult;
@@ -28,9 +31,9 @@ export class VisitsFinishedSummaryComponent implements OnInit {
 
 
   async ngOnInit(): Promise<void> {
-    let date = resetDateTime(new Date())
-    this.query.fdate = firstDateOfWeek(date)
-    this.query.tdate = lastDateOfWeek(date)
+    this.selectedDate = new Date(this.route.snapshot.paramMap.get('date') ?? '');
+    this.query.fdate = this.selectedDate// firstDateOfWeek(date)
+    this.query.tdate = this.selectedDate//lastDateOfWeek(date)
     this.count = await this.query.getWeeklyCounters()
     for (const c of this.count) {
       this.countSum.tenants += c.tenants

@@ -37,8 +37,17 @@
         <img src="/assets/playground_assets/line39147-70ol.svg" alt="Line39147" class="chart-line3" />
       </div>
       <div class="chart-title">
-        <span class="chart-text4"><span>מצב נוכחות</span></span>
+        <span class="chart-text4"><span>מצב נוכחות שבועי</span></span>
       </div>
+      <!-- <div style="display: flex; flex-direction: column; width: 100%;">
+        <span class="chart-text4"><span>מצב נוכחות</span></span>
+        <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+          <mat-icon (click)="this.nextDay()" style="color: blue;">add</mat-icon>
+          <span style="text-align: center; color: white; font-size: x-large;">{{ this.selectedDate | date:'dd/MM/yyyy'
+            }}</span>
+          <mat-icon (click)="this.prevDay()" style="color: blue;">remove</mat-icon>
+        </div>
+      </div> -->
       <img src="/assets/playground_assets/back9142-tm14.svg" alt="back9142" class="chart-back" (click)="this.back()" />
     </div>
     <div class="chart-data">

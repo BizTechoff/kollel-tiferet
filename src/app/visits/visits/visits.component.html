@@ -44,6 +44,10 @@
         </div>
       </div>
     </div>
+    <!-- <div style="display: flex; flex-direction: row; justify-content: center;">
+      <button mat-raised-button (click)="nextDay()">
+        <mat-icon>add</mat-icon>
+      </button> -->
     <div class="visits-nav">
       <div class="visits-search" (click)="this.search()">
         <!-- <mat-icon style="font-size:18px;height:20px">person</mat-icon> -->
@@ -55,13 +59,25 @@
         <img src="/assets/playground_assets/vector1915-5neih.svg" alt="Vector1915" class="visits-vector04" />
         <img src="/assets/playground_assets/vector1915-r5bg.svg" alt="Vector1915" class="visits-vector05" />
       </div> -->
-      <div class="visits-title">
-        <span class="visits-text04"><span>נוכחות</span></span>
-        <span class="visits-text06"><span>דיווחי</span></span>
+      <div style="display: flex; flex-direction: column; width: 100%;">
+        <div class="visits-title">
+          <span class="visits-text04"><span>נוכחות</span></span>
+          <span class="visits-text06"><span>דיווחי</span></span>
+        </div>
+        <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+          <mat-icon (click)="this.nextDay()" style="color: blue; padding-left: 35px;">add</mat-icon>
+          <data-control [field]="this.$.selectedDate" style="color: blue; font-size: large;"></data-control>
+          <!-- <span style="text-align: center; color: white;">{{ this.selectedDate | date:'dd/MM/yyyy' }}</span> -->
+          <mat-icon (click)="this.prevDay()" style="color: blue; padding-right: 15px;">remove</mat-icon>
+        </div>
+        <!-- <div>({{ this.selectedDay }})</div> -->
       </div>
       <img (click)="this.back()" src="/assets/playground_assets/back1915-xq3i.svg" alt="back1915" class="visits-back" />
     </div>
-
+    <!-- <button (click)="prevDay()">
+        <mat-icon style="background-color: transparent;">remove</mat-icon>
+      </button>
+    </div> -->
     <!-- <div class="visits-weekly-answer">
       <span class="visits-weekly-answer-text"><span>השאלה השבועית: {{ weeklyQuestion }}</span>
     </span>
@@ -74,22 +90,25 @@
         <div class="visits-cardtitle">
           <div *ngIf="v.tenant" class="visits-tenantnameaddress">
             <div style="display: flex;">
-            <span class="visits-text08"><span>{{ v.tenant.name }}</span></span>
-            <!-- <img [src]="this.isVisited(v)?'/assets/validated.svg':'/assets/unValidated.svg'" style="width: 15px; height: 15px;" /> -->
+              <span class="visits-text08"><span>{{ v.tenant.name }}</span></span>
+              <!-- <img [src]="this.isVisited(v)?'/assets/validated.svg':'/assets/unValidated.svg'" style="width: 15px; height: 15px;" /> -->
               <img *ngIf="this.isVisited(v)" src="/assets/validated.svg" style="width: 15px; height: 15px;" />
-              <img *ngIf="this.isDelivered(v)" src="/assets/playground_assets/late.png" style="width: 15px; height: 15px;" />
-          </div>
+              <img *ngIf="this.isDelivered(v)" src="/assets/playground_assets/late.png"
+                style="width: 15px; height: 15px;" />
+            </div>
             <div *ngIf="v.tenant.address" class="visits-address">
               <span class="visits-text10"><span>{{ v.tenant.address }}</span></span>
               <img src="/assets/playground_assets/location1915-msq3.svg" alt="location1915" class="visits-location1" />
             </div>
             <div *ngIf="v.tenant.mobile" class="visits-address">
               <span class="visits-text10"><span>{{ v.tenant.mobile }}</span></span>
-              <img style="cursor: pointer;" (click)="this.call($event, v.tenant.mobile)" src="/assets/playground_assets/call.svg" alt="location1915" class="visits-location1" />
+              <img style="cursor: pointer;" (click)="this.call($event, v.tenant.mobile)"
+                src="/assets/playground_assets/call.svg" alt="location1915" class="visits-location1" />
             </div>
             <div *ngIf="v.tenant.phone" class="visits-address">
               <span class="visits-text10"><span>{{ v.tenant.phone }}</span></span>
-              <img style="cursor: pointer;" (click)="this.call($event, v.tenant.phone)" src="/assets/playground_assets/call.svg" alt="location1915" class="visits-location1" />
+              <img style="cursor: pointer;" (click)="this.call($event, v.tenant.phone)"
+                src="/assets/playground_assets/call.svg" alt="location1915" class="visits-location1" />
             </div>
           </div>
           <div class="visits-tenantphoto">

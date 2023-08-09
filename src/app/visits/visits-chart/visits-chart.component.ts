@@ -117,6 +117,25 @@ export class VisitsChartComponent implements OnInit {
     }
   }
 
+
+  
+  // selectedDate = resetDateTime(new Date())
+
+  // async retrieve(days = 0) {
+  //   this.selectedDate = resetDateTime(this.selectedDate, days)
+  //   this.query.fdate = this.selectedDate // firstDateOfWeek(today)
+  //   this.query.tdate = this.selectedDate // lastDateOfWeek(today)
+  //   this.visits = await this.query.getVisits()
+  // }
+
+  // async prevDay() {
+  //   await this.retrieve(-1)
+  // }
+
+  // async nextDay() {
+  //   await this.retrieve(+1)
+  // }
+
   async retrieve() {
     this.pieChartDataStatuses = [] as SingleDataSet;
     this.pieChartLabelsStatuses = [] as Label[];
