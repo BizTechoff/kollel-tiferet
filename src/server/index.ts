@@ -17,7 +17,7 @@ config(); //loads the configuration from the .env file
 // SqlDatabase.LogToConsole = true 
 async function startup() {
 
-    console.log('kollel.startup')
+    console.log('kollel-tiferet.startup')
 
     const app = express();
     app.use(sslRedirect());

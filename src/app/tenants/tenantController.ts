@@ -43,7 +43,7 @@ export class TenantController extends ControllerBase {
 
     @BackendMethod({ allowed: Allow.authenticated })
     async getTenantById() {
-        console.log('server',this.id)
+        // console.log('server',this.id)
         return await this.remult!.repo(Tenant).findId(this.id, { useCache: false })
         // let result!: Tenant
         // if (id?.trim().length) {

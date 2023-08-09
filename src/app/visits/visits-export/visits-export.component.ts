@@ -67,7 +67,7 @@ export class VisitsExportComponent implements OnInit {
       }
     }
   }
-
+ 
   // @https://www.npmjs.com/package/xlsx
   async export() {
     if (await this.validate()) {

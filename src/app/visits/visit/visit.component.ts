@@ -129,9 +129,9 @@ export class VisitComponent implements OnInit {
         this.visit.status = VisitStatus.visited
         this.visit.statusModified = new Date()
       }
-      console.log('client:', 'before', `{ status: ${this.visit.status.id}, id: ${this.visit.id} }`)
+      // console.log('client:', 'before', `{ status: ${this.visit.status.id}, id: ${this.visit.id} }`)
       await remult.repo(Visit).save(this.visit)
-      console.log('client:', `{ status: ${this.visit.status.id} }`)
+      // console.log('client:', `{ status: ${this.visit.status.id} }`)
     }
   }
 

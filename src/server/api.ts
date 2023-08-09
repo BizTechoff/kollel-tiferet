@@ -41,11 +41,12 @@ export const api = remultExpress({
     //     let ui = request.session!['user']
     //     console.log('ui', JSON.stringify(ui))
     //     return ui
-    // },
+    // }, 
     dataProvider: async () => {
-        // if (process.env['NODE_ENV'] === "production")
+        let isProduction = (process.env['NODE_ENV'] ?? '') === 'production'
+        if (isProduction)
             return createPostgresConnection({ configuration: "heroku", sslInDev: !(process.env['DEV_MODE'] === 'DEV') })
-        // return undefined;
+        return undefined;
     },
     initApi: async remult => {
         try {

@@ -318,7 +318,7 @@ export class VisitController extends ControllerBase {
     @BackendMethod({ allowed: Allow.authenticated })
     async exportVisits() {
 
-        const fieldsCount = 10
+        const fieldsCount = remult.user?.isManager ? 6 : 11
         let data = [] as {
             month: string,
             branches: {
@@ -335,6 +335,7 @@ export class VisitController extends ControllerBase {
                     visits: {
                         tenant: string,
                         tenantIdNumber: string,
+                        paymentNumber: string,
                         paymentBank: string,
                         paymentBranch: string,
                         paymentAccount: string,
@@ -469,6 +470,7 @@ export class VisitController extends ControllerBase {
                             visits: {
                                 tenant: string,
                                 tenantIdNumber: string,
+                                paymentNumber: string,
                                 paymentBank: string,
                                 paymentBranch: string,
                                 paymentAccount: string,
@@ -505,6 +507,7 @@ export class VisitController extends ControllerBase {
                         visits: {
                             tenant: string,
                             tenantIdNumber: string,
+                            paymentNumber: string,
                             paymentBank: string,
                             paymentBranch: string,
                             paymentAccount: string,
@@ -544,6 +547,7 @@ export class VisitController extends ControllerBase {
                     visits: [] as {
                         tenant: string,
                         tenantIdNumber: string,
+                        paymentNumber: string,
                         paymentBank: string,
                         paymentBranch: string,
                         paymentAccount: string,
@@ -568,12 +572,12 @@ export class VisitController extends ControllerBase {
             // let volunteers = f ? f.volunteersNames : []
 
             let foundTenant = foundWeek.visits.find(itm => itm.tenant === v.tenant.name)
-            console.log('server:', foundTenant ?? 'NULL')
+            // console.log('server:', foundTenant ?? 'NULL')
             if (!foundTenant) {
                 foundBranch.totalTenants += 1
                 foundBranch.totalPayment += tenantPayment
             }
-            console.log('server:', `{foundBranch.totalTenants: ${foundBranch.totalTenants}}`)
+            // console.log('server:', `{foundBranch.totalTenants: ${foundBranch.totalTenants}}`)
             foundBranch.totalDelivered += v.status === VisitStatus.delivered ? 1 : 0
             foundBranch.totalVisited += v.status === VisitStatus.visited ? 1 : 0
 
@@ -589,6 +593,7 @@ export class VisitController extends ControllerBase {
                     foundTenant = {
                         tenant: v.tenant.name,
                         tenantIdNumber: v.tenant.idNumber,
+                        paymentNumber: v.tenant.payNumber,
                         paymentBank: v.tenant.payBank,
                         paymentBranch: v.tenant.payBranch,
                         paymentAccount: v.tenant.payAccount,
@@ -692,7 +697,7 @@ export class VisitController extends ControllerBase {
                     tw.tv += w.totalVisited
                     tw.tvol += w.totalVolunteers
                     tw.tpay += w.totalPayment
-                    console.log('server:', `{ w.totalTenants: ${w.totalTenants} }`)
+                    // console.log('server:', `{ w.totalTenants: ${w.totalTenants} }`)
                 }
             }
         }
@@ -808,10 +813,11 @@ export class VisitController extends ControllerBase {
                     aoa[fm.row + 1][fw.col + 3] = 'נוכחו'
                     aoa[fm.row + 1][fw.col + 4] = 'הערות'
                     if (remult.user?.isAdmin || remult.user?.isDonor) {
-                        aoa[fm.row + 1][fw.col + 5] = 'בנק'
-                        aoa[fm.row + 1][fw.col + 6] = 'סניף'
-                        aoa[fm.row + 1][fw.col + 7] = 'חשבון'
-                        aoa[fm.row + 1][fw.col + 8] = 'תשלום'
+                        aoa[fm.row + 1][fw.col + 5] = 'מספר משלם'
+                        aoa[fm.row + 1][fw.col + 6] = 'בנק'
+                        aoa[fm.row + 1][fw.col + 7] = 'סניף'
+                        aoa[fm.row + 1][fw.col + 8] = 'חשבון'
+                        aoa[fm.row + 1][fw.col + 9] = 'תשלום'
                     }
                     let tw = totalWeek.find(tw => tw.week === w.week)
                     if (tw) {
@@ -821,18 +827,18 @@ export class VisitController extends ControllerBase {
                             aoa[fm.row + 2][fw.col + 2] = tw.td.toString()
                             aoa[fm.row + 2][fw.col + 3] = tw.tv.toString()
                             if (remult.user?.isAdmin || remult.user?.isDonor) {
-                                aoa[fm.row + 2][fw.col + 8] = tw.tpay.toString()// סה"כ כל שבוע
+                                aoa[fm.row + 2][fw.col + 9] = tw.tpay.toString()// סה"כ כל שבוע
                             }
                         }
                     }
 
                     aoa[fb.row][fw.col] = w.totalTenants.toString()
-                    console.log('server:', `{ w.totalTenants: ${w.totalTenants} }`)
+                    // console.log('server:', `{ w.totalTenants: ${w.totalTenants} }`)
                     // aoa[fb.row][fw.col + 1] = w.totalVolunteers.toString()
                     aoa[fb.row][fw.col + 2] = w.totalDelivered.toString()
                     aoa[fb.row][fw.col + 3] = w.totalVisited.toString()
                     if (remult.user?.isAdmin || remult.user?.isDonor) {
-                        aoa[fb.row][fw.col + 8] = w.totalPayment.toString()// סה"כ כל כולל
+                        aoa[fb.row][fw.col + 9] = w.totalPayment.toString()// סה"כ כל כולל
                         // aoa[fb.row][fw.col + 6] = w.totalPayment.toString()// סה"כ כל כולל
                         // aoa[fb.row][fw.col + 7] = w.totalPayment.toString()// סה"כ כל כולל
                         // aoa[fb.row][fw.col + 8] = w.totalPayment.toString()// סה"כ כל כולל
@@ -851,10 +857,11 @@ export class VisitController extends ControllerBase {
                         aoa[rr][fw.col + 3] = v.visited
                         aoa[rr][fw.col + 4] = v.tenantRemark
                         if (remult.user?.isAdmin || remult.user?.isDonor) {
-                            aoa[rr][fw.col + 5] = v.paymentBank + ''// סה"כ כל אברך
-                            aoa[rr][fw.col + 6] = v.paymentBranch + ''// סה"כ כל אברך
-                            aoa[rr][fw.col + 7] = v.paymentAccount + ''// סה"כ כל אברך
-                            aoa[rr][fw.col + 8] = v.payment + ''// סה"כ כל אברך
+                            aoa[rr][fw.col + 5] = v.paymentNumber + ''// סה"כ כל אברך
+                            aoa[rr][fw.col + 6] = v.paymentBank + ''// סה"כ כל אברך
+                            aoa[rr][fw.col + 7] = v.paymentBranch + ''// סה"כ כל אברך
+                            aoa[rr][fw.col + 8] = v.paymentAccount + ''// סה"כ כל אברך
+                            aoa[rr][fw.col + 9] = v.payment + ''// סה"כ כל אברך
                         }
                         // console.log('w.branch', b.branch, 'b.week', w.week, 'v.tenant', v.tenant, 'rr', rr, 'fw.row', fb.row, 'aoa.length', aoa.length)
                     }
