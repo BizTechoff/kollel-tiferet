@@ -4,7 +4,7 @@ import * as xlsx from 'xlsx';
 import { BranchGroup } from '../../branches/branchGroup';
 import { RouteHelperService } from '../../common-ui-elements';
 import { UIToolsService } from '../../common/UIToolsService';
-import { addDaysToDate, dateDiff, firstDateOfWeek, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
+import { addDaysToDate, dateDiff, firstDateOfMonth, firstDateOfWeek, lastDateOfMonth, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
 import { terms } from '../../terms';
 import { UserMenuComponent } from '../../users/user-menu/user-menu.component';
 import { VisitController } from '../visitController';
@@ -39,12 +39,18 @@ export class VisitsExportComponent implements OnInit {
     // Prevent Saturday and Sunday from being selected.
     return day === 4
   }
-
+  monthly = false
   ngOnInit(): void {
     remult.user!.lastComponent = VisitsExportComponent.name
     let today = resetDateTime(new Date())
     this.query.fdate = firstDateOfWeek(today)
+    if (this.monthly) {
+      this.query.fdate = firstDateOfMonth(today)
+    }
     this.query.tdate = lastDateOfWeek(today)
+    if (this.monthly) {
+      this.query.tdate = lastDateOfMonth(today)
+    }
     this.query.detailed = remult.user?.isManager ?? false
     this.query.type = ExportType.all
     this.query.actual = remult.user?.isAdmin ?? false
@@ -67,7 +73,7 @@ export class VisitsExportComponent implements OnInit {
       }
     }
   }
- 
+
   // @https://www.npmjs.com/package/xlsx
   async export() {
     if (await this.validate()) {
@@ -107,12 +113,18 @@ export class VisitsExportComponent implements OnInit {
       // return false
     }
     this.query.fdate = firstDateOfWeek(this.query.fdate)
+    if(this.monthly){
+      this.query.fdate = firstDateOfMonth(this.query.fdate)
+    }
     if (!this.query.tdate) {
       this.query.tdate = this.query.fdate
     }
     this.query.tdate = lastDateOfWeek(this.query.tdate)
     if (this.query.tdate < this.query.fdate) {
       this.query.tdate = lastDateOfWeek(this.query.fdate)
+    }
+    if(this.monthly){
+      this.query.tdate = lastDateOfMonth(this.query.fdate)
     }
     let sevenWeeks = 7 * 7 - 1
     if (dateDiff(this.query.fdate, this.query.tdate) > sevenWeeks) {
@@ -122,6 +134,9 @@ export class VisitsExportComponent implements OnInit {
       }
       this.query.fdate = firstDateOfWeek(
         addDaysToDate(this.query.tdate, -sevenWeeks))
+    }
+    if(this.monthly){
+      this.query.fdate = firstDateOfMonth(this.query.fdate)
     }
     if (![ExportType.all, ExportType.doneAndNotDone].includes(this.query.type)) {
       this.query.actual = false

@@ -345,6 +345,7 @@ export class VisitController extends ControllerBase {
                         delivered: string,
                         visited: string
                     }[],
+                    tenantsNames: string[],
                     totalTenants: number,
                     totalVolunteers: number,
                     totalPayment: number,
@@ -480,6 +481,7 @@ export class VisitController extends ControllerBase {
                                 delivered: string,
                                 visited: string
                             }[],
+                            tenantsNames: string[],
                             totalTenants: number,
                             totalVolunteers: number,
                             totalDelivered: number,
@@ -517,6 +519,7 @@ export class VisitController extends ControllerBase {
                             delivered: string,
                             visited: string
                         }[],
+                        tenantsNames: string[],
                         totalTenants: number,
                         totalVolunteers: number,
                         totalDelivered: number,
@@ -557,6 +560,7 @@ export class VisitController extends ControllerBase {
                         delivered: string,
                         visited: string
                     }[],
+                    tenantsNames: [] as string[],
                     totalTenants: 0,
                     totalVolunteers: 0,
                     totalDelivered: 0,
@@ -571,9 +575,10 @@ export class VisitController extends ControllerBase {
 
             // let volunteers = f ? f.volunteersNames : []
 
-            let foundTenant = foundWeek.visits.find(itm => itm.tenant === v.tenant.name)
+            let foundTenantName = foundWeek.tenantsNames.find(itm => itm === v.tenant.name)
             // console.log('server:', foundTenant ?? 'NULL')
-            if (!foundTenant) {
+            if (!foundTenantName) {
+                foundWeek.tenantsNames.push(v.tenant.name)
                 foundBranch.totalTenants += 1
                 foundBranch.totalPayment += tenantPayment
             }
@@ -581,7 +586,7 @@ export class VisitController extends ControllerBase {
             foundBranch.totalDelivered += v.status === VisitStatus.delivered ? 1 : 0
             foundBranch.totalVisited += v.status === VisitStatus.visited ? 1 : 0
 
-            if (!foundTenant) {
+            if (!foundTenantName) {
                 foundWeek.totalTenants += 1
                 foundWeek.totalPayment += tenantPayment
             }
@@ -589,24 +594,27 @@ export class VisitController extends ControllerBase {
             foundWeek.totalVisited += v.status === VisitStatus.visited ? 1 : 0
 
             if (this.detailed) {
-                if (!foundTenant) {
-                    foundTenant = {
-                        tenant: v.tenant.name,
-                        tenantIdNumber: v.tenant.idNumber,
-                        paymentNumber: v.tenant.payNumber,
-                        paymentBank: v.tenant.payBank,
-                        paymentBranch: v.tenant.payBranch,
-                        paymentAccount: v.tenant.payAccount,
-                        payment: tenantPayment,
-                        tenantRemark: v.remark,
-                        volunteers: [] as string[],// volunteers,
-                        delivered: '0',// v.status === VisitStatus.delivered ? 'כן' : '',
-                        visited: '0'//v.status === VisitStatus.visited ? 'כן' : ''
+                if (!foundTenantName) {
+                    let foundTenant = foundWeek.visits.find(itm => itm.tenant === v.tenant.name)
+                    if (!foundTenant) {
+                        foundTenant = {
+                            tenant: v.tenant.name,
+                            tenantIdNumber: v.tenant.idNumber,
+                            paymentNumber: v.tenant.payNumber,
+                            paymentBank: v.tenant.payBank,
+                            paymentBranch: v.tenant.payBranch,
+                            paymentAccount: v.tenant.payAccount,
+                            payment: tenantPayment,
+                            tenantRemark: v.remark,
+                            volunteers: [] as string[],// volunteers,
+                            delivered: '0',// v.status === VisitStatus.delivered ? 'כן' : '',
+                            visited: '0'//v.status === VisitStatus.visited ? 'כן' : ''
+                        }
+                        foundWeek.visits.push(foundTenant)
                     }
-                    foundWeek.visits.push(foundTenant)
+                    foundTenant.delivered = (parseInt(foundTenant.delivered) + (v.status === VisitStatus.delivered ? 1 : 0)) + ''//todo:
+                    foundTenant.visited = (parseInt(foundTenant.visited) + (v.status === VisitStatus.visited ? 1 : 0)) + ''//?????
                 }
-                foundTenant.delivered = (parseInt(foundTenant.delivered) + (v.status === VisitStatus.delivered ? 1 : 0)) + ''//todo:
-                foundTenant.visited = (parseInt(foundTenant.visited) + (v.status === VisitStatus.visited ? 1 : 0)) + ''//?????
             }
 
             let key = foundBranch.branch + '-' + foundWeek.week
