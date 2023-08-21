@@ -59,12 +59,14 @@
 
     <div class="visits-cards">
       <div class="visits-cardtitle-totals">
-        <span *ngIf="!(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09">סה"כ
-          <span [style.font-size]="this.presentsCount()?'x-large':''">{{ this.presentsCount() }}</span> נוכחים מתוך
-          <span [style.font-size]="this.totalCount()?'x-large':''">{{ this.totalCount() }}</span> אברכים</span>
-        <span *ngIf="(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09"
-          style="font-size: x-large;">כל {{ this.totalCount()}} האברכים נוכחים</span>
-        <!-- <span class="visits-text09">סה"כ מתנדבים: {{ totals.volunteers }}</span> -->
+        <div *ngIf="(this.totalCount())">
+          <span *ngIf="!(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09">סה"כ
+            <span [style.font-size]="this.presentsCount()?'x-large':''">{{ this.presentsCount() }}</span> נוכחים מתוך
+            <span [style.font-size]="this.totalCount()?'x-large':''">{{ this.totalCount() }}</span> אברכים</span>
+          <span *ngIf="(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09"
+            style="font-size: x-large;">כל {{ this.totalCount()}} האברכים נוכחים</span>
+        </div>
+          <span *ngIf="(!this.totalCount())" class="visits-text09" style="font-size: large;"> {{ 'אין רשומות דיווח לתאריך זה' }} </span>
       </div>
       <div class="visits-cardcontent" *ngFor="let v of this.visits" (click)="this.edit(v.id)"
         [style.borderColor]="this.isNone(v)?  'rgba(227, 172, 120, 1)':'green'"

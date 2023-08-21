@@ -107,7 +107,7 @@ export class VisitComponent implements OnInit {
 
   async delivered() {
     if (this.visit) {
-      if (this.visit.status === VisitStatus.delivered) {
+      if (this.isDelivered()) {
         this.visit.status = VisitStatus.none
         this.visit.statusModified = undefined!
       }
@@ -122,7 +122,7 @@ export class VisitComponent implements OnInit {
 
   onStatusChanged() {
     let payment = 0
-    if ([VisitStatus.delivered.id, VisitStatus.visited.id].includes(this.visit.status.id)) {
+    if (this.isDelivered() || this.isVisited()) {
       payment =
         this.visit.tenant?.payment ?? this.visit.branch?.payment ?? 99999
     }
@@ -135,7 +135,7 @@ export class VisitComponent implements OnInit {
 
   async visited() {
     if (this.visit) {
-      if (this.visit.status === VisitStatus.visited) {
+      if (this.isVisited()) {
         this.visit.status = VisitStatus.none
         this.visit.statusModified = undefined!
       }
