@@ -30,7 +30,7 @@ export class BranchGroupComponent implements OnInit {
   BranchGroup = BranchGroup
 
   ngOnInit(): void {
-    console.log(`invert: ${this.invert}`)
+    // console.log(`invert: ${this.invert}`)
   }
   $ = getFields(this)
 

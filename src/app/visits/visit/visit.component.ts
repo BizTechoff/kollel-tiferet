@@ -109,12 +109,24 @@ export class VisitComponent implements OnInit {
     if (this.visit) {
       if (this.visit.status === VisitStatus.delivered) {
         this.visit.status = VisitStatus.none
+        this.visit.statusModified = undefined!
       }
       else {
         this.visit.status = VisitStatus.delivered
+        this.visit.statusModified = new Date()
       }
+      this.onStatusChanged()
       await remult.repo(Visit).save(this.visit)
     }
+  }
+
+  onStatusChanged() {
+    let payment = 0
+    if ([VisitStatus.delivered, VisitStatus.visited].includes(this.visit.status)) {
+      payment =
+        this.visit.tenant?.payment ?? this.visit.branch?.payment ?? 99999
+    }
+    this.visit.payment = payment
   }
 
   isVisited() {
@@ -131,6 +143,7 @@ export class VisitComponent implements OnInit {
         this.visit.status = VisitStatus.visited
         this.visit.statusModified = new Date()
       }
+      this.onStatusChanged()
       // console.log('client:', 'before', `{ status: ${this.visit.status.id}, id: ${this.visit.id} }`)
       await remult.repo(Visit).save(this.visit)
       // console.log('client:', `{ status: ${this.visit.status.id} }`)

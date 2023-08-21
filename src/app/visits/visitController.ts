@@ -2,7 +2,7 @@ import { Allow, BackendMethod, Controller, ControllerBase, Field, Fields, remult
 import { Branch } from "../branches/branch";
 import { BranchGroup } from "../branches/branchGroup";
 import { DataControl } from "../common-ui-elements/interfaces";
-import { firstDateOfWeek, lastDateOfWeek, resetDateTime } from "../common/dateFunc";
+import { dateDiff, firstDateOfWeek, lastDateOfWeek, resetDateTime } from "../common/dateFunc";
 import { Tenant } from "../tenants/tenant";
 import { Roles } from "../users/roles";
 import { Visit } from "./visit";
@@ -316,7 +316,7 @@ export class VisitController extends ControllerBase {
     }
 
     @BackendMethod({ allowed: Allow.authenticated })
-    async exportVisits() {
+    async exportVisits1() {
 
         const fieldsCount = remult.user?.isManager ? 6 : 11
         let data = [] as {
@@ -329,7 +329,6 @@ export class VisitController extends ControllerBase {
                 totalVisited: number,
                 totalPayment: number,
                 weeksCounter: string[],
-                // deletedWeeks: [],//???????????????????????????????????????????????????
                 weeks: {
                     week: string,
                     visits: {
@@ -354,6 +353,8 @@ export class VisitController extends ControllerBase {
                 }[]
             }[]
         }[]
+
+        // deletedWeeks: [],//???????????????????????????????????????????????????
 
         // build visits-volunteers
         // let visitVolunteers = [] as { visitId: string, volunteersNames: string[] }[]
@@ -439,7 +440,8 @@ export class VisitController extends ControllerBase {
             orderBy: { branch: 'asc', date: "asc" }
         })) {
 
-            const tenantPayment = (v?.tenant?.payment ?? 0) / 4
+            const tenantPayment = (v?.payment ?? 0) / 4
+            //( (v?.payment ?? 0) ?? (v?.tenant?.payment ?? 0)) / 4
 
             let month = `חודש ${hebrewMonths[v.date.getMonth()]}`
 
@@ -530,10 +532,16 @@ export class VisitController extends ControllerBase {
                 foundMonth.branches.push(foundBranch)
             }
 
-            let first = firstDateOfWeek(v.date)
-            let last = lastDateOfWeek(v.date)
+            let first = firstDateOfWeek(v.date, true)
+            let last = lastDateOfWeek(v.date, true)
             let week = `שבוע ${first.getDate()}-${last.getDate()}.${last.getMonth() + 1}`
-
+            let days = 1 + dateDiff(first, last)
+            if (days < 7) {
+                week += ` (סה"כ ${days} ימים)`
+            }
+            else {
+                week += ` (מלא)`
+            }
             let motib = motiw.weeks.find(itm => itm.week === week)
             if (!motib) {
                 motib = {
@@ -873,6 +881,406 @@ export class VisitController extends ControllerBase {
                         }
                         // console.log('w.branch', b.branch, 'b.week', w.week, 'v.tenant', v.tenant, 'rr', rr, 'fw.row', fb.row, 'aoa.length', aoa.length)
                     }
+                }
+            }
+        }
+
+        return aoa
+    }
+
+    @BackendMethod({ allowed: Allow.authenticated })
+    async exportVisits(montly = true) {
+
+        const fieldsCount = remult.user?.isManager ? 6 : 11
+        let data = [] as {
+            month: string,
+            branches: {
+                branch: string,
+                tenantsNames: string[],
+                totalTenants: number,
+                totalVolunteers: number,
+                totalDelivered: number,
+                totalVisited: number,
+                totalPayment: number,
+                visits: {
+                    tenant: string,
+                    tenantIdNumber: string,
+                    paymentNumber: string,
+                    paymentBank: string,
+                    paymentBranch: string,
+                    paymentAccount: string,
+                    payment: number,
+                    tenantRemark: string,
+                    volunteers: string[],
+                    delivered: string,
+                    visited: string
+                }[],
+            }[],
+            totalTenants: number,
+            totalVolunteers: number,
+            totalDelivered: number,
+            totalVisited: number,
+            totalPayment: number,
+        }[]
+
+        let weeksOrder = [] as { monthKey: string, month: string, weeks: { key: string, week: string }[] }[]
+        let branchWeek = [] as { key: string /*, volunteers: string[]*/ }[]
+        let totalWeek = [] as { week: string, tt: number, tvol: number, td: number, tv: number,/*payBank: string,payBranch: string,payAccount: string,*/    tpay: number }[]
+
+        // build data
+        for await (const v of remult.repo(Visit).query({
+            where: {
+                $and: [
+                    this.actual
+                        ? {
+                            $or: [
+                                { status: VisitStatus.delivered },
+                                { status: VisitStatus.visited }
+                            ]
+                        }
+                        : {}
+                ],
+                branch: remult.user?.isManager
+                    ? { $id: remult.user.branch }
+                    : await remult.repo(Branch).find({
+                        where:
+                        {
+                            active: true,
+                            system: false,
+                            group: this.group === BranchGroup.all
+                                ? undefined!
+                                : this.group
+                        }
+                    }),
+                date: {
+                    "$gte": this.fdate,
+                    "$lte": this.tdate
+                }
+            },
+            orderBy: { branch: 'asc', date: "asc" }
+        })) {
+
+            const tenantPayment = v.tenant?.payment ?? 0
+            // v?.payment ??
+            // v.tenant?.payment ??
+            // v.branch?.payment ??
+            // 0
+            //( (v?.payment ?? 0) ?? (v?.tenant?.payment ?? 0)) / 4
+
+            // let month = `חודש ${hebrewMonths[v.date.getMonth()]} (${'22'} יום)`
+            let month = `חודש ${hebrewMonths[v.date.getMonth()]}`
+            let foundMonth = data.find(d => d.month === month)
+            if (!foundMonth) {
+                foundMonth = {
+                    month: month,
+                    branches: [] as {
+                        tenantsNames: string[],
+                        branch: string,
+                        totalTenants: number,
+                        totalVolunteers: number,
+                        totalDelivered: number,
+                        totalVisited: number,
+                        totalPayment: number,
+                        visits: {
+                            tenant: string,
+                            tenantIdNumber: string,
+                            paymentNumber: string,
+                            paymentBank: string,
+                            paymentBranch: string,
+                            paymentAccount: string,
+                            payment: number,
+                            tenantRemark: string,
+                            volunteers: string[],
+                            delivered: string,
+                            visited: string
+                        }[],
+                    }[],
+                    totalTenants: 0,
+                    totalVolunteers: 0,
+                    totalDelivered: 0,
+                    totalVisited: 0,
+                    totalPayment: 0
+                }
+                data.push(foundMonth)
+            }
+
+            let branch = v.branch!.name
+            let foundBranch = foundMonth.branches.find(b => b.branch === branch)
+            if (!foundBranch) {
+                foundBranch = {
+                    tenantsNames: [] as string[],
+                    branch: branch,
+                    totalTenants: 0,
+                    totalVolunteers: 0,
+                    totalDelivered: 0,
+                    totalVisited: 0,
+                    totalPayment: 0,
+                    visits: [] as {
+                        tenant: string,
+                        tenantIdNumber: string,
+                        paymentNumber: string,
+                        paymentBank: string,
+                        paymentBranch: string,
+                        paymentAccount: string,
+                        payment: number,
+                        tenantRemark: string,
+                        volunteers: string[],
+                        delivered: string,
+                        visited: string
+                    }[],
+                }
+                foundMonth.branches.push(foundBranch)
+            }
+
+
+
+            let foundTenantName = foundBranch.tenantsNames.find(itm => itm === v.tenant.name)
+            // console.log('server:', foundTenant ?? 'NULL')
+            if (!foundTenantName) {
+                foundBranch.tenantsNames.push(v.tenant.name)
+                foundBranch.totalTenants += 1
+                foundBranch.totalPayment += tenantPayment
+
+                foundMonth.totalTenants += 1
+                foundMonth.totalPayment += tenantPayment
+            }
+            // console.log('server:', `{foundBranch.totalTenants: ${foundBranch.totalTenants}}`)
+            foundBranch.totalDelivered += v.status === VisitStatus.delivered ? 1 : 0
+            foundBranch.totalVisited += v.status === VisitStatus.visited ? 1 : 0
+
+            foundMonth.totalDelivered += v.status === VisitStatus.delivered ? 1 : 0
+            foundMonth.totalVisited += v.status === VisitStatus.visited ? 1 : 0
+
+            if (this.detailed) {
+                if (!foundTenantName) {
+                    let foundTenant = foundBranch.visits.find(itm => itm.tenant === v.tenant.name)
+                    if (!foundTenant) {
+                        foundTenant = {
+                            tenant: v.tenant.name,
+                            tenantIdNumber: v.tenant.idNumber,
+                            paymentNumber: v.tenant.payNumber,
+                            paymentBank: v.tenant.payBank,
+                            paymentBranch: v.tenant.payBranch,
+                            paymentAccount: v.tenant.payAccount,
+                            payment: tenantPayment,
+                            tenantRemark: v.remark,
+                            volunteers: [] as string[],// volunteers,
+                            delivered: '0',// v.status === VisitStatus.delivered ? 'כן' : '',
+                            visited: '0'//v.status === VisitStatus.visited ? 'כן' : ''
+                        }
+                        foundBranch.visits.push(foundTenant)
+                    }
+                    foundTenant.delivered = (parseInt(foundTenant.delivered) + (v.status === VisitStatus.delivered ? 1 : 0)) + ''//todo:
+                    foundTenant.visited = (parseInt(foundTenant.visited) + (v.status === VisitStatus.visited ? 1 : 0)) + ''//?????
+                }
+            }
+
+        }// for each visit
+
+        for (let mi = data.length - 1; mi >= 0; --mi) {
+            const m = data[mi];
+            for (let bi = m.branches.length - 1; bi >= 0; --bi) {
+                const b = m.branches[bi];
+                switch (this.type) {
+
+                    case ExportType.done: {
+                        if (b.totalDelivered + b.totalVisited === b.totalTenants) { }
+                        else {
+                            m.branches.splice(bi, 1)
+                        }
+                        break;
+                    }
+
+                    case ExportType.doneAndNotDone: {
+                        if (b.totalDelivered + b.totalVisited) { }
+                        else {
+                            m.branches.splice(bi, 1)
+                        }
+                        break;
+                    }
+
+                    case ExportType.notDone: {
+                        if (b.totalDelivered + b.totalVisited === 0) { }
+                        else {
+                            m.branches.splice(bi, 1)
+                        }
+                        break;
+
+                    }
+                }
+            }
+        }
+
+        weeksOrder.sort((a, b) => a.monthKey.localeCompare(b.monthKey))
+        for (const motic of weeksOrder) {
+            motic.weeks.sort((a, b) => a.key.localeCompare(b.key))
+        }
+
+        // build indexes
+        let indexes = [] as { month: string, row: number, branches: { branch: string, row: number, weeks: { week: string, col: number, visits: number }[] }[] }[]
+        let r = 0
+
+        for (const m of data) {
+            r += 2
+            let fm = indexes.find(mm => mm.month === m.month)
+            if (!fm) {
+                fm = {
+                    month: m.month,
+                    row: r,
+                    branches: [] as { branch: string, row: number, weeks: { week: string, col: number, visits: number }[] }[]
+                }
+                indexes.push(fm)
+            }
+            r += 2
+            for (const b of m.branches) {
+                r += 2
+                let fb = fm.branches.find(bb => bb.branch === b.branch)
+                if (!fb) {
+                    fb = {
+                        branch: b.branch,
+                        row: r,
+                        weeks: [] as { week: string, col: number, visits: number }[]
+                    }
+                    fm.branches.push(fb)
+                }
+
+                // let maxVisits = 0
+                // let weeks = 0;
+                // for (const v of b.visits) {
+                //     let www = b.visits.indexOf(v)
+
+                //     let wwwww = weeksOrder.find(itm => itm.month === m.month)
+                //     let motiwwww = wwwww?.weeks.find(itm => itm.week === v.week)!
+                //     let motiindex = wwwww?.weeks.indexOf(motiwwww)!
+
+                //     let fw = fb.weeks.find(ww => ww.week === v.week)
+                //     if (!fw) {
+                //         fw = {
+                //             week: v.week,
+                //             col: motiindex * fieldsCount + 2,
+                //             visits: v.visits.length
+                //         }
+                //         fb.weeks.push(fw)
+                //     }
+
+                //     if (maxVisits < fw.visits) {
+                //         maxVisits = fw.visits
+                //     }
+
+                // }
+                // r += maxVisits
+            }
+        }
+
+        for (const m of data) {
+            m.branches.sort((a, b) => a.branch.localeCompare(b.branch))
+            for (const b of m.branches) {
+                b.visits.sort((a, b) => a.tenant.localeCompare(b.tenant))
+            }
+        }
+
+        let aoa = [] as string[][]
+        aoa[0] = [] as string[]
+        aoa[0][0] = 'בס"ד'
+        if (this.type !== ExportType.all) {
+            aoa[0][2] = this.type.caption
+        }
+
+        // build table data+indexes
+        let c = 0
+        for (const m of data) {
+            let fm = indexes.find(mm => mm.month === m.month)!
+            if (!aoa[fm.row]) {
+                aoa[fm.row] = [] as string[]
+            }
+            aoa[fm.row][0] = m.month
+            if (!aoa[fm.row + 1]) {
+                aoa[fm.row + 1] = [] as string[]
+            }
+            aoa[fm.row + 1][0] = 'כולל'
+            if (!remult.user?.isManager) {
+                if (!aoa[fm.row + 2]) {
+                    aoa[fm.row + 2] = [] as string[]
+                }
+
+                aoa[fm.row + 2][0] = 'סה"כ' + ' ' + '(' + m.branches.length + ')'
+                r = fm.row + 2
+            }
+
+            let startCol = 2
+            aoa[fm.row + 1][startCol] = this.group.single
+            aoa[fm.row + 1][startCol + 1] = 'ת.ז'
+            aoa[fm.row + 1][startCol + 2] = 'איחרו'
+            aoa[fm.row + 1][startCol + 3] = 'נוכחו'
+            aoa[fm.row + 1][startCol + 4] = 'הערות'
+            if (remult.user?.isAdmin || remult.user?.isDonor) {
+                aoa[fm.row + 1][startCol + 5] = 'מספר משלם'
+                aoa[fm.row + 1][startCol + 6] = 'בנק'
+                aoa[fm.row + 1][startCol + 7] = 'סניף'
+                aoa[fm.row + 1][startCol + 8] = 'חשבון'
+                aoa[fm.row + 1][startCol + 9] = 'תשלום'
+            }
+
+            if (remult.user?.isAdmin || remult.user?.isDonor) {
+                if (!aoa[fm.row + 2]) {
+                    aoa[fm.row + 2] = [] as string[]
+                }
+
+                aoa[fm.row + 2][startCol] = m.totalTenants.toString()
+                // aoa[fm.row + 2][startCol + 1] = 'ת.ז'
+                aoa[fm.row + 2][startCol + 2] = m.totalDelivered.toString()
+                aoa[fm.row + 2][startCol + 3] = m.totalVisited.toString()
+                // aoa[fm.row + 2][startCol + 4] = 'הערות'
+                // aoa[fm.row + 2][startCol + 5] = 'מספר משלם'
+                // aoa[fm.row + 2][startCol + 6] = 'בנק'
+                // aoa[fm.row + 2][startCol + 7] = 'סניף'
+                // aoa[fm.row + 2][startCol + 8] = 'חשבון'
+                aoa[fm.row + 2][startCol + 9] = m.totalPayment.toString()
+            }
+
+            m.branches.sort((a, b) => a.branch.localeCompare(b.branch))
+
+            for (const b of m.branches) {
+
+                let fb = fm.branches.find(ww => ww.branch === b.branch)!
+                if (!aoa[fb.row]) {
+                    aoa[fb.row] = [] as string[]
+                }
+                aoa[fb.row][0] = b.branch
+                aoa[fb.row][startCol] = b.totalTenants.toString()
+                aoa[fb.row][startCol + 3] = b.totalVisited.toString()
+                aoa[fb.row][startCol + 2] = b.totalDelivered.toString()
+                // aoa[fb.row][startCol+3] = b.totalTenants.toString()
+                // aoa[fb.row][startCol+4] = b.totalTenants.toString()
+                // aoa[fb.row][startCol+5] = b.totalTenants.toString()
+                // aoa[fb.row][startCol+6] = b.totalTenants.toString()
+                // aoa[fb.row][startCol+7] = b.totalTenants.toString()
+                if (remult.user?.isAdmin || remult.user?.isDonor) {
+                    aoa[fb.row][startCol + 9] = b.totalPayment.toString()
+                }
+                // aoa[fb.row][11] = b.totalTenants.toString()
+
+                let rr = fb.row
+                for (const v of b.visits) {
+                    rr += 1
+                    if (!aoa[rr]) {
+                        aoa[rr] = [] as string[]
+                    }
+                    v.volunteers.sort((a, b) => a.localeCompare(b))
+                    aoa[rr][startCol] = v.tenant
+                    aoa[rr][startCol + 1] = v.tenantIdNumber
+                    // aoa[rr][startCol + 1] = v.volunteers.join(', ')
+                    aoa[rr][startCol + 2] = v.delivered
+                    aoa[rr][startCol + 3] = v.visited
+                    aoa[rr][startCol + 4] = v.tenantRemark
+                    if (remult.user?.isAdmin || remult.user?.isDonor) {
+                        aoa[rr][startCol + 5] = v.paymentNumber + ''// סה"כ כל אברך
+                        aoa[rr][startCol + 6] = v.paymentBank + ''// סה"כ כל אברך
+                        aoa[rr][startCol + 7] = v.paymentBranch + ''// סה"כ כל אברך
+                        aoa[rr][startCol + 8] = v.paymentAccount + ''// סה"כ כל אברך
+                        aoa[rr][startCol + 9] = v.payment + ''// סה"כ כל אברך
+                    }
+                    // console.log('w.branch', b.branch, 'b.week', w.week, 'v.tenant', v.tenant, 'rr', rr, 'fw.row', fb.row, 'aoa.length', aoa.length)
                 }
             }
         }

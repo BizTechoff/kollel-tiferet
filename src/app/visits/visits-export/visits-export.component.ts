@@ -39,7 +39,8 @@ export class VisitsExportComponent implements OnInit {
     // Prevent Saturday and Sunday from being selected.
     return day === 4
   }
-  monthly = false
+
+  monthly = true
   ngOnInit(): void {
     remult.user!.lastComponent = VisitsExportComponent.name
     let today = resetDateTime(new Date())
@@ -107,40 +108,74 @@ export class VisitsExportComponent implements OnInit {
   }
 
   async validate() {
+
+    // console.log('fdate1', this.query.fdate.toDateString())
+    // console.log('tdate1', this.query.tdate.toDateString())
+
     if (!this.query.fdate) {
-      this.query.fdate = new Date()
+      this.query.fdate = resetDateTime(new Date())
       // this.ui.info('לא צויין תאריך התחלה')
       // return false
     }
-    this.query.fdate = firstDateOfWeek(this.query.fdate)
-    if(this.monthly){
+
+    if (this.monthly) {
       this.query.fdate = firstDateOfMonth(this.query.fdate)
     }
+    else {
+      this.query.fdate = firstDateOfWeek(this.query.fdate)
+    }
+    // console.log('fdate2', this.query.fdate.toDateString())
+ 
     if (!this.query.tdate) {
       this.query.tdate = this.query.fdate
     }
-    this.query.tdate = lastDateOfWeek(this.query.tdate)
-    if (this.query.tdate < this.query.fdate) {
-      this.query.tdate = lastDateOfWeek(this.query.fdate)
-    }
-    if(this.monthly){
+    if (this.monthly) {
       this.query.tdate = lastDateOfMonth(this.query.fdate)
+      if (this.query.tdate < this.query.fdate) {
+        this.query.tdate = lastDateOfMonth(this.query.fdate)
+      }
     }
+    else {
+      this.query.tdate = lastDateOfWeek(this.query.tdate)
+      if (this.query.tdate < this.query.fdate) {
+        this.query.tdate = lastDateOfWeek(this.query.fdate)
+      }
+    }
+
+
+    // if (!this.query.tdate) {
+    //   this.query.tdate = this.query.fdate
+    // }
+    // this.query.tdate = lastDateOfWeek(this.query.tdate)
+    // if (this.query.tdate < this.query.fdate) {
+    //   this.query.tdate = lastDateOfWeek(this.query.fdate)
+    // }
+    // if (this.monthly) {
+    //   this.query.tdate = lastDateOfMonth(this.query.fdate)
+    // }
+
     let sevenWeeks = 7 * 7 - 1
-    if (dateDiff(this.query.fdate, this.query.tdate) > sevenWeeks) {
+    let diff = dateDiff(this.query.fdate, this.query.tdate)
+    if (diff > sevenWeeks) {
       let yes = await this.ui.yesNoQuestion('מקסימום טווח של 7 שבועות, לבחור לך תאריך כזה?')
       if (!yes) {
         return false
       }
-      this.query.fdate = firstDateOfWeek(
-        addDaysToDate(this.query.tdate, -sevenWeeks))
-    }
-    if(this.monthly){
-      this.query.fdate = firstDateOfMonth(this.query.fdate)
+      if (this.monthly) {
+        this.query.fdate = firstDateOfMonth(this.query.fdate)
+      }
+      else {
+        this.query.fdate = firstDateOfWeek(
+          addDaysToDate(this.query.tdate, -sevenWeeks))
+      }
     }
     if (![ExportType.all, ExportType.doneAndNotDone].includes(this.query.type)) {
       this.query.actual = false
     }
+    // console.log('fdate2', this.query.fdate.toDateString())
+    // console.log('tdate2', this.query.tdate.toDateString())
+
+
     // if (!this.query.detailed) {
     //   this.query.type = ExportType.done
     // } 

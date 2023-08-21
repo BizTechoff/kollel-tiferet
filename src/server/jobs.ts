@@ -962,7 +962,7 @@ async function createWeeklyVisits() {
 
 async function createDailyVisits() {
     let result = 0
-    let today = resetDateTime(new Date())
+    let today = resetDateTime(new Date(/*2023, 0, 31*/))
     let fdate = today // firstDateOfWeek(today)
     let tdate = today //lastDateOfWeek(today)
 
@@ -1002,6 +1002,7 @@ async function createDailyVisits() {
                     await remult.repo(Visit).save(visit)
                     ++result
                 }
+                // return
                 // for await (const tv of remult.repo(TenantVolunteer).query({ where: { tenant: tenant } })) {
                 //     let vv = await remult.repo(VisitVolunteer).findFirst(
                 //         {

@@ -108,6 +108,17 @@ export class Visit extends IdEntity {
     @Field<Visit, VisitStatus>(() => VisitStatus, { caption: 'סטטוס' })
     status = VisitStatus.none
 
+    @Fields.number<Visit>({
+        caption: 'תשלום חודשי בש"ח',
+        // validate: (row, col) => {
+        //     if (!(+col?.value >= 50 ?? false)) {
+        //         col.error = 'מינימום ₪50'
+        //     }
+        // },
+        displayValue: (row, col) => col + '₪'
+    })
+    payment = 0;
+
     @Fields.number<Visit>({ caption: 'מנות שנמסרו' })// מנות | שמיכות
     deliversCount = 0
 

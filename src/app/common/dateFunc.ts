@@ -50,9 +50,17 @@ export const getDates = (date: Date) => {
     }
 }
 
-export function firstDateOfWeek(date: Date) {
+export function firstDateOfWeek(date: Date, monthly = false) {
+    date = resetDateTime(date)
+    // console.log('firstDateOfWeek1',date.toDateString())
     for (let i = 0; i < 7; ++i) {
         let day = date.getDay()
+        if (monthly) {
+            let dateDay = date.getDate()
+            if (dateDay === 1) {
+                break
+            }
+        }
         if (day === dayOfCreatingVisits.value) {
             break
         }
@@ -61,18 +69,43 @@ export function firstDateOfWeek(date: Date) {
             date.getMonth(),
             date.getDate() - 1));
     }
+    // console.log('firstDateOfWeek2',date.toDateString())
     return date
 }
 
-export function lastDateOfWeek(date: Date) {
-    date = firstDateOfWeek(date)
-    return resetDateTime(new Date(
+export function lastDateOfWeek(date: Date, monthly = false) {
+    // console.log('date0', date)
+    date = resetDateTime(date)
+    // console.log('date1', date)
+    date = firstDateOfWeek(date, monthly)
+    // console.log('date2', date)
+    let day = date.getDay()
+    let days = date.getDate() + 7 - 1 - day
+    // console.log('days', days)
+    if (monthly) {
+        // console.log('monthly')
+        var lastMonthDate = lastDateOfMonth(date)
+        days = Math.min(days, lastMonthDate.getDate())
+        // console.log('days', days)
+    }
+    date = resetDateTime(new Date(
         date.getFullYear(),
         date.getMonth(),
-        date.getDate() + 7 - 1));
+        days));
+    // console.log('date3', date)
+    // if (monthly) {
+    //     console.log('monthly')
+    //     var lastMonthDate = lastDateOfMonth(date)
+    //     if (date > lastMonthDate) {
+    //         date = lastMonthDate
+    //         console.log('date4', date)
+    //     }
+    // }
+    return date
 }
 
 export function firstDateOfWeekByHomeVisit(date: Date) {
+    date = resetDateTime(date)
     let day = date.getDay()
     if (day < dayOfHomeVisits.value) {
         date = resetDateTime(new Date(
