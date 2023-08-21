@@ -17,8 +17,38 @@ export class DayOfWeek {
     }
 }
 
-export const dayOfCreatingVisits = DayOfWeek.sunday
+export const mabatView = ['daily', 'weekly', 'monthly', 'once'] as string[]
+export const visitDays = [
+    DayOfWeek.sunday,
+    DayOfWeek.monday,
+    DayOfWeek.tuesday,
+    DayOfWeek.wednesday,
+    DayOfWeek.thursday
+]
+export const dayOfCreatingVisits = visitDays[0]
 export const dayOfHomeVisits = DayOfWeek.thursday
+export const selectedMabatView = mabatView[0]
+
+export const getDates = (date: Date) => {
+    if (selectedMabatView.includes('daily')) {
+        // dayOfCreatingVisits.ignore()
+        // dayOfHomeVisits.ignore()
+        for (const day of visitDays) {
+            // ...
+        }
+    }
+    else if (selectedMabatView.includes('weekly')) {
+        dayOfCreatingVisits
+        dayOfHomeVisits
+    }
+    else if (selectedMabatView.includes('monthly')) {
+        // dayOfCreatingVisits = firstDateOfMonth(date)
+        // dayOfHomeVisits.ignore()
+        for (const day of visitDays) {
+            // ...
+        }
+    }
+}
 
 export function firstDateOfWeek(date: Date) {
     for (let i = 0; i < 7; ++i) {

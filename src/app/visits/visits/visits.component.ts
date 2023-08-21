@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Fields, getFields, remult } from 'remult';
 import { RouteHelperService } from '../../common-ui-elements';
 import { DataControl } from '../../common-ui-elements/interfaces';
 import { UIToolsService } from '../../common/UIToolsService';
 import { resetDateTime } from '../../common/dateFunc';
 import { JobController } from '../../jobs/jobController';
+import { MediaController } from '../../media/mediaController';
 import { NewsController } from '../../news/newsController';
 import { terms } from '../../terms';
 import { UserMenuComponent } from '../../users/user-menu/user-menu.component';
@@ -25,6 +27,7 @@ export class VisitsComponent implements OnInit {
   query = new VisitController()
   jobs = new JobController()
   weeklyQuestion = ''
+  locked = false
 
   @DataControl<VisitsComponent, Date>({
     valueChange: async (row, col) => await row.retrieve()
@@ -36,12 +39,21 @@ export class VisitsComponent implements OnInit {
 
   constructor(
     private routeHelper: RouteHelperService,
-    private ui: UIToolsService) {
+    private ui: UIToolsService,
+    private route: ActivatedRoute) {
   }
   terms = terms;
   remult = remult;
 
   async ngOnInit(): Promise<void> {
+
+    if (this.route.snapshot.paramMap.has('date')) {
+      this.selectedDate = new Date(this.route.snapshot.paramMap.get('date')!);
+    }
+    if (!this.selectedDate) {
+      this.selectedDate = new Date()
+    }
+    this.selectedDate = resetDateTime(this.selectedDate)
 
     remult.user!.lastComponent = VisitsComponent.name
     // await this.jobs.getLastWeeklyVisitsRun()
@@ -62,6 +74,24 @@ export class VisitsComponent implements OnInit {
     await this.retrieve()
   }
 
+  async uploadImage() {
+    alert('uploadImage')
+  }
+
+  async setEnabled() {
+    var q = new MediaController()
+    q.date = this.selectedDate
+    var count = await q.getPhotosCountWeekly()
+    this.locked = count === 0
+  }
+
+  async dateChanged(date: Date) {
+    // console.log('event','dateChanged')
+    console.log('dateChanged', date)
+    this.selectedDate = date
+    await this.retrieve()
+  }
+
   retrieving = false
   async retrieve(days = 0) {
     if (!this.retrieving) {
@@ -70,6 +100,7 @@ export class VisitsComponent implements OnInit {
       this.query.fdate = this.selectedDate // firstDateOfWeek(today)
       this.query.tdate = this.selectedDate // lastDateOfWeek(today)
       this.visits = await this.query.getVisits()
+      await this.setEnabled()
       this.retrieving = false
     }
   }
@@ -138,15 +169,17 @@ export class VisitsComponent implements OnInit {
   }
 
   async finished() {
-    let count = await this.query.getOpenVisitsCount()
-    if (count > 0) {
-      let yes = await this.ui.yesNoQuestion(`עדיין נותרו דיווחים פתוחים,\nלהמשיך בכל זאת`)
-      if (yes) {
+    if (this.locked) {
+      let count = await this.query.getOpenVisitsCount()
+      if (count > 0) {
+        let yes = await this.ui.yesNoQuestion(`עדיין נותרו דיווחים פתוחים,\nלהמשיך בכל זאת`)
+        if (yes) {
+          this.routeHelper.navigateToComponent(VisitsFinishedBlessingComponent, { date: this.selectedDate })
+        }
+      }
+      else {
         this.routeHelper.navigateToComponent(VisitsFinishedBlessingComponent, { date: this.selectedDate })
       }
-    }
-    else {
-      this.routeHelper.navigateToComponent(VisitsFinishedBlessingComponent, { date: this.selectedDate })
     }
   }
 
@@ -155,7 +188,9 @@ export class VisitsComponent implements OnInit {
   }
 
   async edit(id = '') {
-    this.routeHelper.navigateToComponent(VisitComponent, { id: id, date: this.selectedDate })
+    if (this.locked) {
+      this.routeHelper.navigateToComponent(VisitComponent, { id: id, date: this.selectedDate })
+    }
   }
 
   async addVisit() {

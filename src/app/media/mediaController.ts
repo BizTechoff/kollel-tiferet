@@ -1,9 +1,9 @@
-import { Allow, BackendMethod, Controller, ControllerBase, Field, remult } from "remult";
+import { Allow, BackendMethod, Controller, ControllerBase, Field, Fields, remult } from "remult";
 import { downloadByLink, upload } from "../../server/aws-s3";
 // import { upload } from "../../server/aws-s3";
 import { Branch } from "../branches/branch";
 import { BranchGroup } from "../branches/branchGroup";
-import { firstDateOfWeek, lastDateOfWeek } from "../common/dateFunc";
+import { addDaysToDate, dateDiff, firstDateOfWeek, lastDateOfWeek, resetDateTime } from "../common/dateFunc";
 import { Roles } from "../users/roles";
 import { Media } from "./media";
 import { MediaType } from "./mediaTypes";
@@ -13,6 +13,39 @@ export class MediaController extends ControllerBase {
 
     @Field<MediaController, BranchGroup>(() => BranchGroup, { caption: 'קבוצה' })
     group = BranchGroup.all
+
+    @Fields.dateOnly<MediaController>({ caption: 'תאריך' })
+    date!: Date
+
+
+    @BackendMethod({ allowed: Roles.manager })
+    async getPhotosCountWeekly() {
+        var result = 0
+        var checkLocked = process.env['CHECK_VISITS_LOCK_NO_PHOTOS'] === 'true' ?? false
+        var count = await remult.repo(Media).count()
+        if (!checkLocked || !count) {
+            result = 1
+        }
+        else if (this.date) {
+            this.date = resetDateTime(this.date)
+            const start = addDaysToDate(
+                firstDateOfWeek(this.date),
+                -7)
+            console.log('getPhotosCountWeekly',
+                start.toLocaleDateString(),
+                this.date.toLocaleDateString(),
+                dateDiff(start, this.date) + ' days')
+            result = await remult.repo(Media).count({
+                branch: { $id: remult.user?.id! },
+                created: {
+                    '$gte': start,
+                    '$lte': this.date
+                },
+                active: true
+            })
+        }
+        return result
+    }
 
     @BackendMethod({ allowed: Allow.authenticated })
     async getTenantPhotoLink(id: string) {
@@ -128,7 +161,7 @@ export class MediaController extends ControllerBase {
             },
             orderBy: { branch: "asc", created: 'desc' }
         })) {
-            
+
             let first = firstDateOfWeek(m.created)
             let last = lastDateOfWeek(m.created)
             let week = `שבוע ${first.getDate()}-${last.getDate()}.${last.getMonth() + 1}`
@@ -148,7 +181,7 @@ export class MediaController extends ControllerBase {
             }
             foundMonth.media.push(m)
         }
-        
+
         return result
     }
 

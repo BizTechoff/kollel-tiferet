@@ -16,7 +16,7 @@ export const isValidMobile = (mobile = '') => {
             mobile.length === 10
             &&
             mobile.startsWith('05')
-        ) 
+        )
         ||
         (
             mobile.length === 11
@@ -44,6 +44,8 @@ export const mobileFromDb = (mobile: string) => {
 
 export const mobileToDb = (mobile: string, mobile2?: string): boolean | string => {
     let digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+    mobile = mobile?.trim() ?? ''
 
     let fixedMobile = '';// [0]000000000
     if (mobile && mobile.length > 0) {

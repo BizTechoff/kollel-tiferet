@@ -1,9 +1,40 @@
-<div *ngIf="remult.authenticated()"
-    style="display: flex; flex-direction: column; justify-content: space-between; width: 100%; direction: rtl;gap: 3px;">
-    <span style="text-align: center;">כולל תפארת ישראל</span>
-    <!-- <mat-radio-button [disabled]="readonly" (change)="this.onGroupChanged(BranchGroup.avrach)"
+<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%;"
+    [style.backgroundColor]="this.invert? 'rgba(38, 195, 234, 1)':'rgba(255, 255, 255, 1)'">
+    <!-- rgba(255, 255, 255, 1);':'rgba(38, 195, 234, 1); -->
+    <div style="display: flex; flex-direction: row; justify-content: space-between;">
+        <!-- <span style="text-align: center;">בס"ד</span> -->
+        <span style="text-align: center; width: 100%;">בעז"ה כולל תפארת זקנים לוי יצחק</span>
+    <!-- <hr> -->
+    </div>
+    <!-- <hr width="100%"> -->
+    <div *ngIf="remult.authenticated()"
+        style="display: flex; flex-direction: row; justify-content: space-between; width: 100%; direction: rtl;">
+        <!-- <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+        <mat-icon (click)="this.nextDay()" style="color: blue;">add</mat-icon>
+        <data-control *ngIf="this?.$" [field]="this.$.selectedDate" style="color: blue; font-size: large; direction: ltr;"></data-control>
+        <mat-icon (click)="this.prevDay()" style="color: blue;">remove</mat-icon>
+    </div> -->
+
+        <div class="menu-userinfo">
+            <span class="menu-text"
+                [style.color]="this.invert? 'rgba(255, 255, 255, 1)':'rgba(35, 67, 142, 1)'"><span>{{ remult.user?.name
+                    }}</span></span>
+            <div class="menu-location">
+                <img src="/assets/playground_assets/locationicon4431-mwai.svg" alt="locationicon4431"
+                    class="menu-locationicon" />
+                <span class="menu-text02"><span>{{ remult.user?.isAdmin ?'' :remult.user?.isDonor ?'' :'ראש כולל' }} {{
+                        remult.user?.branchName?.replace('כולל','') }}</span></span>
+            </div>
+        </div>
+        <div class="menu-userinfo">
+            <img src="/assets/Logo Colel Chabad.png" style="width: 70px; height: 50px;" (click)="this.rootmenu()" />
+        </div>
+
+        <!-- <img src="/assets/playground_assets/chabadLogo.svg" alt="Frame14430" class="chabad-get-chessed-logo" /> -->
+        <!-- <mat-radio-button [disabled]="readonly" (change)="this.onGroupChanged(BranchGroup.avrach)"
         [checked]="this.selected === BranchGroup.avrach">&nbsp;אברכים</mat-radio-button> -->
-    <!-- <mat-radio-button [disabled]="readonly" (change)="this.onGroupChanged(BranchGroup.tenant)" [checked]="this.selected === BranchGroup.tenant">&nbsp;דיירים</mat-radio-button> -->
-    <!-- <mat-radio-button (change)="this.onGroupChanged(BranchGroup.all)" [checked]="this.selected === BranchGroup.all">&nbsp;נוער + קמפוס</mat-radio-button> -->
+        <!-- <mat-radio-button [disabled]="readonly" (change)="this.onGroupChanged(BranchGroup.tenant)" [checked]="this.selected === BranchGroup.tenant">&nbsp;דיירים</mat-radio-button> -->
+        <!-- <mat-radio-button (change)="this.onGroupChanged(BranchGroup.all)" [checked]="this.selected === BranchGroup.all">&nbsp;נוער + קמפוס</mat-radio-button> -->
+    </div>
+    <!-- && !remult.user?.isManager -->
 </div>
-<!-- && !remult.user?.isManager -->

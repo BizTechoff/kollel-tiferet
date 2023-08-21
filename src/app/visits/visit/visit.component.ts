@@ -30,11 +30,10 @@ export class VisitComponent implements OnInit {
   vQuery = new VisitVolunteerController()
   page = 1
   volunteers = [] as VisitVolunteer[]
-  selectedDate = resetDateTime(new Date())
 
   args!: {
     id: string,
-    date:Date
+    date: Date
     // volId?: string
   }
   constructor(
@@ -139,7 +138,7 @@ export class VisitComponent implements OnInit {
   }
 
   back() {
-    this.routeHelper.navigateToComponent(VisitsComponent)
+    this.routeHelper.navigateToComponent(VisitsComponent, { date: this.args.date })
   }
 
   async next() {

@@ -42,6 +42,25 @@ export class AppComponent implements OnInit, OnDestroy {
     catch (err) { console.error(err) }
   }
 
+  isInvertCurrent() {
+
+    const inverts = ['/album']
+
+    // console.log('activeRoute.json',JSON.stringify( this.activeRoute))
+    // console.log('activeRoute', this.activeRoute)
+    // console.log('activeRoute.url', this.activeRoute.url)
+    // console.log('isInvertCurrent', this.router.getCurrentNavigation() ?? 'initialUrl')
+    // console.log('win', window.location)
+
+    for (const path of inverts) {
+      if (window.location.pathname.startsWith(path)) {
+        return true
+      }
+    }
+
+    return false
+  }
+
   // async groupChanged(group: BranchGroup) {
   //   console.log(group)
   //   this.groupChangedHandler.emit()

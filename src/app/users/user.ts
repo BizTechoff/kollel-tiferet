@@ -1,5 +1,4 @@
 import { Allow, Entity, Fields, IdEntity, isBackend, remult, Validators } from "remult";
-import { mobileToDb } from "../common/mobileFunc";
 import { terms } from "../terms";
 import { Roles } from './roles';
 import { UserBranch } from "./userBranch";
@@ -104,17 +103,9 @@ export class User extends IdEntity {
 
     @Fields.string<User>({
         validate: [
-            Validators.required.withMessage('לא הוזן נייד'),
-            // Validators.uniqueOnBackend.withMessage('נייד קיים')
-        ],
-        caption: 'נייד',
-        // displayValue: (row, col) =>{ 
-        //     console.log('displayValue',mobileFromDb(mobileToDb(row.mobile) as string))
-        //     return mobileFromDb(mobileToDb(col) as string)},
-        valueConverter: {
-            // fromDb: col => mobileFromDb(mobileToDb(col) as string),
-            toDb: col => mobileToDb(col) as string
-        }
+            Validators.required.withMessage(terms.required),
+            Validators.uniqueOnBackend.withMessage(terms.unique)
+        ]
     })
     mobile = '';
 

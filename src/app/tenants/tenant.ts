@@ -144,7 +144,22 @@ export class Tenant extends IdEntity {
 
     @Fields.string<Tenant>({
         caption: 'נייד',
-        validate: [Validators.required.withMessage(terms.required), Validators.uniqueOnBackend.withMessage(terms.unique)],
+        validate: (row, col) => {
+            if (row.$.mobile.value?.trim().length) {
+                return Validators.uniqueOnBackend.withMessage(terms.unique)(row, col)
+            }
+            return undefined!
+        },
+        //  {
+        //     const result = [Validators.uniqueOnBackend.withMessage(terms.unique)] as any[]
+
+        //     // console.log(11,row.$.mobile.value?.trim().length)
+        //     // console.log(22,fld?.value?.trim().length)
+        //     // if (row.$.mobile.value?.trim().length) {
+        //     //     result.push(Validators.uniqueOnBackend.withMessage(terms.unique))
+        //     // }
+        //     return result
+        // },
         valueConverter: {
             fromDb: col => mobileFromDb(mobileToDb(col) as string),
             toDb: col => mobileToDb(col) as string
@@ -185,13 +200,13 @@ export class Tenant extends IdEntity {
     @Fields.number<Tenant>({
         caption: 'תשלום חודשי בש"ח',
         validate: (row, col) => {
-            if (!(+col?.value >= 100 ?? false)) {
-                col.error = 'מינימום ₪100'
+            if (!(+col?.value >= 50 ?? false)) {
+                col.error = 'מינימום ₪50'
             }
         },
         displayValue: (row, col) => col + '₪'
     })
-    payment = 100;
+    payment = 50;
 
     @Fields.string<Tenant>({
         caption: 'הערות לכתובת'
