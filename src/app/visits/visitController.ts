@@ -79,7 +79,7 @@ export class VisitController extends ControllerBase {
         this.fdate = resetDateTime(this.fdate)
         this.tdate = resetDateTime(this.tdate)
         // console.log('SERVER 4',this.fdate, this.tdate, this.detailed, this.onlyDone)
-        let result = [] as { branch: string, /*rows: Visit[],*/ summary: { count: number, delivered: number, visited: number } }[]
+        let result = [] as { branch: string, /*rows: Visit[],*/ summary: { count: number, delayed: number, visited: number } }[]
         for await (const v of remult.repo(Visit).query(
             {
                 where: {
@@ -105,16 +105,16 @@ export class VisitController extends ControllerBase {
             if (!found) {
                 found = {
                     branch: v.branch.name,
-                    summary: { count: 0, delivered: 0, visited: 0 }
+                    summary: { count: 0, delayed: 0, visited: 0 }
                 }
                 result.push(found)
             }
-            found.summary.delivered += v.status === VisitStatus.delivered ? 1 : 0
+            found.summary.delayed += v.status === VisitStatus.delayed ? 1 : 0
             found.summary.visited += v.status === VisitStatus.visited ? 1 : 0
             found.summary.count += 1
         }
         for (const b of result) {
-            b.summary.count = b.summary.count - (b.summary.delivered + b.summary.visited)
+            b.summary.count = b.summary.count - (b.summary.delayed + b.summary.visited)
         }
         // for (const b of result) {
         //     console.log('b.summary.count',b.summary.count)
@@ -271,7 +271,7 @@ export class VisitController extends ControllerBase {
                     }
                     count.push(found)
                 }
-                found.delivers += v.status === VisitStatus.delivered ? 1 : 0
+                found.delivers += v.status === VisitStatus.delayed ? 1 : 0
                 found.visits += v.status === VisitStatus.visited ? 1 : 0
                 found.missings += v.status === VisitStatus.none ? 1 : 0
             }
@@ -305,7 +305,7 @@ export class VisitController extends ControllerBase {
                         }
                     }
                 })) {
-                rec.delivers += v.status === VisitStatus.delivered ? 1 : 0
+                rec.delivers += v.status === VisitStatus.delayed ? 1 : 0
                 rec.visits += v.status === VisitStatus.visited ? 1 : 0
                 rec.missings += v.status === VisitStatus.none ? 1 : 0
             }
@@ -325,7 +325,7 @@ export class VisitController extends ControllerBase {
                 branch: string,
                 totalTenants: number,
                 totalVolunteers: number,
-                totalDelivered: number,
+                totalDelayed: number,
                 totalVisited: number,
                 totalPayment: number,
                 weeksCounter: string[],
@@ -341,14 +341,14 @@ export class VisitController extends ControllerBase {
                         payment: number,
                         tenantRemark: string,
                         volunteers: string[],
-                        delivered: string,
+                        delayed: string,
                         visited: string
                     }[],
                     tenantsNames: string[],
                     totalTenants: number,
                     totalVolunteers: number,
                     totalPayment: number,
-                    totalDelivered: number,
+                    totalDelayed: number,
                     totalVisited: number
                 }[]
             }[]
@@ -366,7 +366,7 @@ export class VisitController extends ControllerBase {
         //                     this.actual
         //                         ? {
         //                             $or: [
-        //                                 { status: VisitStatus.delivered },
+        //                                 { status: VisitStatus.delayed },
         //                                 { status: VisitStatus.visited }
         //                             ]
         //                         }
@@ -414,7 +414,7 @@ export class VisitController extends ControllerBase {
                     this.actual
                         ? {
                             $or: [
-                                { status: VisitStatus.delivered },
+                                { status: VisitStatus.delayed },
                                 { status: VisitStatus.visited }
                             ]
                         }
@@ -464,7 +464,7 @@ export class VisitController extends ControllerBase {
                         branch: string,
                         totalTenants: number,
                         totalVolunteers: number,
-                        totalDelivered: number,
+                        totalDelayed: number,
                         totalVisited: number,
                         totalPayment: number,
                         weeksCounter: string[],
@@ -480,13 +480,13 @@ export class VisitController extends ControllerBase {
                                 payment: number,
                                 tenantRemark: string,
                                 volunteers: string[],
-                                delivered: string,
+                                delayed: string,
                                 visited: string
                             }[],
                             tenantsNames: string[],
                             totalTenants: number,
                             totalVolunteers: number,
-                            totalDelivered: number,
+                            totalDelayed: number,
                             totalPayment: number,
                             totalVisited: number
                         }[]
@@ -502,7 +502,7 @@ export class VisitController extends ControllerBase {
                     branch: branch,
                     totalTenants: 0,
                     totalVolunteers: 0,
-                    totalDelivered: 0,
+                    totalDelayed: 0,
                     totalVisited: 0,
                     totalPayment: 0,
                     weeksCounter: [] as string[],
@@ -518,13 +518,13 @@ export class VisitController extends ControllerBase {
                             payment: number,
                             tenantRemark: string,
                             volunteers: string[],
-                            delivered: string,
+                            delayed: string,
                             visited: string
                         }[],
                         tenantsNames: string[],
                         totalTenants: number,
                         totalVolunteers: number,
-                        totalDelivered: number,
+                        totalDelayed: number,
                         totalPayment: number,
                         totalVisited: number
                     }[]
@@ -565,13 +565,13 @@ export class VisitController extends ControllerBase {
                         payment: number,
                         tenantRemark: string,
                         volunteers: string[],
-                        delivered: string,
+                        delayed: string,
                         visited: string
                     }[],
                     tenantsNames: [] as string[],
                     totalTenants: 0,
                     totalVolunteers: 0,
-                    totalDelivered: 0,
+                    totalDelayed: 0,
                     totalPayment: 0,
                     totalVisited: 0
                 }
@@ -591,14 +591,14 @@ export class VisitController extends ControllerBase {
                 foundBranch.totalPayment += tenantPayment
             }
             // console.log('server:', `{foundBranch.totalTenants: ${foundBranch.totalTenants}}`)
-            foundBranch.totalDelivered += v.status === VisitStatus.delivered ? 1 : 0
+            foundBranch.totalDelayed += v.status === VisitStatus.delayed ? 1 : 0
             foundBranch.totalVisited += v.status === VisitStatus.visited ? 1 : 0
 
             if (!foundTenantName) {
                 foundWeek.totalTenants += 1
                 foundWeek.totalPayment += tenantPayment
             }
-            foundWeek.totalDelivered += v.status === VisitStatus.delivered ? 1 : 0
+            foundWeek.totalDelayed += v.status === VisitStatus.delayed ? 1 : 0
             foundWeek.totalVisited += v.status === VisitStatus.visited ? 1 : 0
 
             if (this.detailed) {
@@ -615,12 +615,12 @@ export class VisitController extends ControllerBase {
                             payment: tenantPayment,
                             tenantRemark: v.remark,
                             volunteers: [] as string[],// volunteers,
-                            delivered: '0',// v.status === VisitStatus.delivered ? 'כן' : '',
+                            delayed: '0',// v.status === VisitStatus.delayed ? 'כן' : '',
                             visited: '0'//v.status === VisitStatus.visited ? 'כן' : ''
                         }
                         foundWeek.visits.push(foundTenant)
                     }
-                    foundTenant.delivered = (parseInt(foundTenant.delivered) + (v.status === VisitStatus.delivered ? 1 : 0)) + ''//todo:
+                    foundTenant.delayed = (parseInt(foundTenant.delayed) + (v.status === VisitStatus.delayed ? 1 : 0)) + ''//todo:
                     foundTenant.visited = (parseInt(foundTenant.visited) + (v.status === VisitStatus.visited ? 1 : 0)) + ''//?????
                 }
             }
@@ -649,7 +649,7 @@ export class VisitController extends ControllerBase {
                     switch (this.type) {
 
                         case ExportType.done: {
-                            if (w.totalDelivered + w.totalVisited === w.totalTenants) {
+                            if (w.totalDelayed + w.totalVisited === w.totalTenants) {
                             }
                             else {
                                 let i = b.weeks.indexOf(w)
@@ -663,7 +663,7 @@ export class VisitController extends ControllerBase {
                         }
 
                         case ExportType.doneAndNotDone: {
-                            if (w.totalDelivered + w.totalVisited) { }
+                            if (w.totalDelayed + w.totalVisited) { }
                             else {
                                 let i = b.weeks.indexOf(w)
                                 b.weeks.splice(i, 1)
@@ -676,7 +676,7 @@ export class VisitController extends ControllerBase {
                         }
 
                         case ExportType.notDone: {
-                            if (w.totalDelivered + w.totalVisited === 0) { }
+                            if (w.totalDelayed + w.totalVisited === 0) { }
                             else {
                                 let i = b.weeks.indexOf(w)
                                 b.weeks.splice(i, 1)
@@ -709,7 +709,7 @@ export class VisitController extends ControllerBase {
                         totalWeek.push(tw)
                     }
                     tw.tt += w.totalTenants
-                    tw.td += w.totalDelivered
+                    tw.td += w.totalDelayed
                     tw.tv += w.totalVisited
                     tw.tvol += w.totalVolunteers
                     tw.tpay += w.totalPayment
@@ -851,7 +851,7 @@ export class VisitController extends ControllerBase {
                     aoa[fb.row][fw.col] = w.totalTenants.toString()
                     // console.log('server:', `{ w.totalTenants: ${w.totalTenants} }`)
                     // aoa[fb.row][fw.col + 1] = w.totalVolunteers.toString()
-                    aoa[fb.row][fw.col + 2] = w.totalDelivered.toString()
+                    aoa[fb.row][fw.col + 2] = w.totalDelayed.toString()
                     aoa[fb.row][fw.col + 3] = w.totalVisited.toString()
                     if (remult.user?.isAdmin || remult.user?.isDonor) {
                         aoa[fb.row][fw.col + 9] = w.totalPayment.toString()// סה"כ כל כולל
@@ -869,7 +869,7 @@ export class VisitController extends ControllerBase {
                         aoa[rr][fw.col] = v.tenant
                         aoa[rr][fw.col + 1] = v.tenantIdNumber
                         // aoa[rr][fw.col + 1] = v.volunteers.join(', ')
-                        aoa[rr][fw.col + 2] = v.delivered
+                        aoa[rr][fw.col + 2] = v.delayed
                         aoa[rr][fw.col + 3] = v.visited
                         aoa[rr][fw.col + 4] = v.tenantRemark
                         if (remult.user?.isAdmin || remult.user?.isDonor) {
@@ -890,8 +890,8 @@ export class VisitController extends ControllerBase {
 
 
 
-    isDelivered(status: VisitStatus) {
-        return status?.id === VisitStatus.delivered.id
+    isDelayed(status: VisitStatus) {
+        return status?.id === VisitStatus.delayed.id
     }
 
     isVisited(status: VisitStatus) {
@@ -909,7 +909,7 @@ export class VisitController extends ControllerBase {
                 tenantsIds: string[],
                 totalTenants: number,
                 totalVolunteers: number,
-                totalDelivered: number,
+                totalDelayed: number,
                 totalVisited: number,
                 totalPayment: number,
                 visits: {
@@ -923,13 +923,13 @@ export class VisitController extends ControllerBase {
                     payment: number,
                     tenantRemark: string,
                     volunteers: string[],
-                    delivered: number,
+                    delayed: number,
                     visited: number
                 }[],
             }[],
             totalTenants: number,
             totalVolunteers: number,
-            totalDelivered: number,
+            totalDelayed: number,
             totalVisited: number,
             totalPayment: number,
         }[]
@@ -947,13 +947,13 @@ export class VisitController extends ControllerBase {
                     this.actual
                         ? {
                             $or: [
-                                { status: VisitStatus.delivered },
+                                { status: VisitStatus.delayed },
                                 { status: VisitStatus.visited }
                             ]
                         }
                         : {
                             $or: [
-                                { status: VisitStatus.delivered },
+                                { status: VisitStatus.delayed },
                                 { status: VisitStatus.visited },
                                 { status: VisitStatus.none }
                             ]
@@ -979,8 +979,8 @@ export class VisitController extends ControllerBase {
             orderBy: { branch: 'asc', date: "asc" }
         })) {
             ++cc
-            // console.log('init', v.status.id, this.isDelivered(v.status), v.status === VisitStatus.visited)
-            const tenantPayment = this.isDelivered(v.status) || this.isVisited(v.status)
+            // console.log('init', v.status.id, this.isDelayed(v.status), v.status === VisitStatus.visited)
+            const tenantPayment = this.isDelayed(v.status) || this.isVisited(v.status)
                 ? v.payment
                 : 0
 
@@ -1002,7 +1002,7 @@ export class VisitController extends ControllerBase {
                         branch: string,
                         totalTenants: number,
                         totalVolunteers: number,
-                        totalDelivered: number,
+                        totalDelayed: number,
                         totalVisited: number,
                         totalPayment: number,
                         visits: {
@@ -1016,13 +1016,13 @@ export class VisitController extends ControllerBase {
                             payment: number,
                             tenantRemark: string,
                             volunteers: string[],
-                            delivered: number,
+                            delayed: number,
                             visited: number
                         }[],
                     }[],
                     totalTenants: 0,
                     totalVolunteers: 0,
-                    totalDelivered: 0,
+                    totalDelayed: 0,
                     totalVisited: 0,
                     totalPayment: 0
                 }
@@ -1037,7 +1037,7 @@ export class VisitController extends ControllerBase {
                     branch: branch,
                     totalTenants: 0,
                     totalVolunteers: 0,
-                    totalDelivered: 0,
+                    totalDelayed: 0,
                     totalVisited: 0,
                     totalPayment: 0,
                     visits: [] as {
@@ -1051,7 +1051,7 @@ export class VisitController extends ControllerBase {
                         payment: number,
                         tenantRemark: string,
                         volunteers: string[],
-                        delivered: number,
+                        delayed: number,
                         visited: number
                     }[],
                 }
@@ -1072,13 +1072,13 @@ export class VisitController extends ControllerBase {
                 foundMonth.totalPayment += tenantPayment
             }
             // console.log('server:', `{foundBranch.totalTenants: ${foundBranch.totalTenants}}`)
-            foundBranch.totalDelivered += this.isDelivered(v.status) ? 1 : 0
+            foundBranch.totalDelayed += this.isDelayed(v.status) ? 1 : 0
             foundBranch.totalVisited += this.isVisited(v.status) ? 1 : 0
 
-            foundMonth.totalDelivered += this.isDelivered(v.status) ? 1 : 0
+            foundMonth.totalDelayed += this.isDelayed(v.status) ? 1 : 0
             foundMonth.totalVisited += this.isVisited(v.status) ? 1 : 0
 
-            // console.log('monthly', foundMonth.totalDelivered, foundMonth.totalVisited, foundTenantId, foundBranch.totalDelivered, foundBranch.totalVisited)
+            // console.log('monthly', foundMonth.totalDelayed, foundMonth.totalVisited, foundTenantId, foundBranch.totalDelayed, foundBranch.totalVisited)
             // '58f711a0-8786-41d2-88b8-86cda07b0669'
             if (this.detailed) {
                 let foundTenant = foundBranch.visits.find(itm => itm.tenantId === v.tenant.id)
@@ -1093,13 +1093,13 @@ export class VisitController extends ControllerBase {
                         paymentAccount: v.tenant.payAccount,
                         payment: tenantPayment,
                         tenantRemark: v.remark,
-                        delivered: 0,
+                        delayed: 0,
                         visited: 0,
                         volunteers: [] as string[]
                     }
                     foundBranch.visits.push(foundTenant)
                 }
-                foundTenant.delivered += (this.isDelivered(v.status) ? 1 : 0)
+                foundTenant.delayed += (this.isDelayed(v.status) ? 1 : 0)
                 foundTenant.visited += (this.isVisited(v.status) ? 1 : 0)
             }
         }// for each visit
@@ -1108,7 +1108,7 @@ export class VisitController extends ControllerBase {
         // for (const m of data) {
         //     for (const b of m.branches) {
         //         for (const v of b.visits) {
-        //             console.log(v.delivered, v.visited, v.tenantId, '_')
+        //             console.log(v.delayed, v.visited, v.tenantId, '_')
         //         }
         //     }
         // }
@@ -1122,7 +1122,7 @@ export class VisitController extends ControllerBase {
                 switch (this.type) {
 
                     case ExportType.done: {
-                        if (b.totalDelivered + b.totalVisited === b.totalTenants) { }
+                        if (b.totalDelayed + b.totalVisited === b.totalTenants) { }
                         else {
                             m.branches.splice(bi, 1)
                         }
@@ -1130,7 +1130,7 @@ export class VisitController extends ControllerBase {
                     }
 
                     case ExportType.doneAndNotDone: {
-                        if (b.totalDelivered + b.totalVisited) { }
+                        if (b.totalDelayed + b.totalVisited) { }
                         else {
                             m.branches.splice(bi, 1)
                         }
@@ -1138,7 +1138,7 @@ export class VisitController extends ControllerBase {
                     }
 
                     case ExportType.notDone: {
-                        if (b.totalDelivered + b.totalVisited === 0) { }
+                        if (b.totalDelayed + b.totalVisited === 0) { }
                         else {
                             m.branches.splice(bi, 1)
                         }
@@ -1250,8 +1250,8 @@ export class VisitController extends ControllerBase {
             let startCol = 2
             aoa[fm.row + 1][startCol] = this.group.single
             aoa[fm.row + 1][startCol + 1] = 'ת.ז'
-            aoa[fm.row + 1][startCol + 2] = 'איחרו'
-            aoa[fm.row + 1][startCol + 3] = 'נוכחו'
+            aoa[fm.row + 1][startCol + 2] = 'ימי איחור'
+            aoa[fm.row + 1][startCol + 3] = 'ימי נוכחות'
             aoa[fm.row + 1][startCol + 4] = 'הערות'
             if (remult.user?.isAdmin || remult.user?.isDonor) {
                 aoa[fm.row + 1][startCol + 5] = 'מספר משלם'
@@ -1268,7 +1268,7 @@ export class VisitController extends ControllerBase {
 
                 aoa[fm.row + 2][startCol] = m.totalTenants.toString()
                 // aoa[fm.row + 2][startCol + 1] = 'ת.ז'
-                aoa[fm.row + 2][startCol + 2] = m.totalDelivered.toString()
+                aoa[fm.row + 2][startCol + 2] = m.totalDelayed.toString()
                 aoa[fm.row + 2][startCol + 3] = m.totalVisited.toString()
                 // aoa[fm.row + 2][startCol + 4] = 'הערות'
                 // aoa[fm.row + 2][startCol + 5] = 'מספר משלם'
@@ -1288,7 +1288,7 @@ export class VisitController extends ControllerBase {
                 }
                 aoa[fb.row][0] = b.branch
                 aoa[fb.row][startCol] = b.totalTenants.toString()
-                aoa[fb.row][startCol + 2] = b.totalDelivered.toString()
+                aoa[fb.row][startCol + 2] = b.totalDelayed.toString()
                 aoa[fb.row][startCol + 3] = b.totalVisited.toString()
                 // aoa[fb.row][startCol+3] = b.totalTenants.toString()
                 // aoa[fb.row][startCol+4] = b.totalTenants.toString()
@@ -1302,7 +1302,7 @@ export class VisitController extends ControllerBase {
 
                 let rr = fb.row
                 for (const v of b.visits) {
-                    // console.log(v.delivered, v.visited, v.tenantId)
+                    // console.log(v.delayed, v.visited, v.tenantId)
 
 
                     rr += 1
@@ -1313,7 +1313,7 @@ export class VisitController extends ControllerBase {
                     aoa[rr][startCol] = v.tenant
                     aoa[rr][startCol + 1] = v.tenantIdNumber
                     // aoa[rr][startCol + 1] = v.volunteers.join(', ')
-                    aoa[rr][startCol + 2] = v.delivered + ''
+                    aoa[rr][startCol + 2] = v.delayed + ''
                     aoa[rr][startCol + 3] = v.visited + ''
                     aoa[rr][startCol + 4] = v.tenantRemark
                     if (remult.user?.isAdmin || remult.user?.isDonor) {
@@ -1323,7 +1323,7 @@ export class VisitController extends ControllerBase {
                         aoa[rr][startCol + 8] = v.paymentAccount + ''// סה"כ כל אברך
                         aoa[rr][startCol + 9] = v.payment + ''// סה"כ כל אברך
                     }
-                    // console.log(v.delivered, v.visited)
+                    // console.log(v.delayed, v.visited)
                     // console.log('w.branch', b.branch, 'b.week', w.week, 'v.tenant', v.tenant, 'rr', rr, 'fw.row', fb.row, 'aoa.length', aoa.length)
                 }
             }

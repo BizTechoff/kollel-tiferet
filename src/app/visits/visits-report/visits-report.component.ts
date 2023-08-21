@@ -12,9 +12,9 @@ export class VisitsReportComponent implements OnInit, OnChanges {
 
   @Input() group = BranchGroup.all
 
-  visits = [] as { branch: string, /*rows: Visit[],*/ summary: { count: number, delivered: number, visited: number } }[]
+  visits = [] as { branch: string, /*rows: Visit[],*/ summary: { count: number, delayed: number, visited: number } }[]
   query = new VisitController()
-  summary = { count: 0, delivered: 0, visited: 0 }
+  summary = { count: 0, delayed: 0, visited: 0 }
 
   constructor() { }
 
@@ -26,8 +26,8 @@ export class VisitsReportComponent implements OnInit, OnChanges {
   async ngOnChanges() {
     // console.log(`VisitsReportComponent: { ngOnChanges: { this.query.group: ${this.query.group.id}, this.group: ${this.group.id} } }`)
     if (this.query.group !== this.group) {
-      this.summary = { count: 0, delivered: 0, visited: 0 }
-      this.visits = [] as { branch: string, /*rows: Visit[],*/ summary: { count: number, delivered: number, visited: number } }[]
+      this.summary = { count: 0, delayed: 0, visited: 0 }
+      this.visits = [] as { branch: string, /*rows: Visit[],*/ summary: { count: number, delayed: number, visited: number } }[]
       this.query.group = this.group
       await this.retrieve()
     }
@@ -39,11 +39,11 @@ export class VisitsReportComponent implements OnInit, OnChanges {
     this.query.fdate =today// firstDateOfWeek(today)
     this.query.tdate =today// lastDateOfWeek(today)
     this.visits = await this.query.getVisitsByBranch()
-    this.summary = { count: 0, delivered: 0, visited: 0 }
+    this.summary = { count: 0, delayed: 0, visited: 0 }
     // console.log(`Initialize: ${this.summary.count}`)
     for (const v of this.visits) {
       this.summary.count += v.summary.count
-      this.summary.delivered += v.summary.delivered
+      this.summary.delayed += v.summary.delayed
       this.summary.visited += v.summary.visited
       // console.log(`Add ${v.summary.count} = ${this.summary.count}`)
     }

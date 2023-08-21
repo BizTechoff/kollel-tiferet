@@ -95,7 +95,7 @@ export class NewsWeeklyQuestionComponent implements OnInit {
     //   await this.setLanguages()
     //   //console.log('reloadId.volunteersNames', this.tenant.volunteers)
     //   await this.tenantPhoto()
-    //   // //console.log('reloadId.visit.id', this.visit.id, this.isVisited(), this.isDelivered(), this.visit.status, VisitStatus.visited)
+    //   // //console.log('reloadId.visit.id', this.visit.id, this.isVisited(), this.isDelayed(), this.visit.status, VisitStatus.visited)
     // }
   }
 

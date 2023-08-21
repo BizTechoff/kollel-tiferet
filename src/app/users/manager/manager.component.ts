@@ -124,7 +124,7 @@ export class ManagerComponent implements OnInit {
       await this.tenantPhoto()
       await this.addBranch('', this.manager.id)
       // console.log('this.selectedBranch', this.selectedBranch?.name)
-      // //console.log('reloadId.visit.id', this.visit.id, this.isVisited(), this.isDelivered(), this.visit.status, VisitStatus.visited)
+      // //console.log('reloadId.visit.id', this.visit.id, this.isVisited(), this.isDelayed(), this.visit.status, VisitStatus.visited)
     }
   }
 

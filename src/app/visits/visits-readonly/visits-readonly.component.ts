@@ -55,8 +55,8 @@ export class VisitsReadonlyComponent implements OnInit {
     return v?.status?.id === VisitStatus.none.id
   }
 
-  isDelivered(v: Visit) {
-    return v?.status?.id === VisitStatus.delivered.id
+  isDelayed(v: Visit) {
+    return v?.status?.id === VisitStatus.delayed.id
   }
 
   isVisited(v: Visit) {

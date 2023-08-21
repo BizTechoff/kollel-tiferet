@@ -61,10 +61,10 @@
       <div class="visits-cardtitle-totals">
         <div *ngIf="(this.totalCount())">
           <span *ngIf="!(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09">סה"כ
-            <span [style.font-size]="this.presentsCount()?'x-large':''">{{ this.presentsCount() }}</span> נוכחים מתוך
-            <span [style.font-size]="this.totalCount()?'x-large':''">{{ this.totalCount() }}</span> אברכים</span>
+            <span [style.font-size]="this.presentsCount()?'x-large':''">{{ this.presentsCount() }}</span> מתוך
+            <span [style.font-size]="this.totalCount()?'x-large':''">{{ this.totalCount() }}</span> אברכים דווחו</span>
           <span *ngIf="(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09"
-            style="font-size: x-large;">כל {{ this.totalCount()}} האברכים נוכחים</span>
+            style="font-size: x-large;">כל {{ this.totalCount()}} האברכים דווחו</span>
         </div>
           <span *ngIf="(!this.totalCount())" class="visits-text09" style="font-size: large;"> {{ 'אין רשומות דיווח לתאריך זה' }} </span>
       </div>
@@ -77,7 +77,7 @@
               <span class="visits-text08"><span>{{ v.tenant.name }}</span></span>
               <!-- <img [src]="this.isVisited(v)?'/assets/validated.svg':'/assets/unValidated.svg'" style="width: 15px; height: 15px;" /> -->
               <img *ngIf="this.isVisited(v)" src="/assets/validated.svg" style="width: 15px; height: 15px;" />
-              <img *ngIf="this.isDelivered(v)" src="/assets/playground_assets/late.png"
+              <img *ngIf="this.isDelayed(v)" src="/assets/playground_assets/late.png"
                 style="width: 15px; height: 15px;" />
             </div>
             <div *ngIf="v.tenant.address" class="visits-address">

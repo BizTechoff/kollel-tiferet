@@ -102,7 +102,7 @@ export class VisitsComponent implements OnInit {
 
   presentsCount() {
     return this.visits.filter(
-      itm => [VisitStatus.delivered.id, VisitStatus.visited.id].includes(itm.status.id))
+      itm => [VisitStatus.delayed.id, VisitStatus.visited.id].includes(itm.status.id))
       .length
   }
 
@@ -160,8 +160,8 @@ export class VisitsComponent implements OnInit {
     return v?.status?.id === VisitStatus.none.id
   }
 
-  isDelivered(v: Visit) {
-    return v?.status?.id === VisitStatus.delivered.id
+  isDelayed(v: Visit) {
+    return v?.status?.id === VisitStatus.delayed.id
   }
 
   isVisited(v: Visit) {

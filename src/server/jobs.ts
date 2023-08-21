@@ -67,7 +67,7 @@ const jobsRun = async () => {
         // now.setHours(3)
         // await createWeeklyVisits()
         // console.log('process.env.TZ',process.env['TZ'])
-        // await createVolunteerFourWeeksDelivered()
+        // await createVolunteerFourWeeksDelayed()
         // await createTenantTwoWeeksMissing()
         // await createVolunteerTwoWeeksMissing()
         // await sendNotifications()
@@ -121,7 +121,7 @@ const jobsRun = async () => {
                     //     await createTenantTwoWeeksMissing()// to manager
                     //     await createVolunteerTwoWeeksMissing()// to volunteer
                     //     await createVolunteerThreeWeeksMissing()// to manager
-                    //     await createVolunteerFourWeeksDelivered()// to volunteer
+                    //     await createVolunteerFourWeeksDelayed()// to volunteer
                     // }
                     // else {
                     //     console.log(`jobsRun enableAllJobs = '${enableAllJobs}'`)
@@ -687,7 +687,7 @@ async function createVolunteerTwoWeeksMissing() {
     }
 }
 
-async function createVolunteerFourWeeksDelivered() {
+async function createVolunteerFourWeeksDelayed() {
 
     let numOfWeeks = 4
     let today = resetDateTime(new Date())
@@ -701,17 +701,17 @@ async function createVolunteerFourWeeksDelivered() {
     console.log(fdate, '<-> ', tdate)
 
     let job = await remult.repo(Job).findFirst({
-        name: 'createVolunteerFourWeeksDelivered',
+        name: 'createVolunteerFourWeeksDelayed',
         date: { "$gte": fdate, "$lte": tdate },
         status: JosStatus.done
     })
     if (job) {
-        console.log(`Job 'createVolunteerFourWeeksDelivered' already done`)
+        console.log(`Job 'createVolunteerFourWeeksDelayed' already done`)
         return
     }
 
-    await logJob(today, 'createVolunteerFourWeeksDelivered', JosStatus.processing, '')
-    console.log(`createVolunteerFourWeeksDelivered..`)
+    await logJob(today, 'createVolunteerFourWeeksDelayed', JosStatus.processing, '')
+    console.log(`createVolunteerFourWeeksDelayed..`)
 
     try {
         let sent = 0
@@ -780,11 +780,11 @@ async function createVolunteerFourWeeksDelivered() {
             }
 
         }//for
-        await logJob(today, 'createVolunteerFourWeeksDelivered', JosStatus.done, '')
+        await logJob(today, 'createVolunteerFourWeeksDelayed', JosStatus.done, '')
         console.log(`createVolunteerTwoWeeksMissing created ${sent} notificaions.`)
     }
     catch (error) {
-        await logJob(today, 'createVolunteerFourWeeksDelivered', JosStatus.error, JSON.stringify(error))
+        await logJob(today, 'createVolunteerFourWeeksDelayed', JosStatus.error, JSON.stringify(error))
     }
 }
 

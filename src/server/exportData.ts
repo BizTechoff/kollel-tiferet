@@ -54,9 +54,9 @@ export const exportData = async () => {
             let row: exportData = [];
             row[COLUMN_TENANT] = v.tenant.name
             row[COLUMN_VOLUNTEERS] = volunteersNames
-            row[COLUMN_DELIVERED] = (v.status === VisitStatus.delivered ? 'כן' : '')
+            row[COLUMN_DELIVERED] = (v.status === VisitStatus.delayed ? 'כן' : '')
             row[COLUMN_VISITED] = (v.status === VisitStatus.visited ? 'כן' : '')
-            // console.log('v.status',v.status,v.status === VisitStatus.delivered,v.status === VisitStatus.visited,v.status === VisitStatus.none)
+            // console.log('v.status',v.status,v.status === VisitStatus.delayed,v.status === VisitStatus.visited,v.status === VisitStatus.none)
             result.push(row);
         }
         // if(bc > 0)

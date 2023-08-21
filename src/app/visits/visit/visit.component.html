@@ -79,15 +79,15 @@
               </div>
             </div>
           </div>
-          <div class="visit-delivered" (click)="this.delivered()" [style.borderWidth]="this.isDelivered()?'1px':'0px'">
-            <img *ngIf="this.isDelivered()" src="/assets/playground_assets/frame2022-p2bn.svg" alt="Frame2022"
+          <div class="visit-delayed" (click)="this.delayed()" [style.borderWidth]="this.isDelayed()?'1px':'0px'">
+            <img *ngIf="this.isDelayed()" src="/assets/playground_assets/frame2022-p2bn.svg" alt="Frame2022"
               class="visit-frame1" />
             <div class="visit-frame201">
               <div class="visit-frame241">
                 <img src="/assets/playground_assets/late.png" alt="PaperBagI0212023" class="visit-late" />
               </div>
               <div class="visit-frame221">
-                <span class="visit-text06"><span><b *ngIf="!this.isDelivered()">?</b> איחר</span></span>
+                <span class="visit-text06"><span><b *ngIf="!this.isDelayed()">?</b> איחר</span></span>
               </div>
             </div>
           </div>

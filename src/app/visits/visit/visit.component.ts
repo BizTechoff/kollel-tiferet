@@ -86,7 +86,7 @@ export class VisitComponent implements OnInit {
           this.visit = this.visits[this.curIndex]
           // await this.reloadVolunteers()
           // this.volunteers.push(...this.volunteers)
-          //console.log('reloadId.visit.id', 'this.curIndex', this.curIndex, this.visit.id, this.isVisited(), this.isDelivered(), this.visit.status, VisitStatus.visited)
+          //console.log('reloadId.visit.id', 'this.curIndex', this.curIndex, this.visit.id, this.isVisited(), this.isDelayed(), this.visit.status, VisitStatus.visited)
         }
       }
     }
@@ -101,18 +101,18 @@ export class VisitComponent implements OnInit {
     this.volunteers = await this.vQuery.getVolunteers(this.visit?.id)
   }
 
-  isDelivered() {
-    return this.visit?.status?.id === VisitStatus.delivered.id
+  isDelayed() {
+    return this.visit?.status?.id === VisitStatus.delayed.id
   }
 
-  async delivered() {
+  async delayed() {
     if (this.visit) {
-      if (this.isDelivered()) {
+      if (this.isDelayed()) {
         this.visit.status = VisitStatus.none
         this.visit.statusModified = undefined!
       }
       else {
-        this.visit.status = VisitStatus.delivered
+        this.visit.status = VisitStatus.delayed
         this.visit.statusModified = new Date()
       }
       this.onStatusChanged()
@@ -122,7 +122,7 @@ export class VisitComponent implements OnInit {
 
   onStatusChanged() {
     let payment = 0
-    if (this.isDelivered() || this.isVisited()) {
+    if (this.isDelayed() || this.isVisited()) {
       payment =
         this.visit.tenant?.payment ?? this.visit.branch?.payment ?? 99999
     }
