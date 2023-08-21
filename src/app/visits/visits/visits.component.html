@@ -23,9 +23,11 @@
         <div style="display: flex; flex-direction: row; justify-content: center; margin-top: -14px; ">
           <!-- <span>{{ this.diffDaysFromToday? (this.diffDaysFromToday < 0? 'לפני ' : 'בעוד ' ) + this.diffDaysFromToday
               + ' ימים' : 'היום' }}</span> -->
-            <span style="text-align: center; color: white;" (click)="this.gotoToday()">{{ this.diffDaysFromToday < 0 ? 'לפני ' + Math.abs(diffDaysFromToday) +  ' ימים'  : this.diffDaysFromToday > 0 ? 'בעוד ' + Math.abs(diffDaysFromToday) +  ' ימים' : 'היום' }}</span>
+          <span style="text-align: center; color: white;" (click)="this.gotoToday()">{{ this.diffDaysFromToday < 0
+              ? 'לפני ' + Math.abs(diffDaysFromToday) + ' ימים' : this.diffDaysFromToday> 0 ? 'בעוד ' +
+              Math.abs(diffDaysFromToday) + ' ימים' : 'היום' }}</span>
 
-            </div>
+        </div>
 
         <div *ngIf="this.locked"
           style="display: flex; flex-direction: row; justify-content: center; align-items: center; background-color: lightyellow; text-align: center; border-radius: 15px; margin: 7px;">
@@ -38,6 +40,14 @@
               (click)="this.uploadImage()">לא הועלתה תמונה מתחילת שבוע שעבר</mat-label>
             <mat-label style="cursor: pointer; color: blue; text-decoration: underline; font-weight: bold;"
               (click)="this.uploadImage()">להעלות תמונה ליום שבחרת יש ללחוץ כאן</mat-label>
+
+            <label for="uploadImage" style="display: flex; align-items: center;">
+              <img src="/assets/playground_assets/upload2123-7rkq.svg" alt="upload2123" class="visit-upload" />
+            </label>
+            <input excludeAcceptAllOption=true #fileInput type="file" (input)="onFileInput($event, 'profile')"
+              accept="audio/mp3,video/mp4,video/avi,image/png,image/jpg,image/jpeg" id="uploadImage"
+              style="display:none" />
+
           </div>
         </div>
 
@@ -48,7 +58,14 @@
     </div>
 
     <div class="visits-cards">
-
+      <div class="visits-cardtitle-totals">
+        <span *ngIf="!(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09">סה"כ
+          <span [style.font-size]="this.presentsCount()?'x-large':''">{{ this.presentsCount() }}</span> נוכחים מתוך
+          <span [style.font-size]="this.totalCount()?'x-large':''">{{ this.totalCount() }}</span> אברכים</span>
+        <span *ngIf="(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09"
+          style="font-size: x-large;">כל {{ this.totalCount()}} האברכים נוכחים</span>
+        <!-- <span class="visits-text09">סה"כ מתנדבים: {{ totals.volunteers }}</span> -->
+      </div>
       <div class="visits-cardcontent" *ngFor="let v of this.visits" (click)="this.edit(v.id)"
         [style.borderColor]="this.isNone(v)?  'rgba(227, 172, 120, 1)':'green'"
         [style.borderWidth]="this.isNone(v)?  '2px':'7px'">

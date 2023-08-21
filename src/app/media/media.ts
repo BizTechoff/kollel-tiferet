@@ -19,6 +19,9 @@ import { MediaType } from "./mediaTypes";
             if (row.isNew()) {
                 row.created = new Date()
                 row.createdBy = remult.user?.id!
+                if (!row.date) {
+                    row.date = new Date()
+                }
             }
         }
     },
@@ -60,6 +63,9 @@ export class Media extends IdEntity {
 
     @Field<Media, News>(() => News, { caption: 'הודעה' })
     news!: News
+
+    @Fields.dateOnly<Visit>({ caption: 'תאריך' })
+    date!: Date
 
     @Field<Media, MediaType>(() => MediaType, { caption: 'סוג מדיה' })
     type = MediaType.none

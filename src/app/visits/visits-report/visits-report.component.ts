@@ -36,8 +36,8 @@ export class VisitsReportComponent implements OnInit, OnChanges {
   async retrieve() {
     // console.log(`VisitsReportComponent: { Retrieving group: ${this.group.id}}`)
     let today = resetDateTime(new Date())
-    this.query.fdate = firstDateOfWeek(today)
-    this.query.tdate = lastDateOfWeek(today)
+    this.query.fdate =today// firstDateOfWeek(today)
+    this.query.tdate =today// lastDateOfWeek(today)
     this.visits = await this.query.getVisitsByBranch()
     this.summary = { count: 0, delivered: 0, visited: 0 }
     // console.log(`Initialize: ${this.summary.count}`)

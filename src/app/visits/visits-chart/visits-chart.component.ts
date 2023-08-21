@@ -4,7 +4,7 @@ import { Color, Label, SingleDataSet } from 'ng2-charts';
 import { remult } from 'remult';
 import { BranchGroup } from '../../branches/branchGroup';
 import { RouteHelperService, openDialog } from '../../common-ui-elements';
-import { firstDateOfWeek, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
+import { firstDateOfMonth, firstDateOfWeek, lastDateOfMonth, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
 import { JobController } from '../../jobs/jobController';
 import { terms } from '../../terms';
 import { UserMenuComponent } from '../../users/user-menu/user-menu.component';
@@ -118,7 +118,7 @@ export class VisitsChartComponent implements OnInit {
   }
 
 
-  
+
   // selectedDate = resetDateTime(new Date())
 
   // async retrieve(days = 0) {
@@ -136,14 +136,30 @@ export class VisitsChartComponent implements OnInit {
   //   await this.retrieve(+1)
   // }
 
+  monthly = false
   async retrieve() {
     this.pieChartDataStatuses = [] as SingleDataSet;
     this.pieChartLabelsStatuses = [] as Label[];
     // await this.jobs.getLastWeeklyVisitsRun()
     // let date = this.jobs.lastJobRun
     let today = resetDateTime(new Date())
-    this.query.fdate = firstDateOfWeek(today)
-    this.query.tdate = lastDateOfWeek(today)
+    if (this.monthly) {
+      this.query.fdate = firstDateOfMonth(today)
+    }
+    else {
+      this.query.fdate = today
+      // this.query.fdate = firstDateOfWeek(today)
+    }
+
+    if (this.monthly) {
+      this.query.tdate = lastDateOfMonth(today)
+    }
+    else {
+      this.query.tdate = today
+      // this.query.tdate = lastDateOfWeek(today)
+    }
+
+
     // console.log(11)
     // console.log('CLIENT', this.query.fdate, this.query.tdate, this.query.detailed, this.query.type)
     this.count = await this.query.getWeeklyCounters()

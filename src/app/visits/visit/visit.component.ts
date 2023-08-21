@@ -122,7 +122,7 @@ export class VisitComponent implements OnInit {
 
   onStatusChanged() {
     let payment = 0
-    if ([VisitStatus.delivered, VisitStatus.visited].includes(this.visit.status)) {
+    if ([VisitStatus.delivered.id, VisitStatus.visited.id].includes(this.visit.status.id)) {
       payment =
         this.visit.tenant?.payment ?? this.visit.branch?.payment ?? 99999
     }

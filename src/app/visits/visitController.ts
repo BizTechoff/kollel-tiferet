@@ -912,8 +912,8 @@ export class VisitController extends ControllerBase {
                     payment: number,
                     tenantRemark: string,
                     volunteers: string[],
-                    delivered: string,
-                    visited: string
+                    delivered: number,
+                    visited: number
                 }[],
             }[],
             totalTenants: number,
@@ -960,6 +960,7 @@ export class VisitController extends ControllerBase {
             orderBy: { branch: 'asc', date: "asc" }
         })) {
 
+            console.log('init',v.status.id,v.status === VisitStatus.delivered,v.status === VisitStatus.visited)
             const tenantPayment = v.tenant?.payment ?? 0
             // v?.payment ??
             // v.tenant?.payment ??
@@ -991,8 +992,8 @@ export class VisitController extends ControllerBase {
                             payment: number,
                             tenantRemark: string,
                             volunteers: string[],
-                            delivered: string,
-                            visited: string
+                            delivered: number,
+                            visited: number
                         }[],
                     }[],
                     totalTenants: 0,
@@ -1025,8 +1026,8 @@ export class VisitController extends ControllerBase {
                         payment: number,
                         tenantRemark: string,
                         volunteers: string[],
-                        delivered: string,
-                        visited: string
+                        delivered: number,
+                        visited: number
                     }[],
                 }
                 foundMonth.branches.push(foundBranch)
@@ -1038,9 +1039,12 @@ export class VisitController extends ControllerBase {
             // console.log('server:', foundTenant ?? 'NULL')
             if (!foundTenantName) {
                 foundBranch.tenantsNames.push(v.tenant.name)
+
+                //branch
                 foundBranch.totalTenants += 1
                 foundBranch.totalPayment += tenantPayment
 
+                //month
                 foundMonth.totalTenants += 1
                 foundMonth.totalPayment += tenantPayment
             }
@@ -1065,17 +1069,21 @@ export class VisitController extends ControllerBase {
                             payment: tenantPayment,
                             tenantRemark: v.remark,
                             volunteers: [] as string[],// volunteers,
-                            delivered: '0',// v.status === VisitStatus.delivered ? 'כן' : '',
-                            visited: '0'//v.status === VisitStatus.visited ? 'כן' : ''
+                            delivered: 0,// v.status === VisitStatus.delivered ? 'כן' : '',
+                            visited: 0//v.status === VisitStatus.visited ? 'כן' : ''
                         }
                         foundBranch.visits.push(foundTenant)
                     }
-                    foundTenant.delivered = (parseInt(foundTenant.delivered) + (v.status === VisitStatus.delivered ? 1 : 0)) + ''//todo:
-                    foundTenant.visited = (parseInt(foundTenant.visited) + (v.status === VisitStatus.visited ? 1 : 0)) + ''//?????
+                    foundTenant.delivered += v.status === VisitStatus.delivered ? 1 : 0
+                    foundTenant.visited += v.status === VisitStatus.visited ? 1 : 0
+                    
+                    console.log(foundTenant.delivered,foundTenant.visited,v.status.id)
                 }
             }
 
         }// for each visit
+
+        console.log('------------------------------')
 
         for (let mi = data.length - 1; mi >= 0; --mi) {
             const m = data[mi];
@@ -1270,8 +1278,8 @@ export class VisitController extends ControllerBase {
                     aoa[rr][startCol] = v.tenant
                     aoa[rr][startCol + 1] = v.tenantIdNumber
                     // aoa[rr][startCol + 1] = v.volunteers.join(', ')
-                    aoa[rr][startCol + 2] = v.delivered
-                    aoa[rr][startCol + 3] = v.visited
+                    aoa[rr][startCol + 2] = v.delivered + ''
+                    aoa[rr][startCol + 3] = v.visited + ''
                     aoa[rr][startCol + 4] = v.tenantRemark
                     if (remult.user?.isAdmin || remult.user?.isDonor) {
                         aoa[rr][startCol + 5] = v.paymentNumber + ''// סה"כ כל אברך
@@ -1280,6 +1288,7 @@ export class VisitController extends ControllerBase {
                         aoa[rr][startCol + 8] = v.paymentAccount + ''// סה"כ כל אברך
                         aoa[rr][startCol + 9] = v.payment + ''// סה"כ כל אברך
                     }
+                    console.log(v.delivered,v.visited)
                     // console.log('w.branch', b.branch, 'b.week', w.week, 'v.tenant', v.tenant, 'rr', rr, 'fw.row', fb.row, 'aoa.length', aoa.length)
                 }
             }

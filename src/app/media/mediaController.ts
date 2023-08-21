@@ -3,7 +3,7 @@ import { downloadByLink, upload } from "../../server/aws-s3";
 // import { upload } from "../../server/aws-s3";
 import { Branch } from "../branches/branch";
 import { BranchGroup } from "../branches/branchGroup";
-import { addDaysToDate, dateDiff, firstDateOfWeek, lastDateOfWeek, resetDateTime } from "../common/dateFunc";
+import { addDaysToDate, firstDateOfWeek, lastDateOfWeek, resetDateTime } from "../common/dateFunc";
 import { Roles } from "../users/roles";
 import { Media } from "./media";
 import { MediaType } from "./mediaTypes";
@@ -31,13 +31,13 @@ export class MediaController extends ControllerBase {
             const start = addDaysToDate(
                 firstDateOfWeek(this.date),
                 -7)
-            console.log('getPhotosCountWeekly',
-                start.toLocaleDateString(),
-                this.date.toLocaleDateString(),
-                dateDiff(start, this.date) + ' days')
+            // console.log('getPhotosCountWeekly',
+            //     start.toLocaleDateString(),
+            //     this.date.toLocaleDateString(),
+            //     dateDiff(start, this.date) + ' days')
             result = await remult.repo(Media).count({
                 branch: { $id: remult.user?.id! },
-                created: {
+                date: {
                     '$gte': start,
                     '$lte': this.date
                 },
@@ -159,11 +159,11 @@ export class MediaController extends ControllerBase {
                     })
                     : { $id: remult.user?.branch! }
             },
-            orderBy: { branch: "asc", created: 'desc' }
+            orderBy: { branch: "asc", date: 'desc', created: 'desc' }
         })) {
 
-            let first = firstDateOfWeek(m.created)
-            let last = lastDateOfWeek(m.created)
+            let first = firstDateOfWeek(m.date)
+            let last = lastDateOfWeek(m.date)
             let week = `שבוע ${first.getDate()}-${last.getDate()}.${last.getMonth() + 1}`
 
             let found = result.find(w => w.week === week)
@@ -176,8 +176,8 @@ export class MediaController extends ControllerBase {
                 foundMonth = { branch: m.branch, last: undefined!, media: [] as Media[] }
                 found.branches.push(foundMonth)
             }
-            if (!foundMonth.last || m.created > foundMonth.last) {
-                foundMonth.last = m.created
+            if (!foundMonth.last || m.date > foundMonth.last) {
+                foundMonth.last = m.date
             }
             foundMonth.media.push(m)
         }

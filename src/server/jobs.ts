@@ -962,7 +962,7 @@ async function createWeeklyVisits() {
 
 async function createDailyVisits() {
     let result = 0
-    let today = resetDateTime(new Date(/*2023, 0, 31*/))
+    let today = resetDateTime(new Date(/*2023, 7, 20*/))
     let fdate = today // firstDateOfWeek(today)
     let tdate = today //lastDateOfWeek(today)
 

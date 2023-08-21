@@ -8,4 +8,6 @@ export class VisitStatus {
     static visited = new VisitStatus('ביקרתי', 'orange', 'visited')
     static delivered = new VisitStatus('מסרתי', 'green', 'delivered')
     constructor(public caption = '', public color = '', public id = '') { }
+
+    static presented = [VisitStatus.delivered.id, VisitStatus.visited.id]
 }

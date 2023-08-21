@@ -5,6 +5,7 @@ import { RouteHelperService } from '../../common-ui-elements';
 import { DataControl } from '../../common-ui-elements/interfaces';
 import { UIToolsService } from '../../common/UIToolsService';
 import { dateDiff, resetDateTime } from '../../common/dateFunc';
+import { uploader } from '../../common/uploader';
 import { JobController } from '../../jobs/jobController';
 import { MediaController } from '../../media/mediaController';
 import { NewsController } from '../../news/newsController';
@@ -80,11 +81,33 @@ export class VisitsComponent implements OnInit {
     alert('uploadImage coming soon..')
   }
 
+  async onFileInput(e: any, target: string) {
+
+    let s3 = new uploader(
+      false,
+      undefined!,
+      undefined!,
+      undefined!,
+      undefined!)
+
+    await s3.loadFiles(e.target.files) //, target)
+  }
+
   async setEnabled() {
     var q = new MediaController()
     q.date = this.selectedDate
     var count = await q.getPhotosCountWeekly()
     this.locked = count === 0
+  }
+
+  presentsCount() {
+    return this.visits.filter(
+      itm => [VisitStatus.delivered.id, VisitStatus.visited.id].includes(itm.status.id))
+      .length
+  }
+
+  totalCount() {
+    return this.visits.length
   }
 
   async gotoToday() {

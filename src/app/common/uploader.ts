@@ -19,15 +19,17 @@ export class uploader {
   tenant!: Tenant
   volunteer!: User
   news!: News
+  date!: Date
 
   links = [] as { file: string, path: string }[]
 
-  constructor(excel: Boolean, visit: Visit, tenant: Tenant, volunteer: User, news: News) {
+  constructor(excel: Boolean, visit: Visit, tenant: Tenant, volunteer: User, news: News, date:Date = undefined!) {
     this.excel = excel === true ? true : false
     this.visit = visit
     this.tenant = tenant
     this.volunteer = volunteer
     this.news = news
+    this.date=date
   }
 
   async loadFiles(files: any) {
@@ -211,7 +213,8 @@ export class uploader {
       news: this.news,
       type: type.includes('image') ? MediaType.photo : type.includes('video') ? MediaType.video : MediaType.excel,
       link: link,
-      id: id
+      id: id,
+      date: this.date
     })
     // console.log('branchEngName 8')
     //console.log('a-7')
