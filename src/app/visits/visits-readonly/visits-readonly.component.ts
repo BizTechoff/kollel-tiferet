@@ -45,8 +45,8 @@ export class VisitsReadonlyComponent implements OnInit {
     // console.log('this.jobs.lastJobRun', this.jobs.lastJobRun)
     if (this.args?.branch?.trim().length) {
       let today = resetDateTime(new Date())
-      this.query.fdate = firstDateOfWeek(today)
-      this.query.tdate = lastDateOfWeek(today)
+      this.query.fdate =today// firstDateOfWeek(today)
+      this.query.tdate = today//lastDateOfWeek(today)
       this.visits = await this.query.getVisitsReadOnly(this.args.branch)
     }
   }

@@ -984,7 +984,7 @@ export class VisitController extends ControllerBase {
                 ? v.payment
                 : 0
 
-                console.log(v.tenant.name, tenantPayment)
+            console.log(v.tenant.name, tenantPayment)
             // v?.payment ??
             // v.tenant?.payment ??
             // v.branch?.payment ??

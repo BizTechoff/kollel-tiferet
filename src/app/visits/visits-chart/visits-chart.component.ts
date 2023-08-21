@@ -178,7 +178,7 @@ export class VisitsChartComponent implements OnInit {
       // this.pieChartLabelsStatuses.slice(0)
       this.pieChartLabelsStatuses.push(
         // `מסרו: ${countSum.delivers}`,
-        `נוכחו: ${countSum.visits}`,
+        `דווחו: ${countSum.visits}`,
         `חסרים: ${countSum.missings}`)
     }
     else {
