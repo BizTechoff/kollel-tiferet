@@ -15,10 +15,17 @@
         </div>
 
         <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
-          <mat-icon (click)="this.nextDay()" style="color: blue; padding-left: 35px;">add</mat-icon>
+          <mat-icon (click)="this.nextDay()" style="color: blue; padding-left: 35px;">arrow_left</mat-icon>
           <data-control [field]="this.$.selectedDate" style="color: blue; font-size: large;"></data-control>
-          <mat-icon (click)="this.prevDay()" style="color: blue; padding-right: 15px;">remove</mat-icon>
+          <mat-icon (click)="this.prevDay()" style="color: blue; padding-right: 15px;">arrow_right</mat-icon>
         </div>
+
+        <div style="display: flex; flex-direction: row; justify-content: center; margin-top: -14px; ">
+          <!-- <span>{{ this.diffDaysFromToday? (this.diffDaysFromToday < 0? 'לפני ' : 'בעוד ' ) + this.diffDaysFromToday
+              + ' ימים' : 'היום' }}</span> -->
+            <span style="text-align: center; color: white;" (click)="this.gotoToday()">{{ this.diffDaysFromToday < 0 ? 'לפני ' + Math.abs(diffDaysFromToday) +  ' ימים'  : this.diffDaysFromToday > 0 ? 'בעוד ' + Math.abs(diffDaysFromToday) +  ' ימים' : 'היום' }}</span>
+
+            </div>
 
         <div *ngIf="this.locked"
           style="display: flex; flex-direction: row; justify-content: center; align-items: center; background-color: lightyellow; text-align: center; border-radius: 15px; margin: 7px;">

@@ -158,9 +158,12 @@ export function resetDateTime(date = new Date(), days = 0) {
         0);
 }
 
-export function dateDiff(d1: Date, d2: Date) {
+export function dateDiff(d1: Date, d2: Date, abs = true) {
 
-    let timeDifference = Math.abs(d1.getTime() - d2.getTime());
+    let timeDifference = d1.getTime() - d2.getTime();
+    if (abs) {
+        timeDifference = Math.abs(timeDifference)
+    }
     let differentDays = Math.ceil(timeDifference / (1000 * 3600 * 24));
     return differentDays
 }

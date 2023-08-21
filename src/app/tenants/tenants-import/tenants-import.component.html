@@ -1,7 +1,7 @@
 <div class="import-container">
     <div class="import-import">
         <!-- <div class="import-top"> -->
-            <!-- <div class="import-cteen-logo" (click)="this.rootmenu()">
+        <!-- <div class="import-cteen-logo" (click)="this.rootmenu()">
                 <div class="import-logo">
                     <div class="import-cteen">
                         <div class="import-carea">
@@ -33,7 +33,7 @@
                     </div>
                 </div>
             </div> -->
-            <!-- <div style="display: flex; flex-direction: column;" (click)="this.rootmenu()">
+        <!-- <div style="display: flex; flex-direction: column;" (click)="this.rootmenu()">
                 <div>
                   <img src="/assets/Logo Colel Chabad.png" alt="Frame14430" class="chabad-colel-logo" />
                 </div>
@@ -66,15 +66,17 @@
       <div>
         <a href="https://eshel-app.s3.eu-central-1.amazonaws.com/excel/%D7%A8%D7%A9%D7%99%D7%9E%D7%AA+%D7%93%D7%99%D7%99%D7%A8%D7%99%D7%9D+%D7%9C%D7%A7%D7%9C%D7%99%D7%98%D7%94.xlsx">קובץ לדוגמא</a>
       </div> 
-    </div> --> 
+    </div> -->
             <img src="/assets/playground_assets/back1424-j39m.svg" alt="back1424" class="import-back"
                 (click)="this.back()" />
         </div>
         <div style="align-self: flex-start; padding-left: 5px;">
-            <a href="https://eshel-app.s3.eu-central-1.amazonaws.com/excel/%D7%A8%D7%A9%D7%99%D7%9E%D7%AA+%D7%90%D7%91%D7%A8%D7%9B%D7%99%D7%9D+%D7%9C%D7%A7%D7%9C%D7%99%D7%98%D7%94.xlsx">קובץ לדוגמא</a>
-          </div> 
+            <a
+                href="https://eshel-app.s3.eu-central-1.amazonaws.com/excel/%D7%A8%D7%A9%D7%99%D7%9E%D7%AA+%D7%90%D7%91%D7%A8%D7%9B%D7%99%D7%9D+%D7%9C%D7%A7%D7%9C%D7%99%D7%98%D7%94.xlsx">קובץ
+                לדוגמא</a>
+        </div>
         <div class="import-cards">
-            
+
             <div class="import-crad">
                 <!-- <div class="import-title">
                     <span class="import-text06"><span>{{ this.today | date:'dd/MM/yyyy' }}</span></span>
@@ -84,14 +86,22 @@
                     <table dir="rtl" [width]="'100%'">
                         <tr>
                             <th>{{ 'שם' }}</th>
+                            <th>{{ 'ת.ז' }}</th>
+                            <th>{{ 'מס.משלם' }}</th>
+                            <th>{{ 'תשלום' }}</th>
+                            <th>{{ 'כולל' }}</th>
                             <th>{{ 'כתובת' }}</th>
-                            <th>{{ 'טלפון' }}</th>
+                            <th>{{ 'נייד' }}</th>
                             <!-- <th>{{ 'תאריך לידה' }}</th> -->
                             <th>{{ '' }}</th>
                         </tr>
                         <ng-container *ngFor="let r of rows" style="border: 1px solid red">
                             <tr>
                                 <td><input [(ngModel)]="r.name"></td>
+                                <td><input [(ngModel)]="r.idNumber"></td>
+                                <td><input [(ngModel)]="r.payNumber"></td>
+                                <td><input [(ngModel)]="r.payment"></td>
+                                <td><input [(ngModel)]="r.branchName"></td>
                                 <td><input [(ngModel)]="r.address"></td>
                                 <td><input [(ngModel)]="r.phone"></td>
                                 <!-- <td contenteditable>{{ r.birthday }}</td> -->
@@ -99,13 +109,14 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="5" *ngIf="r.error.trim().length" [style.background-color]="r.color">{{
+                                <td colspan="7" *ngIf="r.error.trim().length" [style.background-color]="r.color">{{
                                     r.error }}</td>
                             </tr>
                         </ng-container>
                         <tr>
-                            <td colspan="5">
-                                <button (click)="this.addRow()" style="width: 100%; background-color: rgba(38, 195, 234, 1);">
+                            <td colspan="7">
+                                <button (click)="this.addRow()"
+                                    style="width: 100%; background-color: rgba(38, 195, 234, 1);">
                                     <mat-icon>add</mat-icon>
                                 </button>
                             </td>

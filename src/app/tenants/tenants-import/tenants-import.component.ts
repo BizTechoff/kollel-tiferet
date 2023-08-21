@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { remult } from 'remult';
 import { Branch } from '../../branches/branch';
 import { RouteHelperService } from '../../common-ui-elements';
-import { resetDateTime } from '../../common/dateFunc';
 import { UIToolsService } from '../../common/UIToolsService';
+import { resetDateTime } from '../../common/dateFunc';
 import { uploader } from '../../common/uploader';
 import { ExcelController } from '../../excelController';
 import { terms } from '../../terms';
@@ -18,7 +18,7 @@ import { TenantsComponent } from '../tenants/tenants.component';
 })
 export class TenantsImportComponent implements OnInit {
 
-  rows = [] as { id: number, name: string, address: string, phone: string, /*birthday: string,*/ color: string, error: string }[]
+  rows = [] as { id: number, name: string, idNumber: string, payNumber: string, payment: string, branchName: string, address: string, phone: string, /*birthday: string,*/ color: string, error: string }[]
   today = resetDateTime()
   constructor(
     private routeHelper: RouteHelperService,
@@ -40,7 +40,7 @@ export class TenantsImportComponent implements OnInit {
   async addTenants() { }
 
   async onFileInput(e: any, target: string) {
-    this.rows = [] as { id: number, name: string, address: string, phone: string, /*birthday: string,*/ color: string, error: string }[]
+    this.rows = [] as { id: number, name: string, idNumber: string, payNumber: string, payment: string, branchName: string, address: string, phone: string, /*birthday: string,*/ color: string, error: string }[]
 
     let s3 = new uploader(
       true,
@@ -53,7 +53,7 @@ export class TenantsImportComponent implements OnInit {
       let branch = await remult.repo(Branch).findId(remult.user?.branch!)
       if (branch) {
         for (const l of links) {
- 
+
           let excel = new ExcelController()
           excel.file = l.file
           excel.branch = branch.email
@@ -65,7 +65,19 @@ export class TenantsImportComponent implements OnInit {
           for (const d of excel.data) {
             // console.log('onFileInput.import().d', d)
             let split = d.split('|')
-            let r = { id: ++counter, name: split[0], address: split[1], phone: split[2], /*birthday: split[3],*/ color: 'transperant', error: '' }
+            let r = {
+              id: ++counter,
+              name: split[0],
+              idNumber: split[1],
+              payNumber: split[2],
+              payment: split[3],
+              branchName: split[4],
+              address: split[5],
+              phone: split[6],
+              /*birthday: split[3],*/
+              color: 'transperant',
+              error: ''
+            }
             this.rows.push(r)
             // id: ++counter,
             // name: split[0],
@@ -106,6 +118,10 @@ export class TenantsImportComponent implements OnInit {
     this.rows.push({
       id: this.rows.length,
       name: '',
+      idNumber: '',
+      payNumber: '',
+      payment: '',
+      branchName: '',
       address: '',
       phone: '',
       // birthday: '',
@@ -123,29 +139,47 @@ export class TenantsImportComponent implements OnInit {
         for (let i = this.rows.length - 1; i >= 0; --i) {
           // console.log(1,i)
           let r = this.rows[i]
-          // console.log('current: ' + JSON.stringify(r))
-          if (!(r.name?.trim().length ?? 0)) {
+          if (!(r.branchName?.trim().length ?? 0)) {
+            // console.log(2)
+            r.error = 'כולל: שדה חובה'
+            r.color = 'red'
+          }
+          else if (!r.branchName.includes(branch.name)) {
+            r.error = 'כולל: לא קיים'
+            r.color = 'red'
+            console.log(r.branchName, branch.name)
+          }
+          else if (!(r.name?.trim().length ?? 0)) {
             // console.log(2)
             r.error = 'שם: שדה חובה'
             r.color = 'red'
           }
-          else if (!(r.address?.trim().length ?? 0)) {
+          else if (!(r.payNumber?.trim().length ?? 0)) {
             // console.log(3)
-            r.error = 'כתובת: שדה חובה'
+            r.error = 'מספר משלם: שדה חובה'
+            r.color = 'red'
+          }
+          else if (!(r.payment?.trim().length ?? 0)) {
+            // console.log(3)
+            r.error = 'תשלום: שדה חובה'
+            r.color = 'red'
+          }
+          else if (parseInt(r.payment) < 50) {
+
+            r.error = 'תשלום: מינימום 50 ש"ח'
             r.color = 'red'
           }
           else {
             // console.log(4)
             let found =
-              r.phone?.trim().length ?
-                await remult.repo(Tenant).findFirst({
+              r.phone?.trim().length
+                ? await remult.repo(Tenant).findFirst({
                   $or: [
                     { name: r.name },
                     { phone: r.phone }
                   ]
                 })
-                :
-                await remult.repo(Tenant).findFirst({
+                : await remult.repo(Tenant).findFirst({
                   $or: [
                     { name: r.name }
                   ]
@@ -153,30 +187,34 @@ export class TenantsImportComponent implements OnInit {
             if (found) {
               r.error = 'שם\\טלפון קיימים'
               r.color = 'red'
-            } 
+            }
             else {
               // console.log(5)
               // let date!: Date
               // try { date = new Date(r.birthday) }
               // catch (err) { console.error(`error convert date '${r.birthday}', err: ${err}`) }
               // if (date) {
-                try {
-                  await remult.repo(Tenant).insert({
-                    branch: branch,
-                    name: r.name,
-                    address: r.address,
-                    phone: r.phone//,
-                    // birthday: r.birthday?.trim().length ? date : undefined!
-                  })
-                  // console.log(6)
-                  this.remove(r)
-                  ++count
-                }
-                catch (err) {
-                  console.error(`error insert row '${JSON.stringify(r)}', err: ${err}`)
-                  r.error = 'שגיאה: ' + JSON.stringify(r)
-                  r.color = 'red'
-                }
+              try {
+                await remult.repo(Tenant).insert({
+                  branch: branch,
+                  name: r.name,
+                  idNumber: r.idNumber,
+                  payNumber: r.payNumber,
+                  payment:parseInt( r.payment),
+                  // branchName: r.name,
+                  address: r.address,
+                  phone: r.phone//,
+                  // birthday: r.birthday?.trim().length ? date : undefined!
+                })
+                // console.log(6)
+                this.remove(r)
+                ++count
+              }
+              catch (err) {
+                console.error(`error insert row '${JSON.stringify(r)}', err: ${err}`)
+                r.error = 'שגיאה: ' + JSON.stringify(r)
+                r.color = 'red'
+              }
               // }
               // else {
               //   r.error = 'תאריך: לא חוקי'

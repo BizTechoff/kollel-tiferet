@@ -4,7 +4,7 @@ import { Fields, getFields, remult } from 'remult';
 import { RouteHelperService } from '../../common-ui-elements';
 import { DataControl } from '../../common-ui-elements/interfaces';
 import { UIToolsService } from '../../common/UIToolsService';
-import { resetDateTime } from '../../common/dateFunc';
+import { dateDiff, resetDateTime } from '../../common/dateFunc';
 import { JobController } from '../../jobs/jobController';
 import { MediaController } from '../../media/mediaController';
 import { NewsController } from '../../news/newsController';
@@ -28,6 +28,7 @@ export class VisitsComponent implements OnInit {
   jobs = new JobController()
   weeklyQuestion = ''
   locked = false
+  diffDaysFromToday = 0
 
   @DataControl<VisitsComponent, Date>({
     valueChange: async (row, col) => await row.retrieve()
@@ -44,6 +45,7 @@ export class VisitsComponent implements OnInit {
   }
   terms = terms;
   remult = remult;
+  Math = Math;
 
   async ngOnInit(): Promise<void> {
 
@@ -75,7 +77,7 @@ export class VisitsComponent implements OnInit {
   }
 
   async uploadImage() {
-    alert('uploadImage')
+    alert('uploadImage coming soon..')
   }
 
   async setEnabled() {
@@ -83,6 +85,13 @@ export class VisitsComponent implements OnInit {
     q.date = this.selectedDate
     var count = await q.getPhotosCountWeekly()
     this.locked = count === 0
+  }
+
+  async gotoToday() {
+    // alert('gotoToday')
+    await this.dateChanged(
+      resetDateTime(new Date())
+    )
   }
 
   async dateChanged(date: Date) {
@@ -101,8 +110,19 @@ export class VisitsComponent implements OnInit {
       this.query.tdate = this.selectedDate // lastDateOfWeek(today)
       this.visits = await this.query.getVisits()
       await this.setEnabled()
+      this.setDiffDays()
       this.retrieving = false
     }
+  }
+
+  setDiffDays() {
+    this.diffDaysFromToday = dateDiff(
+      this.selectedDate,
+      resetDateTime(new Date()),
+      false
+    )
+    console.log('diffDaysFromToday', this.diffDaysFromToday)
+
   }
 
   async prevDay() {
@@ -169,7 +189,7 @@ export class VisitsComponent implements OnInit {
   }
 
   async finished() {
-    if (this.locked) {
+    if (!this.locked) {
       let count = await this.query.getOpenVisitsCount()
       if (count > 0) {
         let yes = await this.ui.yesNoQuestion(`עדיין נותרו דיווחים פתוחים,\nלהמשיך בכל זאת`)
@@ -188,7 +208,7 @@ export class VisitsComponent implements OnInit {
   }
 
   async edit(id = '') {
-    if (this.locked) {
+    if (!this.locked) {
       this.routeHelper.navigateToComponent(VisitComponent, { id: id, date: this.selectedDate })
     }
   }
