@@ -18,7 +18,7 @@ import { VisitsReadonlyComponent } from '../visits-readonly/visits-readonly.comp
 })
 export class VisitsChartComponent implements OnInit {
 
-  count = [] as { branch: string, name: string, tenants: number, delivers: number, visits: number, missings: number }[]
+  count = [] as { branch: string, name: string, tenants: number, delays: number, visits: number, missings: number }[]
 
   query = new VisitController()
   jobs = new JobController()
@@ -136,7 +136,7 @@ export class VisitsChartComponent implements OnInit {
   //   await this.retrieve(+1)
   // }
 
-  monthly = false
+  monthly = true
   async retrieve() {
     this.pieChartDataStatuses = [] as SingleDataSet;
     this.pieChartLabelsStatuses = [] as Label[];
@@ -166,28 +166,30 @@ export class VisitsChartComponent implements OnInit {
     // console.log(22)
     this.pieChartColors = [{ backgroundColor: this.barChartColors }];
     if (remult.user?.isManager) {
-      let countSum: { branch: string, name: string, tenants: number, delivers: number, visits: number, missings: number } =
-        { branch: '', name: '', tenants: 0, delivers: 0, visits: 0, missings: 0 }
+      let countSum: { branch: string, name: string, tenants: number, delays: number, visits: number, missings: number } =
+        { branch: '', name: '', tenants: 0, delays: 0, visits: 0, missings: 0 }
       if (this.count.length) {
         countSum = this.count[0]
       }
       this.pieChartDataStatuses.push(
         // countSum.delivers,
         countSum.visits,
-        countSum.missings)
+        countSum.missings,
+        countSum.delays)
       // this.pieChartLabelsStatuses.slice(0)
       this.pieChartLabelsStatuses.push(
         // `מסרו: ${countSum.delivers}`,
-        `דווחו: ${countSum.visits}`,
-        `חסרים: ${countSum.missings}`)
+        `נוכחות: ${countSum.visits}`,
+        `חסרים: ${countSum.missings}`,
+        `איחורים: ${countSum.delays}`)
     }
     else {
       if (this.count.length) {
         for (const c of this.count) {
           this.pieChartDataStatuses.push(
-            c.delivers + c.visits)
+            c.delays + c.visits)
           this.pieChartLabelsStatuses.push(
-            `${c.name}: ${c.delivers + c.visits}`)//.padEnd(20))
+            `${c.name}: ${c.delays + c.visits}`)//.padEnd(20))
         }
       }
       else {

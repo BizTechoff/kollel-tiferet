@@ -5,6 +5,7 @@ import { config } from 'dotenv';
 import express from 'express';
 import helmet from 'helmet';
 import sslRedirect from 'heroku-ssl-redirect';
+import { SqlDatabase } from 'remult';
 import { SignInController } from '../app/users/SignInController';
 import { api } from './api';
 import { download, generateUploadURL } from './aws-s3';
@@ -14,11 +15,11 @@ import { runEveryFullHours } from './jobs';
 
 config(); //loads the configuration from the .env file
 // process.env['TZ'] = 'Asia/Jerusalem'
-// SqlDatabase.LogToConsole = true 
+// SqlDatabase.LogToConsole = true
 async function startup() {
-
+ 
     console.log('kollel-tiferet.startup')
-
+ 
     const app = express();
     app.use(sslRedirect());
     app.use(session({

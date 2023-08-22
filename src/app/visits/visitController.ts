@@ -2,8 +2,9 @@ import { Allow, BackendMethod, Controller, ControllerBase, Field, Fields, remult
 import { Branch } from "../branches/branch";
 import { BranchGroup } from "../branches/branchGroup";
 import { DataControl } from "../common-ui-elements/interfaces";
-import { dateDiff, firstDateOfWeek, lastDateOfWeek, resetDateTime } from "../common/dateFunc";
+import { dateDiff, firstDateOfWeek, lastDateOfMonth, lastDateOfWeek, resetDateTime } from "../common/dateFunc";
 import { Tenant } from "../tenants/tenant";
+import { hebrewMonths } from "../terms";
 import { Roles } from "../users/roles";
 import { Visit } from "./visit";
 import { VisitVolunteer } from "./visit-volunteer";
@@ -16,21 +17,6 @@ export interface exportDataRow {
     // "error"?: string;
     [caption: string]: any;
 }
-
-let hebrewMonths = [
-    'ינואר',
-    'פברואר',
-    'מרץ',
-    'אפריל',
-    'מאי',
-    'יוני',
-    'יולי',
-    'אוגוסט',
-    'ספטמבר',
-    'אוקטובר',
-    'נובמבר',
-    'דצמבר'
-]
 
 const COLUMN_BRANCH = 'כולל'
 const COLUMN_TENANT = 'דייר'
@@ -51,6 +37,16 @@ export class VisitController extends ControllerBase {
         caption: 'עד תאריך'
     })
     tdate!: Date
+
+    @Fields.number<VisitController>({
+        caption: 'חודש'
+    })
+    month = (new Date()).getMonth()
+
+    @Fields.number<VisitController>({
+        caption: 'שנה'
+    })
+    year = (new Date()).getFullYear()
 
     @Fields.boolean<VisitController>({
         caption: 'מפורט'
@@ -234,7 +230,7 @@ export class VisitController extends ControllerBase {
         this.fdate = resetDateTime(this.fdate)
         this.tdate = resetDateTime(this.tdate)
         // console.log('SERVER 2',this.fdate, this.tdate, this.detailed, this.onlyDone)
-        let count = [] as { branch: string, name: string, tenants: number, delivers: number, visits: number, missings: number }[]
+        let count = [] as { branch: string, name: string, tenants: number, delays: number, visits: number, missings: number }[]
         if (remult.user!.isAdmin || remult.user!.isDonor) {
             // console.log('123')
             for await (const v of remult.repo(Visit).query(
@@ -265,22 +261,22 @@ export class VisitController extends ControllerBase {
                         branch: v.branch.id,
                         name: v.branch.name,
                         tenants: await remult.repo(Tenant).count({ active: true, branch: v.branch }),
-                        delivers: 0,
+                        delays: 0,
                         visits: 0,
                         missings: 0
                     }
                     count.push(found)
                 }
-                found.delivers += v.status === VisitStatus.delayed ? 1 : 0
+                found.delays += v.status === VisitStatus.delayed ? 1 : 0
                 found.visits += v.status === VisitStatus.visited ? 1 : 0
                 found.missings += v.status === VisitStatus.none ? 1 : 0
             }
             // console.log('125')
-            count = count.filter(c => (c.delivers + c.visits) > 0)
+            count = count.filter(c => (c.delays + c.visits) > 0)
             count.sort((c1, c2) => c1.name.localeCompare(c2.name))
         }
         else if (remult.user!.isManager) {
-            let rec: { branch: string, name: string, tenants: number, delivers: number, visits: number, missings: number } =
+            let rec: { branch: string, name: string, tenants: number, delays: number, visits: number, missings: number } =
             {
                 branch: remult.user!.branch,
                 name: remult.user!.branchName,
@@ -288,7 +284,7 @@ export class VisitController extends ControllerBase {
                     branch: { $id: remult.user!.branch },
                     active: true
                 }),
-                delivers: 0,
+                delays: 0,
                 visits: 0,
                 missings: 0
             }
@@ -305,7 +301,7 @@ export class VisitController extends ControllerBase {
                         }
                     }
                 })) {
-                rec.delivers += v.status === VisitStatus.delayed ? 1 : 0
+                rec.delays += v.status === VisitStatus.delayed ? 1 : 0
                 rec.visits += v.status === VisitStatus.visited ? 1 : 0
                 rec.missings += v.status === VisitStatus.none ? 1 : 0
             }
@@ -940,6 +936,10 @@ export class VisitController extends ControllerBase {
 
         let cc = 0
 
+        this.fdate = resetDateTime(new Date(this.year, this.month, 1))
+        this.tdate = lastDateOfMonth(this.fdate)
+        var vMonthlyDates = [] as string[]
+
         // build data
         for await (const v of remult.repo(Visit).query({
             where: {
@@ -978,6 +978,9 @@ export class VisitController extends ControllerBase {
             },
             orderBy: { branch: 'asc', date: "asc" }
         })) {
+            if (!vMonthlyDates.includes(v.date.toDateString())) {
+                vMonthlyDates.push(v.date.toDateString())
+            }
             ++cc
             // console.log('init', v.status.id, this.isDelayed(v.status), v.status === VisitStatus.visited)
             const tenantPayment = this.isDelayed(v.status) || this.isVisited(v.status)
@@ -1233,7 +1236,13 @@ export class VisitController extends ControllerBase {
             if (!aoa[fm.row]) {
                 aoa[fm.row] = [] as string[]
             }
-            aoa[fm.row][0] = m.month
+
+            var month = m.month
+            if (vMonthlyDates.length) {
+                month += ` - סה"כ ${vMonthlyDates.length} שיעורים`
+            }
+            aoa[fm.row][0] = month
+
             if (!aoa[fm.row + 1]) {
                 aoa[fm.row + 1] = [] as string[]
             }
@@ -1250,8 +1259,8 @@ export class VisitController extends ControllerBase {
             let startCol = 2
             aoa[fm.row + 1][startCol] = this.group.single
             aoa[fm.row + 1][startCol + 1] = 'ת.ז'
-            aoa[fm.row + 1][startCol + 2] = 'ימי איחור'
-            aoa[fm.row + 1][startCol + 3] = 'ימי נוכחות'
+            aoa[fm.row + 1][startCol + 2] = 'איחורים'
+            aoa[fm.row + 1][startCol + 3] = 'נוכחות'
             aoa[fm.row + 1][startCol + 4] = 'הערות'
             if (remult.user?.isAdmin || remult.user?.isDonor) {
                 aoa[fm.row + 1][startCol + 5] = 'מספר משלם'

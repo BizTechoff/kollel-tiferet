@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { BranchGroup } from '../../branches/branchGroup';
-import { firstDateOfWeek, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
+import { firstDateOfMonth, firstDateOfWeek, lastDateOfMonth, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
 import { VisitController } from '../visitController';
 
 @Component({
@@ -36,8 +36,8 @@ export class VisitsReportComponent implements OnInit, OnChanges {
   async retrieve() {
     // console.log(`VisitsReportComponent: { Retrieving group: ${this.group.id}}`)
     let today = resetDateTime(new Date())
-    this.query.fdate =today// firstDateOfWeek(today)
-    this.query.tdate =today// lastDateOfWeek(today)
+    this.query.fdate =firstDateOfMonth(today)
+      this.query.tdate = lastDateOfMonth(today)
     this.visits = await this.query.getVisitsByBranch()
     this.summary = { count: 0, delayed: 0, visited: 0 }
     // console.log(`Initialize: ${this.summary.count}`)

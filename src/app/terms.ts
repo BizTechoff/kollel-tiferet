@@ -1,4 +1,4 @@
-import './common/dateFunc'
+import './common/dateFunc';
 
 export const terms = {
     appVersion: '2023.08.23',
@@ -30,9 +30,9 @@ export const terms = {
     passwordDeleteConfirmOf: "Are you sure you want to delete the password of",
     rememberOnThisDevice: "Remember on this device?",
     RTL: false,
-    mobileNotExists:'סלולרי לא קיים',
-    mobileRequired:'סלולרי לא תקין',
-    nameRequired:'נא להזין את שמך',
+    mobileNotExists: 'סלולרי לא קיים',
+    mobileRequired: 'סלולרי לא תקין',
+    nameRequired: 'נא להזין את שמך',
     created: 'נוצר',
     createdBy: 'נוצר ע"י',
     modified: 'השתנה',
@@ -41,7 +41,21 @@ export const terms = {
     unique: 'קיים'
 }
 
- 
+export const hebrewMonths = [
+    'ינואר',//index 0
+    'פברואר',
+    'מרץ',
+    'אפריל',
+    'מאי',
+    'יוני',
+    'יולי',
+    'אוגוסט',
+    'ספטמבר',
+    'אוקטובר',
+    'נובמבר',
+    'דצמבר'
+]
+
 declare module 'remult' {
     export interface UserInfo {
         isAdmin: boolean;

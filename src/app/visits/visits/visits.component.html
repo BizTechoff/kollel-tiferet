@@ -21,34 +21,32 @@
         </div>
 
         <div style="display: flex; flex-direction: row; justify-content: center; margin-top: -14px; ">
-          <!-- <span>{{ this.diffDaysFromToday? (this.diffDaysFromToday < 0? 'לפני ' : 'בעוד ' ) + this.diffDaysFromToday
-              + ' ימים' : 'היום' }}</span> -->
           <span style="text-align: center; color: white;" (click)="this.gotoToday()">{{ this.diffDaysFromToday < 0
               ? 'לפני ' + Math.abs(diffDaysFromToday) + ' ימים' : this.diffDaysFromToday> 0 ? 'בעוד ' +
               Math.abs(diffDaysFromToday) + ' ימים' : 'היום' }}</span>
 
         </div>
 
-        <div *ngIf="this.locked"
-          style="display: flex; flex-direction: row; justify-content: center; align-items: center; background-color: lightyellow; text-align: center; border-radius: 15px; margin: 7px;">
+        <div *ngIf="this.locked" style="display: flex; flex-direction: row; justify-content: center; align-items: center; 
+          background-color: lightyellow; text-align: center; border-radius: 15px; margin: 7px;">
+
           <div style="display: flex; flex-direction: column;">
-            <div style="display: flex; flex-direction: row; justify-content: center;">
-              <mat-label style="font-weight: bold; color: red;">נעול לקריאה בלבד</mat-label>
+
+            <div style="display: flex; flex-direction: row; justify-content: center; align-items: end;">
+              <mat-label style="font-weight: bold; color: red;">לא ניתן לדווח</mat-label>
               <mat-icon style="color: red;">lock</mat-icon>
             </div>
-            <mat-label style="cursor: pointer; color: blue; text-decoration: underline; font-weight: bold;"
-              (click)="this.uploadImage()">לא הועלתה תמונה מתחילת שבוע שעבר</mat-label>
-            <mat-label style="cursor: pointer; color: blue; text-decoration: underline; font-weight: bold;"
-              (click)="this.uploadImage()">להעלות תמונה ליום שבחרת יש ללחוץ כאן</mat-label>
 
-            <label for="uploadImage" style="display: flex; align-items: center;">
-              <img src="/assets/playground_assets/upload2123-7rkq.svg" alt="upload2123" class="visit-upload" />
-            </label>
-            <input excludeAcceptAllOption=true #fileInput type="file" (input)="onFileInput($event, 'profile')"
+            <mat-label style="font-weight: bold; color: red;">לא הועלתה תמונה מתחילת שבוע שעבר</mat-label>
+
+            <label for="uploadImage"
+              style="cursor: pointer; color: blue; text-decoration: underline; font-weight: bold;">יש להעלות תמונה לאחד מ {{ Math.abs(diffDaysFromToday) }} הימים האחרונים</label>
+            <input hidden excludeAcceptAllOption=true #fileInput type="file" (input)="onFileInput($event, 'profile')"
               accept="audio/mp3,video/mp4,video/avi,image/png,image/jpg,image/jpeg" id="uploadImage"
               style="display:none" />
 
           </div>
+
         </div>
 
       </div>
@@ -60,13 +58,14 @@
     <div class="visits-cards">
       <div class="visits-cardtitle-totals">
         <div *ngIf="(this.totalCount())">
-          <span *ngIf="!(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09">סה"כ
+          <span *ngIf="!(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09">דווחו:
             <span [style.font-size]="this.presentsCount()?'x-large':''">{{ this.presentsCount() }}</span> מתוך
-            <span [style.font-size]="this.totalCount()?'x-large':''">{{ this.totalCount() }}</span> אברכים דווחו</span>
+            <span [style.font-size]="this.totalCount()?'x-large':''">{{ this.totalCount() }}</span> אברכים</span>
           <span *ngIf="(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09"
             style="font-size: x-large;">כל {{ this.totalCount()}} האברכים דווחו</span>
         </div>
-          <span *ngIf="(!this.totalCount())" class="visits-text09" style="font-size: large;"> {{ 'אין רשומות דיווח לתאריך זה' }} </span>
+        <span *ngIf="(!this.totalCount())" class="visits-text09" style="font-size: large;"> {{ 'אין רשומות דיווח לתאריך
+          זה' }} </span>
       </div>
       <div class="visits-cardcontent" *ngFor="let v of this.visits" (click)="this.edit(v.id)"
         [style.borderColor]="this.isNone(v)?  'rgba(227, 172, 120, 1)':'green'"

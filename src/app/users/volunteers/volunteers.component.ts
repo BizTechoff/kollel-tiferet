@@ -125,7 +125,7 @@ export class VolunteersComponent implements OnInit {
           where: {
             active: true,
             volunteer: true,
-            id: (await remult.repo(UserBranch).find({ where: { branch: { $id: remult.user?.id! } } }))
+            id: (await remult.repo(UserBranch).find({ where: { branch: { $id: remult.user?.branch! } } }))
               .map(ub => ub.branch.id)
           }
         })

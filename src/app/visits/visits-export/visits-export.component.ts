@@ -4,9 +4,10 @@ import * as xlsx from 'xlsx';
 import { BranchGroup } from '../../branches/branchGroup';
 import { RouteHelperService } from '../../common-ui-elements';
 import { UIToolsService } from '../../common/UIToolsService';
-import { addDaysToDate, dateDiff, firstDateOfMonth, firstDateOfWeek, lastDateOfMonth, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
-import { terms } from '../../terms';
+import { firstDateOfMonth, firstDateOfWeek, lastDateOfMonth, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
+import { hebrewMonths, terms } from '../../terms';
 import { UserMenuComponent } from '../../users/user-menu/user-menu.component';
+import { Visit } from '../visit';
 import { VisitController } from '../visitController';
 import { ExportType } from './exportType';
 
@@ -20,6 +21,7 @@ export class VisitsExportComponent implements OnInit {
   query = new VisitController()
   ext = 'xlsx'
   allowChangeExt = false
+  years = [] as number[]
 
   constructor(private routeHelper: RouteHelperService,
     private ui: UIToolsService) { }
@@ -27,6 +29,7 @@ export class VisitsExportComponent implements OnInit {
   remult = remult;
   ExportType = ExportType
   BranchGroup = BranchGroup
+  hebrewMonths = hebrewMonths
 
   startFilter = (d: Date): boolean => {
     const day = d.getDay();
@@ -41,7 +44,7 @@ export class VisitsExportComponent implements OnInit {
   }
 
   monthly = true
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     remult.user!.lastComponent = VisitsExportComponent.name
     let today = resetDateTime(new Date())
     this.query.fdate = firstDateOfWeek(today)
@@ -60,6 +63,16 @@ export class VisitsExportComponent implements OnInit {
     //   : ExportType.doneAndNotDone
     this.query.group = BranchGroup.fromId(remult.user!.group)
     this.ext = 'xlsx'
+
+    let ystart = (await remult.repo(Visit).findFirst({}, { orderBy: { date: 'asc' } }))?.date.getFullYear()
+    let yend = (await remult.repo(Visit).findFirst({}, { orderBy: { date: 'desc' } }))?.date.getFullYear()
+
+    for (let i = ystart; i <= yend; ++i) {
+      this.years.push(i)
+    }
+    if (!this.years.length) {
+      this.years.push((new Date()).getFullYear())
+    }
   }
 
   async groupChanged() {
@@ -108,79 +121,80 @@ export class VisitsExportComponent implements OnInit {
   }
 
   async validate() {
-
-    // console.log('fdate1', this.query.fdate.toDateString())
-    // console.log('tdate1', this.query.tdate.toDateString())
-
-    if (!this.query.fdate) {
-      this.query.fdate = resetDateTime(new Date())
-      // this.ui.info('לא צויין תאריך התחלה')
-      // return false
-    }
-
-    if (this.monthly) {
-      this.query.fdate = firstDateOfMonth(this.query.fdate)
-    }
-    else {
-      this.query.fdate = firstDateOfWeek(this.query.fdate)
-    }
-    // console.log('fdate2', this.query.fdate.toDateString())
- 
-    if (!this.query.tdate) {
-      this.query.tdate = this.query.fdate
-    }
-    if (this.monthly) {
-      this.query.tdate = lastDateOfMonth(this.query.fdate)
-      if (this.query.tdate < this.query.fdate) {
-        this.query.tdate = lastDateOfMonth(this.query.fdate)
-      }
-    }
-    else {
-      this.query.tdate = lastDateOfWeek(this.query.tdate)
-      if (this.query.tdate < this.query.fdate) {
-        this.query.tdate = lastDateOfWeek(this.query.fdate)
-      }
-    }
-
-
-    // if (!this.query.tdate) {
-    //   this.query.tdate = this.query.fdate
-    // }
-    // this.query.tdate = lastDateOfWeek(this.query.tdate)
-    // if (this.query.tdate < this.query.fdate) {
-    //   this.query.tdate = lastDateOfWeek(this.query.fdate)
-    // }
-    // if (this.monthly) {
-    //   this.query.tdate = lastDateOfMonth(this.query.fdate)
-    // }
-
-    let sevenWeeks = 7 * 7 - 1
-    let diff = dateDiff(this.query.fdate, this.query.tdate)
-    if (diff > sevenWeeks) {
-      let yes = await this.ui.yesNoQuestion('מקסימום טווח של 7 שבועות, לבחור לך תאריך כזה?')
-      if (!yes) {
-        return false
-      }
-      if (this.monthly) {
-        this.query.fdate = firstDateOfMonth(this.query.fdate)
-      }
-      else {
-        this.query.fdate = firstDateOfWeek(
-          addDaysToDate(this.query.tdate, -sevenWeeks))
-      }
-    }
     if (![ExportType.all, ExportType.doneAndNotDone].includes(this.query.type)) {
       this.query.actual = false
     }
-    // console.log('fdate2', this.query.fdate.toDateString())
-    // console.log('tdate2', this.query.tdate.toDateString())
-
-
+    if (this.query.year > 0) { }
+    else {
+      this.ui.info('לא צויינה שנה')
+      return false
+    }
     // if (!this.query.detailed) {
     //   this.query.type = ExportType.done
     // } 
     return true
   }
+
+  // console.log('fdate1', this.query.fdate.toDateString())
+  // console.log('tdate1', this.query.tdate.toDateString())
+
+  // if (!this.query.fdate) {
+  //   this.query.fdate = resetDateTime(new Date())
+  //   // this.ui.info('לא צויין תאריך התחלה')
+  //   // return false
+  // }
+
+  // if (this.monthly) {
+  //   this.query.fdate = firstDateOfMonth(this.query.fdate)
+  // }
+  // else {
+  //   this.query.fdate = firstDateOfWeek(this.query.fdate)
+  // }
+  // // console.log('fdate2', this.query.fdate.toDateString())
+
+  // if (!this.query.tdate) {
+  //   this.query.tdate = this.query.fdate
+  // }
+  // if (this.monthly) {
+  //   this.query.tdate = lastDateOfMonth(this.query.fdate)
+  //   if (this.query.tdate < this.query.fdate) {
+  //     this.query.tdate = lastDateOfMonth(this.query.fdate)
+  //   }
+  // }
+  // else {
+  //   this.query.tdate = lastDateOfWeek(this.query.tdate)
+  //   if (this.query.tdate < this.query.fdate) {
+  //     this.query.tdate = lastDateOfWeek(this.query.fdate)
+  //   }
+  // }
+
+
+  // // if (!this.query.tdate) {
+  // //   this.query.tdate = this.query.fdate
+  // // }
+  // // this.query.tdate = lastDateOfWeek(this.query.tdate)
+  // // if (this.query.tdate < this.query.fdate) {
+  // //   this.query.tdate = lastDateOfWeek(this.query.fdate)
+  // // }
+  // // if (this.monthly) {
+  // //   this.query.tdate = lastDateOfMonth(this.query.fdate)
+  // // }
+
+  // let sevenWeeks = 7 * 7 - 1
+  // let diff = dateDiff(this.query.fdate, this.query.tdate)
+  // if (diff > sevenWeeks) {
+  //   let yes = await this.ui.yesNoQuestion('מקסימום טווח של 7 שבועות, לבחור לך תאריך כזה?')
+  //   if (!yes) {
+  //     return false
+  //   }
+  //   if (this.monthly) {
+  //     this.query.fdate = firstDateOfMonth(this.query.fdate)
+  //   }
+  //   else {
+  //     this.query.fdate = firstDateOfWeek(
+  //       addDaysToDate(this.query.tdate, -sevenWeeks))
+  //   }
+  // }
 
   back() {
     this.routeHelper.navigateToComponent(UserMenuComponent)

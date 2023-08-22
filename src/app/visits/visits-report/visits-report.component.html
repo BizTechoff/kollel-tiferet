@@ -1,9 +1,9 @@
 <div class="report">
     <div class="header">
         <div class="summary">
-            <span class="visited">{{ 'נוכחו: ' + this.summary.visited }}</span>
-            <span class="delayed">{{ 'איחרו: ' + this.summary.delayed }}</span>
-            <span class="count">{{ 'נותרו: ' + this.summary.count }}</span>
+            <span class="visited">{{ 'נוכחות: ' + this.summary.visited }}</span>
+            <span class="delayed">{{ 'איחורים: ' + this.summary.delayed }}</span>
+            <span class="count">{{ 'ללא דיווח: ' + this.summary.count }}</span>
             <!-- {{ 'נותרו: ' + v.summary.count + ' | נמסרו: ' + v.summary.delayed + ' | בוקרו: ' + v.summary.visited }} -->
         </div>
         <hr/>
@@ -19,9 +19,9 @@
                 {{ r.tenant.name }}
             </div> -->
             <div class="summary">
-                <span class="visited">{{ 'נוכחו: ' + v.summary.visited }}</span>
-                <span class="delayed">{{ 'איחרו: ' + v.summary.delayed }}</span>
-                <span class="count">{{ 'נותרו: ' + v.summary.count }}</span>
+                <span class="visited">{{ 'נוכחות: ' + v.summary.visited }}</span>
+                <span class="delayed">{{ 'איחורים: ' + v.summary.delayed }}</span>
+                <span class="count">{{ 'ללא דיווח: ' + v.summary.count }}</span>
                 <!-- {{ 'נותרו: ' + v.summary.count + ' | נמסרו: ' + v.summary.delayed + ' | בוקרו: ' + v.summary.visited }} -->
             </div>
         </div>

@@ -90,14 +90,11 @@ export class VisitsComponent implements OnInit {
       undefined!,
       undefined!)
 
-    await s3.loadFiles(e.target.files) //, target)
-  }
-
-  async setEnabled() {
-    var q = new MediaController()
-    q.date = this.selectedDate
-    var count = await q.getPhotosCountWeekly()
-    this.locked = count === 0
+    const res = await s3.loadFiles(e.target.files) //, target)
+    console.log('res', res?.length ?? -1)
+    if (res?.length) {
+      await this.setEnabled()
+    }
   }
 
   presentsCount() {
@@ -138,14 +135,26 @@ export class VisitsComponent implements OnInit {
     }
   }
 
+  async setEnabled() {
+    this.locked = false
+    if (this.diffDaysFromToday > 0) {
+      this.locked = true
+    }
+    else {
+      var q = new MediaController()
+      q.date = this.selectedDate
+      var count = await q.getPhotosCountWeekly()
+      this.locked = count === 0
+    }
+  }
+
   setDiffDays() {
     this.diffDaysFromToday = dateDiff(
-      this.selectedDate,
+      resetDateTime(this.selectedDate),
       resetDateTime(new Date()),
       false
     )
     console.log('diffDaysFromToday', this.diffDaysFromToday)
-
   }
 
   async prevDay() {

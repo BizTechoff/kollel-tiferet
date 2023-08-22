@@ -44,7 +44,7 @@ export const api = remultExpress({
     // }, 
     dataProvider: async () => {
         let isProduction = (process.env['NODE_ENV'] ?? '') === 'production'
-        if (isProduction)
+        if (isProduction || true)
             return createPostgresConnection({ configuration: "heroku", sslInDev: !(process.env['DEV_MODE'] === 'DEV') })
         return undefined;
     },

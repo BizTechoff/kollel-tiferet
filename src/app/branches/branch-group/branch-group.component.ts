@@ -5,6 +5,7 @@ import { DataControl } from '../../common-ui-elements/interfaces';
 import { resetDateTime } from '../../common/dateFunc';
 import { UserMenuComponent } from '../../users/user-menu/user-menu.component';
 import { BranchGroup } from '../branchGroup';
+import { hebrewMonths } from '../../terms';
 
 @Component({
   selector: 'app-branch-group',
@@ -28,9 +29,12 @@ export class BranchGroupComponent implements OnInit {
   constructor(private routeHelper: RouteHelperService) { }
   remult = remult
   BranchGroup = BranchGroup
+  today = ''
 
   ngOnInit(): void {
     // console.log(`invert: ${this.invert}`)
+    let d = resetDateTime(new Date())
+    this.today = `${d.getDate()} ${hebrewMonths[d.getMonth()]} ${d.getFullYear()}`
   }
   $ = getFields(this)
 

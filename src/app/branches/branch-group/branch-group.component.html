@@ -1,11 +1,27 @@
-<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%;"
+<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; padding-top: 7px;"
     [style.backgroundColor]="this.invert? 'rgba(38, 195, 234, 1)':'rgba(255, 255, 255, 1)'">
     <!-- rgba(255, 255, 255, 1);':'rgba(38, 195, 234, 1); -->
-    <div style="display: flex; flex-direction: row; justify-content: space-between;">
-        <!-- <span style="text-align: center;">בס"ד</span> -->
-        <span style="text-align: center; width: 100%; text-decoration: overline;">בעז"ה כולל תפארת זקנים לוי יצחק</span>
-    <!-- <hr> -->
+
+    <div dir="rtl" style="display: flex; flex-direction: row; opacity: 0.25; justify-content: space-between; width: 95%;
+    position: absolute; top: 0px;">
+        <div>
+            <span [style.color]="this.invert? 'rgba(255, 255, 255, 1)':'rgba(35, 67, 142, 1)'"
+                style="font-family: monospace;">
+                {{ 'בס"ד' }}</span>
+        </div>
+        <div>
+            <span [style.color]="this.invert? 'rgba(255, 255, 255, 1)':'rgba(35, 67, 142, 1)'"
+                style="font-style: italic; font-family: monospace;">
+                {{ 'כולל תפארת זקנים לוי יצחק' }}</span>
+        </div>
+        <div>
+            <span [style.color]="this.invert? 'rgba(255, 255, 255, 1)':'rgba(35, 67, 142, 1)'"
+                style="font-family: monospace;">
+                {{ today }}</span>
+        </div>
     </div>
+
+
     <!-- <hr width="100%"> -->
     <div *ngIf="remult.authenticated()"
         style="display: flex; flex-direction: row; justify-content: space-between; width: 100%; direction: rtl;">
@@ -16,7 +32,7 @@
     </div> -->
 
         <div class="menu-userinfo">
-            <span class="menu-text"
+            <span class="menu-text" id="userNameWidth"
                 [style.color]="this.invert? 'rgba(255, 255, 255, 1)':'rgba(35, 67, 142, 1)'"><span>{{ remult.user?.name
                     }}</span></span>
             <div class="menu-location">

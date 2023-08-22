@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { remult } from 'remult';
 import { RouteHelperService } from '../../common-ui-elements';
-import { firstDateOfWeek, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
+import { firstDateOfMonth, firstDateOfWeek, lastDateOfMonth, lastDateOfWeek, resetDateTime } from '../../common/dateFunc';
 import { UIToolsService } from '../../common/UIToolsService';
 import { terms } from '../../terms';
 import { UserMenuComponent } from '../../users/user-menu/user-menu.component';
@@ -45,8 +45,8 @@ export class VisitsReadonlyComponent implements OnInit {
     // console.log('this.jobs.lastJobRun', this.jobs.lastJobRun)
     if (this.args?.branch?.trim().length) {
       let today = resetDateTime(new Date())
-      this.query.fdate =today// firstDateOfWeek(today)
-      this.query.tdate = today//lastDateOfWeek(today)
+      this.query.fdate =firstDateOfMonth(today)
+      this.query.tdate = lastDateOfMonth(today)
       this.visits = await this.query.getVisitsReadOnly(this.args.branch)
     }
   }

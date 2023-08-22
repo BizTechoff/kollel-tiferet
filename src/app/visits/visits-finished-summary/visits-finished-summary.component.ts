@@ -26,7 +26,7 @@ export class VisitsFinishedSummaryComponent implements OnInit {
   terms = terms;
   remult = remult;
 
-  count = [] as { branch: string, tenants: number, delivers: number, visits: number, missings: number }[]
+  count = [] as { branch: string, tenants: number, delays: number, visits: number, missings: number }[]
   countSum = { tenants: 0, delivers: 0, visits: 0, missings: 0 }
 
 
@@ -37,7 +37,7 @@ export class VisitsFinishedSummaryComponent implements OnInit {
     this.count = await this.query.getWeeklyCounters()
     for (const c of this.count) {
       this.countSum.tenants += c.tenants
-      this.countSum.delivers += c.delivers
+      this.countSum.delivers += c.delays
       this.countSum.visits += c.visits
       this.countSum.missings += c.missings
     }
