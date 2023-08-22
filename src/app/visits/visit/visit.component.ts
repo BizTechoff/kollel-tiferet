@@ -69,7 +69,8 @@ export class VisitComponent implements OnInit {
     let today = resetDateTime(this.args.date)
     this.query.fdate = today //firstDateOfWeek(today)
     this.query.tdate = today //lastDateOfWeek(today)
-    this.visits = await this.query.getVisits()
+    var res = await this.query.getVisits()
+    this.visits = res.visits
     this.visit = undefined!
     if (this.args.id?.trim().length) {
       //console.log('this.visits', this.visits)

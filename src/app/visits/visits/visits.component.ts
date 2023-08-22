@@ -7,7 +7,6 @@ import { UIToolsService } from '../../common/UIToolsService';
 import { dateDiff, resetDateTime } from '../../common/dateFunc';
 import { uploader } from '../../common/uploader';
 import { JobController } from '../../jobs/jobController';
-import { MediaController } from '../../media/mediaController';
 import { NewsController } from '../../news/newsController';
 import { terms } from '../../terms';
 import { UserMenuComponent } from '../../users/user-menu/user-menu.component';
@@ -88,12 +87,14 @@ export class VisitsComponent implements OnInit {
       undefined!,
       undefined!,
       undefined!,
-      undefined!)
+      undefined!,
+      this.selectedDate)
 
     const res = await s3.loadFiles(e.target.files) //, target)
     console.log('res', res?.length ?? -1)
     if (res?.length) {
-      await this.setEnabled()
+      this.ui.info('ההעלאה הצליחה')
+      await this.retrieve()
     }
   }
 
@@ -126,25 +127,14 @@ export class VisitsComponent implements OnInit {
     if (!this.retrieving) {
       this.retrieving = true
       this.selectedDate = resetDateTime(this.selectedDate, days)
+      this.setDiffDays()
       this.query.fdate = this.selectedDate // firstDateOfWeek(today)
       this.query.tdate = this.selectedDate // lastDateOfWeek(today)
-      this.visits = await this.query.getVisits()
-      await this.setEnabled()
-      this.setDiffDays()
+      this.query.selected = this.selectedDate
+      var res = await this.query.getVisits()
+      this.visits = res.visits
+      this.locked = res.locked //|| true
       this.retrieving = false
-    }
-  }
-
-  async setEnabled() {
-    this.locked = false
-    if (this.diffDaysFromToday > 0) {
-      this.locked = true
-    }
-    else {
-      var q = new MediaController()
-      q.date = this.selectedDate
-      var count = await q.getPhotosCountWeekly()
-      this.locked = count === 0
     }
   }
 

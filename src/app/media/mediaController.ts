@@ -20,31 +20,35 @@ export class MediaController extends ControllerBase {
 
 
     @BackendMethod({ allowed: Roles.manager })
-    async getPhotosCountWeekly() {
-        var result = 0
-        var checkLocked = process.env['CHECK_VISITS_LOCK_NO_PHOTOS'] === 'true' ?? false
-        var count = await remult.repo(Media).count()
-        if (!checkLocked) {// || !count) {
-            result = 1
+    async validateWeeklyPhotosUploaded() {
+        var locked = false
+        var validate = process.env['VALIDATE_WEEKLY_PHOTOS_UPLOADED'] === 'true' ?? false
+        // var count = await remult.repo(Media).count()
+        if (!validate) {// || !count) {
+            console.info('Photo validation is Off')
         }
         else if (this.date) {
             this.date = resetDateTime(this.date)
             const start = addDaysToDate(
                 firstDateOfWeek(this.date),
                 -7)
+            const end = lastDateOfWeek(start)
+
             console.log('getPhotosCountWeekly',
                 start.toLocaleDateString(),
-                this.date.toLocaleDateString(),
-                dateDiff(start, this.date) + ' days')
-            result = await remult.repo(Media).count({
+                end.toLocaleDateString(),
+                dateDiff(start, end) + ' days')
+
+            var c = await remult.repo(Media).count({
                 branch: { $id: remult.user?.branch! },
                 type: [MediaType.photo, MediaType.video, MediaType.text],
-                date: { '$gte': start },//'$lte': this.date
+                date: { '$gte': start, '$lte': end },
                 active: true
             })
-            console.log('result', result)
+            locked = !(c > 0)
+            console.log('validateWeeklyPhotosUploaded.locked', locked)
         }
-        return result
+        return locked
     }
 
     @BackendMethod({ allowed: Allow.authenticated })
@@ -65,80 +69,6 @@ export class MediaController extends ControllerBase {
             active: true
         })
         return photo?.link ?? ''
-    }
-
-    @BackendMethod({ allowed: Allow.authenticated })
-    async getPhotos2() {
-        let result = [] as { branch: Branch, last: Date, media: Media[] }[]
-        if (remult.user!.isAdmin || remult.user!.isDonor) {
-            // console.log(1111)
-            for await (const m of remult.repo(Media).query({
-                where: {
-                    active: true,
-                    // type: MediaType.photo,
-                    branch: await remult.repo(Branch).find({
-                        where: {
-                            group: this.group === BranchGroup.all
-                                ? undefined!
-                                : this.group
-                        }
-                    })
-                },
-                orderBy: { created: 'desc' }
-            })) {
-                // console.log(m.branch.id)
-                let found = result.find(b => b.branch.id === m.branch.id)
-                if (!found) {
-                    found = { branch: m.branch, last: undefined!, media: [] as Media[] }
-                    result.push(found)
-                }
-                if (!found.last || m.created > found.last) {
-                    found.last = m.created
-                }
-                found.media.push(m)
-            }
-            // result.push(...
-            //     await remult.repo(Media).find({
-            //         where: {
-            //             active: true
-            //         },
-            //         orderBy: { created: 'desc' }
-            //     }))
-        }
-        else if (remult.user!.isManager) {
-            for await (const m of remult.repo(Media).query({
-                where: {
-                    branch: { $id: remult.user?.branch! },
-                    active: true
-                },
-                orderBy: { created: 'desc' }
-            })) {
-                console.log(m.branch.id)
-                let found = result.find(b => b.branch.id === m.branch.id)
-                if (!found) {
-                    found = { branch: m.branch, last: undefined!, media: [] as Media[] }
-                    result.push(found)
-                }
-                if (!found.last || m.created > found.last) {
-                    found.last = m.created
-                }
-                found.media.push(m)
-            }
-
-
-            // result.push(...
-            //     await remult.repo(Media).find({
-            //         where: {
-            //             branch: { $id: remult.user?.branch! },
-            //             active: true
-            //         },
-            //         orderBy: { created: 'desc' }
-            //     }))
-        }
-
-        // result.sort((b1, b2) => b1.branch.name.localeCompare(b2.branch.name))
-
-        return result
     }
 
     @BackendMethod({ allowed: Allow.authenticated })
@@ -183,142 +113,6 @@ export class MediaController extends ControllerBase {
             }
             foundMonth.media.push(m)
         }
-
-        return result
-    }
-
-    @BackendMethod({ allowed: Allow.authenticated })
-    async getPhotos7() {
-        let result = [] as { week: string, branches: { branch: Branch, last: Date, media: Media[] }[] }[]
-        for await (const m of remult.repo(Media).query({
-            where: {
-                active: true,
-                branch: (remult.user!.isAdmin || remult.user!.isDonor)
-                    ? await remult.repo(Branch).find({
-                        where: {
-                            system: false,
-                            active: true,
-                            group: this.group === BranchGroup.all
-                                ? undefined!
-                                : this.group
-                        }
-                    })
-                    : { $id: remult.user?.branch! }
-            },
-            orderBy: { branch: "asc", date: 'desc', created: 'desc' }
-        })) {
-
-            let first = firstDateOfWeek(m.date)
-            let last = lastDateOfWeek(m.date)
-            let week = `שבוע ${first.getDate()}-${last.getDate()}.${last.getMonth() + 1}`
-
-            let found = result.find(w => w.week === week)
-            if (!found) {
-                found = { week: week, branches: [] as { branch: Branch, last: Date, media: Media[] }[] }
-                result.push(found)
-            }
-            let foundMonth = found.branches.find(b => b.branch.id === m.branch.id)
-            if (!foundMonth) {
-                foundMonth = { branch: m.branch, last: undefined!, media: [] as Media[] }
-                found.branches.push(foundMonth)
-            }
-            if (!foundMonth.last || m.date > foundMonth.last) {
-                foundMonth.last = m.date
-            }
-            foundMonth.media.push(m)
-        }
-
-        return result
-    }
-
-    @BackendMethod({ allowed: Allow.authenticated })
-    async getPhotos3() {
-        let result = [] as { branch: Branch, weeks: { week: string, last: Date, media: Media[] }[] }[]
-        if (remult.user!.isAdmin || remult.user!.isDonor) {
-            for await (const m of remult.repo(Media).query({
-                where: {
-                    active: true,
-                    // type: MediaType.photo,
-                    branch: await remult.repo(Branch).find({
-                        where: {
-                            system: false,
-                            active: true,
-                            group: this.group === BranchGroup.all
-                                ? undefined!
-                                : this.group
-                        }
-                    })
-                },
-                orderBy: { branch: "asc", created: 'desc' }
-            })) {
-                let found = result.find(b => b.branch.id === m.branch.id)
-                if (!found) {
-                    found = { branch: m.branch, weeks: [] as { week: string, last: Date, media: Media[] }[] }
-                    result.push(found)
-                }
-                let first = firstDateOfWeek(m.created)
-                let last = lastDateOfWeek(m.created)
-                let week = `שבוע ${first.getDate()}-${last.getDate()}.${last.getMonth() + 1}`
-
-                let founsWeek = found.weeks.find(w => w.week === week)
-                if (!founsWeek) {
-                    founsWeek = { week: week, last: undefined!, media: [] as Media[] }
-                    found.weeks.push(founsWeek)
-                }
-                if (!founsWeek.last || m.created > founsWeek.last) {
-                    founsWeek.last = m.created
-                }
-                founsWeek.media.push(m)
-            }
-            // result.push(...
-            //     await remult.repo(Media).find({
-            //         where: {
-            //             active: true
-            //         },
-            //         orderBy: { created: 'desc' }
-            //     }))
-        }
-        else if (remult.user!.isManager) {
-            for await (const m of remult.repo(Media).query({
-                where: {
-                    branch: { $id: remult.user?.branch! },
-                    active: true
-                },
-                orderBy: { created: 'desc' }
-            })) {
-                console.log(2222)
-                let found = result.find(b => b.branch.id === m.branch.id)
-                if (!found) {
-                    found = { branch: m.branch, weeks: [] as { week: string, last: Date, media: Media[] }[] }
-                    result.push(found)
-                }
-                let first = firstDateOfWeek(m.created)
-                let last = lastDateOfWeek(m.created)
-                let week = `שבוע ${first.getDate()}-${last.getDate()}.${last.getMonth() + 1}`
-
-                let founsWeek = found.weeks.find(w => w.week === week)
-                if (!founsWeek) {
-                    founsWeek = { week: week, last: undefined!, media: [] as Media[] }
-                    found.weeks.push(founsWeek)
-                }
-                if (!founsWeek.last || m.created > founsWeek.last) {
-                    founsWeek.last = m.created
-                }
-                founsWeek.media.push(m)
-            }
-
-
-            // result.push(...
-            //     await remult.repo(Media).find({
-            //         where: {
-            //             branch: { $id: remult.user?.branch! },
-            //             active: true
-            //         },
-            //         orderBy: { created: 'desc' }
-            //     }))
-        }
-
-        // result.sort((b1, b2) => b1.branch.name.localeCompare(b2.branch.name))
 
         return result
     }

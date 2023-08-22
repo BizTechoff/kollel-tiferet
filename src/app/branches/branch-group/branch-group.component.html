@@ -1,26 +1,28 @@
-<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; padding-top: 7px;"
+<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%;"
     [style.backgroundColor]="this.invert? 'rgba(38, 195, 234, 1)':'rgba(255, 255, 255, 1)'">
     <!-- rgba(255, 255, 255, 1);':'rgba(38, 195, 234, 1); -->
 
     <div dir="rtl" style="display: flex; flex-direction: row; opacity: 0.25; justify-content: space-between; width: 95%;
-    position: absolute; top: 0px;">
-        <div>
+    position: absolute; top: 0px; left: calc(50% - width/2);">
+        <!-- <div>
             <span [style.color]="this.invert? 'rgba(255, 255, 255, 1)':'rgba(35, 67, 142, 1)'"
                 style="font-family: monospace;">
                 {{ 'בס"ד' }}</span>
-        </div>
-        <div>
+        </div> -->
+        <!-- <div>
             <span [style.color]="this.invert? 'rgba(255, 255, 255, 1)':'rgba(35, 67, 142, 1)'"
                 style="font-style: italic; font-family: monospace;">
                 {{ 'כולל תפארת זקנים לוי יצחק' }}</span>
-        </div>
-        <div>
+        </div> -->
+        <!-- <div>
             <span [style.color]="this.invert? 'rgba(255, 255, 255, 1)':'rgba(35, 67, 142, 1)'"
                 style="font-family: monospace;">
                 {{ today }}</span>
-        </div>
+        </div> -->
     </div>
-
+    <!-- <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: smaller;">
+        <span>{{ 'כולל תפארת זקנים לוי יצחק' }}</span>
+    </div> -->
 
     <!-- <hr width="100%"> -->
     <div *ngIf="remult.authenticated()"
@@ -41,9 +43,20 @@
                 <span class="menu-text02"><span>{{ remult.user?.isAdmin ?'' :remult.user?.isDonor ?'' :'ראש כולל' }} {{
                         remult.user?.branchName?.replace('כולל','') }}</span></span>
             </div>
+            <div>
+                <span [style.color]="this.invert? 'rgba(255, 255, 255, 1)':'rgba(35, 67, 142, 1)'"
+                    style="font-style: italic; font-family: monospace; font-size: small;">
+                    {{ 'תפארת זקנים לוי יצחק' }}</span>
+            </div>
         </div>
+        
+        <!-- <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: smaller;">
+            <span>{{ 'כולל תפארת זקנים' }}</span>
+            <span>{{ 'לוי יצחק' }}</span>
+        </div> -->
+
         <div class="menu-userinfo">
-            <img src="/assets/Logo Colel Chabad.png" style="width: 70px; height: 50px;" (click)="this.rootmenu()" />
+            <img src="/assets/Logo Colel Chabad.png" style="width: 100px; height: 60px;" (click)="this.rootmenu()" />
         </div>
 
         <!-- <img src="/assets/playground_assets/chabadLogo.svg" alt="Frame14430" class="chabad-get-chessed-logo" /> -->

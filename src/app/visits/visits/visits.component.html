@@ -3,9 +3,19 @@
 
     <div class="visits-nav">
 
-      <div class="visits-search" (click)="this.search()">
-        <img src="/assets/playground_assets/vector1915-5neih.svg" alt="Vector1915" class="visits-vector04" />
-        <img src="/assets/playground_assets/vector1915-r5bg.svg" alt="Vector1915" class="visits-vector05" />
+      <div *ngIf="this.visits.length" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="visits-search" (click)="this.search()">
+          <img src="/assets/playground_assets/vector1915-5neih.svg" alt="Vector1915" class="visits-vector04" />
+          <img src="/assets/playground_assets/vector1915-r5bg.svg" alt="Vector1915" class="visits-vector05" />
+        </div>
+        <div class="visits-search">
+          <label for="uploadImage">
+            <mat-icon for="uploadImage" style="color: white;">photo_camera</mat-icon>
+          </label>
+          <input hidden excludeAcceptAllOption=true #fileInput type="file" (input)="onFileInput($event, 'profile')"
+            accept="audio/mp3,video/mp4,video/avi,image/png,image/jpg,image/jpeg" id="uploadImage"
+            style="display:none" />
+        </div>
       </div>
 
       <div style="display: flex; flex-direction: column; width: 100%;">
@@ -38,12 +48,10 @@
             </div>
 
             <mat-label style="font-weight: bold; color: red;">לא הועלתה תמונה מתחילת שבוע שעבר</mat-label>
+            <mat-label style="font-weight: bold; color: red;">יש להעלות תמונה באחד הימים מהשבוע שעבר</mat-label>
 
-            <label for="uploadImage"
-              style="cursor: pointer; color: blue; text-decoration: underline; font-weight: bold;">יש להעלות תמונה לאחד מ {{ Math.abs(diffDaysFromToday) }} הימים האחרונים</label>
-            <input hidden excludeAcceptAllOption=true #fileInput type="file" (input)="onFileInput($event, 'profile')"
-              accept="audio/mp3,video/mp4,video/avi,image/png,image/jpg,image/jpeg" id="uploadImage"
-              style="display:none" />
+            <!-- <label style="cursor: pointer; color: blue; text-decoration: underline; font-weight: bold;"
+              for="uploadImage">יש להעלות תמונה באחד הימים מהשבוע שעבר</label> -->
 
           </div>
 
@@ -56,9 +64,11 @@
     </div>
 
     <div class="visits-cards">
+
       <div class="visits-cardtitle-totals">
         <div *ngIf="(this.totalCount())">
-          <span *ngIf="!(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09">דווחו:
+          <span *ngIf="!(this.presentsCount()&&(this.presentsCount() === this.totalCount()))"
+            class="visits-text09">דווחו:
             <span [style.font-size]="this.presentsCount()?'x-large':''">{{ this.presentsCount() }}</span> מתוך
             <span [style.font-size]="this.totalCount()?'x-large':''">{{ this.totalCount() }}</span> אברכים</span>
           <span *ngIf="(this.presentsCount()&&(this.presentsCount() === this.totalCount()))" class="visits-text09"
@@ -67,6 +77,7 @@
         <span *ngIf="(!this.totalCount())" class="visits-text09" style="font-size: large;"> {{ 'אין רשומות דיווח לתאריך
           זה' }} </span>
       </div>
+
       <div class="visits-cardcontent" *ngFor="let v of this.visits" (click)="this.edit(v.id)"
         [style.borderColor]="this.isNone(v)?  'rgba(227, 172, 120, 1)':'green'"
         [style.borderWidth]="this.isNone(v)?  '2px':'7px'">
@@ -110,7 +121,7 @@
       </div>
     </div>
 
-    <div class="menu-frame27" (click)="this.finished()">
+    <div *ngIf="this.visits.length" class="menu-frame27" (click)="this.finished()">
       <div class="menu-exit">
         <span class="menu-text13"><span>סיימתי לדווח</span></span>
       </div>

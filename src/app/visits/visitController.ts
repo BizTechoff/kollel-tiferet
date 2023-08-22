@@ -3,6 +3,7 @@ import { Branch } from "../branches/branch";
 import { BranchGroup } from "../branches/branchGroup";
 import { DataControl } from "../common-ui-elements/interfaces";
 import { dateDiff, firstDateOfWeek, lastDateOfMonth, lastDateOfWeek, resetDateTime } from "../common/dateFunc";
+import { MediaController } from "../media/mediaController";
 import { Tenant } from "../tenants/tenant";
 import { hebrewMonths } from "../terms";
 import { Roles } from "../users/roles";
@@ -37,6 +38,11 @@ export class VisitController extends ControllerBase {
         caption: 'עד תאריך'
     })
     tdate!: Date
+
+    @Fields.dateOnly<VisitController>({
+        caption: 'תאריך'
+    })
+    selected!: Date
 
     @Fields.number<VisitController>({
         caption: 'חודש'
@@ -132,6 +138,7 @@ export class VisitController extends ControllerBase {
 
     @BackendMethod({ allowed: Allow.authenticated })
     async getVisits() {
+        var result = { locked: false, visits: [] as Visit[] }
         // console.log('SERVER 5',this.fdate, this.tdate, this.detailed, this.onlyDone)
         this.fdate = resetDateTime(this.fdate)
         this.tdate = resetDateTime(this.tdate)
@@ -139,8 +146,12 @@ export class VisitController extends ControllerBase {
         let rows = await remult.repo(Visit).find({
             where: {
                 branch: {
-                    $id: (await remult.repo(Branch).find({ where: { active: true, id: remult.user!.branch } }))
-                        .map(b => b.id)
+                    $id: (await remult.repo(Branch).find({
+                        where: {
+                            active: true,
+                            id: remult.user!.branch
+                        }
+                    })).map(b => b.id)
                 },
                 date: {
                     "$gte": this.fdate,
@@ -161,7 +172,14 @@ export class VisitController extends ControllerBase {
         //             .map(v => v.volunteer?.name).join(', ')
         // }
 
-        return rows
+        if (rows.length) {
+            var q = new MediaController()
+            q.date = this.selected
+            result.locked = await q.validateWeeklyPhotosUploaded()
+            result.visits.push(...rows)
+        }
+
+        return result
     }
 
     @BackendMethod({ allowed: Allow.authenticated })

@@ -116,7 +116,7 @@ export class uploader {
             // //console.log(imageUrl)
             // console.log('branchEngName 3', branchEngName)
             if (!this.excel) {
-              await this.addMedia(id, f.name, f.type, imageUrl)
+              await this.addMedia(id, f.name, f.type, imageUrl, this.date)
             }
             this.links.push({ file: id, path: imageUrl })
             result = true;
@@ -154,7 +154,7 @@ export class uploader {
     return ret;
   }
 
-  async addMedia(id: string, name: string, type: string, link: string) {
+  async addMedia(id: string, name: string, type: string, link: string, date: Date) {
     //console.log('a-1')
 
     // console.log('branchEngName 4')
