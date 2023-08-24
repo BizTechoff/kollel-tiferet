@@ -21,7 +21,7 @@ export class VisitsExportComponent implements OnInit {
   query = new VisitController()
   ext = 'xlsx'
   allowChangeExt = false
-  years = [] as number[]
+  years = [new Date().getFullYear()] as number[]
 
   constructor(private routeHelper: RouteHelperService,
     private ui: UIToolsService) { }
@@ -68,10 +68,9 @@ export class VisitsExportComponent implements OnInit {
     let yend = (await remult.repo(Visit).findFirst({}, { orderBy: { date: 'desc' } }))?.date.getFullYear()
 
     for (let i = ystart; i <= yend; ++i) {
-      this.years.push(i)
-    }
-    if (!this.years.length) {
-      this.years.push((new Date()).getFullYear())
+      if (!this.years.includes(i)) {
+        this.years.push(i)
+      }
     }
   }
 

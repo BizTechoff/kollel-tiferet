@@ -68,7 +68,7 @@
                 <div style="display: flex; flex-direction: row; width: 100%; justify-content: center;">
 
                     <div class="export-cardcontent">
-                        <mat-select [(value)]="this.query.year" dir="rtl">
+                        <mat-select [(value)]="this.query.year" dir="rtl" style="font-weight: bold;">
                             <mat-option *ngFor="let y of this.years" [value]="y">
                                 {{y}}
                             </mat-option>
@@ -76,7 +76,7 @@
                     </div>
  
                     <div class="export-cardcontent">
-                        <mat-select [(value)]="this.query.month" dir="rtl">
+                        <mat-select [(value)]="this.query.month" dir="rtl" style="font-weight: bold;">
                             <mat-option *ngFor="let m of hebrewMonths;let i = index" [value]="i">
                                 {{m}}
                             </mat-option>

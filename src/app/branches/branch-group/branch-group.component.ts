@@ -3,9 +3,9 @@ import { Fields, getFields, remult } from 'remult';
 import { RouteHelperService } from '../../common-ui-elements';
 import { DataControl } from '../../common-ui-elements/interfaces';
 import { resetDateTime } from '../../common/dateFunc';
+import { hebrewMonths } from '../../terms';
 import { UserMenuComponent } from '../../users/user-menu/user-menu.component';
 import { BranchGroup } from '../branchGroup';
-import { hebrewMonths } from '../../terms';
 
 @Component({
   selector: 'app-branch-group',
@@ -14,12 +14,11 @@ import { hebrewMonths } from '../../terms';
 })
 export class BranchGroupComponent implements OnInit {
 
-
   @Input() readonly = false
   @Input() invert = false
 
   @Output() groupChanged = new EventEmitter(true)
-  selected = BranchGroup.fromId(remult.user?.group!)
+  selectedGroup = BranchGroup.fromId(remult.user?.group!)
 
   @Output() dateChanged = new EventEmitter<Date>(true)
   @DataControl<BranchGroupComponent, Date>({ valueChange: row => row.onDateChanged() })
@@ -30,13 +29,13 @@ export class BranchGroupComponent implements OnInit {
   remult = remult
   BranchGroup = BranchGroup
   today = ''
+  $ = getFields(this)
 
   ngOnInit(): void {
     // console.log(`invert: ${this.invert}`)
     let d = resetDateTime(new Date())
     this.today = `${d.getDate()} ${hebrewMonths[d.getMonth()]} ${d.getFullYear()}`
   }
-  $ = getFields(this)
 
   async onGroupChanged(group: BranchGroup) {
     remult.user!.group = group.id
