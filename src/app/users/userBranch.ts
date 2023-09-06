@@ -3,7 +3,7 @@ import { Branch } from "../branches/branch";
 import { User } from "./user";
 
 @Entity<UserBranch>('users_branches', {
-    caption: 'כוללים של מתנדב',
+    caption: 'כוללים של אברך',
     allowApiCrud: () => remult.authenticated(),
     saving: (row) => {
         if (isBackend()) {

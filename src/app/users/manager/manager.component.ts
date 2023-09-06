@@ -76,15 +76,21 @@ export class ManagerComponent implements OnInit {
     }
     else {
       await remult.repo(User).save(this.manager)
-      var ubs = (await remult.repo(UserBranch).find({ where: { user: this.manager } }));
-      for (const ub of ubs) {
-        await remult.repo(UserBranch).delete(ub)
+      var exists = (await remult.repo(UserBranch).find({ where: { user: this.manager } }));
+      for (let i = exists.length - 1; i >= 0; --i) {
+        let ub = exists[i]
+        if (!this.branches.map(itm => itm.id).includes(ub.branch.id)) {
+          await remult.repo(UserBranch).delete(ub)
+        }
       }
-      for (const b of this.branches) {
-        let uBranch = remult.repo(UserBranch).create()
-        uBranch.user = this.manager
-        uBranch.branch = b
-        await remult.repo(UserBranch).save(uBranch)
+      for (let i = this.branches.length - 1; i >= 0; --i) {
+        let b = this.branches[i]
+        if (!exists.map(itm => itm.branch.id).includes(b.id)) {
+          let uBranch = remult.repo(UserBranch).create()
+          uBranch.user = this.manager
+          uBranch.branch = b
+          await remult.repo(UserBranch).save(uBranch)
+        }
       }
       this.back()
     }
