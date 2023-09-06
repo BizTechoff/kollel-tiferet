@@ -12,7 +12,7 @@
     <img alt="Speak120" src="/assets/playground_assets/speak120-sdd8.svg" class="frame1-speak" />
     <img alt="Arrow122" src="/assets/playground_assets/arrow122-c7e7.svg" class="frame1-arrow" />
 
-    <img alt="Frame14430" src="/assets/Logo Colel Chabad.png" class="chabad-colel-logo" style="width: 135px; height: 100px; top: 50px" />
+    <img alt="Frame14430" src="/assets/Logo Colel Chabad.png" class="chabad-colel-logo" />
 
     <span class="frame1-text">
       <span class="frame1-text01">
@@ -22,15 +22,21 @@
         <br /> -->
         <span></span>
       </span>
-      <span class="frame1-text02"><span>?ללמוד בכולל</span></span>
+      <span class="frame1-text02"><span>?ללמוד בכולל לוי יצחק</span></span>
     </span>
     <span class="frame1-text06"><span>מספר נייד</span></span>
     <input [(ngModel)]="this.signer.mobile" data-mask="000-000-0000" class="frame1-text10" type="text" maxlength="10"
       placeholder="000-000-0000" (keypress)="isNumberKey($event);" />
-    <img alt="Line11119" src="/assets/playground_assets/line11119-tyi7.svg" class="frame1-line1" />
+    <span *ngIf="this.branches.length > 1" class="frame1-text06-branch"><span>סניף</span></span>
+    <select *ngIf="this.branches.length > 1" class="frame1-text10-select" [(ngModel)]="this.signer.branch">
+      <option *ngFor="let b of this.branches" [value]="b.id">
+        {{ b.name }}
+      </option>
+    </select>
+    <!-- <img alt="Line11119" src="/assets/playground_assets/line11119-tyi7.svg" class="frame1-line1" /> -->
     <img alt="GetChessedLogo189" src="/assets/Logo Colel Chabad.png" class="frame1-chabad-colel-logo" />
     <div class="frame1-group2">
-      <img alt="Rectangle11122" src="/assets/playground_assets/redbutton-22d.svg" class="frame1-rectangle1" />
+      <img class="frame1-rectangle1" alt="Rectangle11122" src="/assets/playground_assets/redbutton-22d.svg" />
       <button class="button-login" (click)="signIn()">!אני מוכן ללמוד</button>
     </div>
     <!-- <img

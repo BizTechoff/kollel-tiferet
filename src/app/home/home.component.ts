@@ -16,6 +16,8 @@ import { UserValidationComponent } from '../users/user-validation/user-validatio
 export class HomeComponent implements OnInit {
 
   signer = new SignInController();
+  branches = [] as { id: string, name: string }[]
+  oldMobile = ''
 
   constructor(
     private routeHelper: RouteHelperService,
@@ -28,11 +30,11 @@ export class HomeComponent implements OnInit {
   }
 
   async signIn() {
-
-    // let u = await remult.repo(User).findFirst({ mobile: this.signer.mobile, active: true }, { useCache: false });
-    // if(u && u.admin && u.manager){
-    //   let yes = await this.ui.yesNoQuestion(`כן - כניסה כאדמין\nלא - כניסה כראש כולל`)
-    // }
+    if (this.signer.mobile !== this.oldMobile) {
+      this.oldMobile = this.signer.mobile
+      this.signer.branch = ''
+    }
+    this.branches.splice(0)
     try {
       let isDevMode = false
       try { isDevMode = await (new AppController()).isDevMode() }
@@ -50,13 +52,43 @@ export class HomeComponent implements OnInit {
         }
       }
       else {
-        let res = await this.signer.signIn()
-        if (res.success) {
-          remult.user = res.userInfo
-          this.routeHelper.navigateToComponent(UserMenuComponent)
+        const res = await this.signer.userBranches()
+        if (res.error.length) {
+          this.ui.info(res.error)
         }
         else {
-          this.ui.info(res.error)
+          // if (!this.signer.branch.length) {
+          //   if (res.branches.length === 1) {
+          //     this.signer.branch = res.branches[0].id
+          //   }
+          //   else if (res.branches.length === 2){
+          //     this.signer.branch = res.branches[1].id
+          //   }
+          // }
+          // if (!this.signer.branch.length) {
+          //   this.ui.info('לא נבחר סניף')
+          // }
+          // else 
+          {
+            this.branches.push(
+              ...res.branches)
+            if (this.branches.length < 2 || this.signer.branch.length) {
+              let res = await this.signer.signIn()
+              if (res.success) {
+                remult.user = res.userInfo
+                this.routeHelper.navigateToComponent(UserMenuComponent)
+              }
+              else {
+                this.ui.info(res.error)
+              }
+            }
+            else if (this.branches.length === 2) {
+              this.signer.branch = this.branches[0].id
+            }
+            else {
+              console.error('NO BRANCHES FOR CURRENT USER')
+            }
+          }
         }
       }
     }

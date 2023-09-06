@@ -1,7 +1,7 @@
 <div *ngIf="this.manager" class="manager-container">
   <div class="manager-manager">
     <!-- <div class="manager-top"> -->
-      <!-- <div class="manager-cteen-logo" (click)="this.rootmenu()">
+    <!-- <div class="manager-cteen-logo" (click)="this.rootmenu()">
         <div class="manager-logo">
           <div class="manager-cteen">
             <div class="manager-carea">
@@ -25,7 +25,7 @@
           </div>
         </div>
       </div> -->
-      <!-- <div style="display: flex; flex-direction: column;" (click)="this.rootmenu()">
+    <!-- <div style="display: flex; flex-direction: column;" (click)="this.rootmenu()">
         <div>
           <img src="/assets/Logo Colel Chabad.png" alt="Frame14430" class="chabad-colel-logo" />
         </div>
@@ -33,8 +33,8 @@
           <img src="/assets/logo.ahavat.eliyau.svg" alt="Frame14430" class="ahavat-eliyau-logo" />
         </div>
       </div> -->
-      <!-- <app-branch-group [readonly]="true"></app-branch-group> -->
-      <!-- <div class="manager-userinfo">
+    <!-- <app-branch-group [readonly]="true"></app-branch-group> -->
+    <!-- <div class="manager-userinfo">
         <span class="manager-text"><span>{{ this.remult.user?.name }}</span></span>
         <div class="manager-location">
           <span class="manager-text02"><span>{{ remult.user?.isAdmin?'':remult.user?.isDonor?'':'ראש כולל' }} {{
@@ -53,25 +53,52 @@
     <div class="manager-data">
       <div class="manager-dataviewas">
         <div class="manager-cardcontent" (click)="this.selectBranch()">
+          <div style="display: flex; flex-direction: column; justify-content: space-between;">
           <div class="manager-search">
             <img src="/assets/playground_assets/vector2031-n52p.svg" alt="Vector2031" class="manager-vector4" />
-            <img src="/assets/playground_assets/vector2031-8sa.svg" alt="Vector2031" class="manager-vector5" style="width: 8px; top: 13px;" />
+            <img src="/assets/playground_assets/vector2031-8sa.svg" alt="Vector2031" class="manager-vector5"
+              style="width: 8px; top: 13px;" />
           </div>
-          <span class="manager-text06"><span>{{ this.selectedBranch?this.selectedBranch.name:'' }}</span></span>
+          <div *ngIf="this.branches.length > 1">
+            <mat-icon (click)="this.removeFirstBranch($event)">close</mat-icon>
+          </div>
+        </div>
+          <span class="manager-text06"><span>{{ this.branches.length?this.branches[0].name:'' }}</span></span>
           <span class="manager-text08"><span>:כולל</span></span>
         </div>
+        <div *ngIf="(this.branches.length === 1)" style="width: 100%;">
+          <button style="width: 100%;" mat-raised-button (click)="this.selectBranch2()">הוספת כולל</button>
+        </div>
+        <div *ngIf="(this.branches.length > 1)" class="manager-cardcontent" (click)="this.selectBranch2()">
+          <div style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="manager-search">
+              <img src="/assets/playground_assets/vector2031-n52p.svg" alt="Vector2031" class="manager-vector4" />
+              <img src="/assets/playground_assets/vector2031-8sa.svg" alt="Vector2031" class="manager-vector5"
+                style="width: 8px; top: 13px;" />
+            </div>
+            <div>
+              <mat-icon (click)="this.removeSecondBranch($event)">close</mat-icon>
+            </div>
+          </div>
+          <span class="manager-text06"><span>{{ this.branches.length>1?this.branches[1].name:'' }}</span></span>
+          <span class="manager-text08"><span>:כולל</span></span>
+        </div>
+
         <div class="manager-cardcontent1">
-          <span class="manager-text10"><input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);" type="text"
+          <span class="manager-text10"><input
+              style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);" type="text"
               [(ngModel)]="this.manager.name"></span>
           <span class="manager-text12"><span>:שם</span></span>
         </div>
         <div class="manager-cardcontent2">
-          <span class="manager-text14"><input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);" type="text"
+          <span class="manager-text14"><input
+              style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);" type="text"
               [(ngModel)]="this.manager.mobile"></span>
           <span class="manager-text16"><span>:סלולרי</span></span>
         </div>
         <div class="manager-cardcontent3">
-          <span class="manager-text18"><input style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);" type="text"
+          <span class="manager-text18"><input
+              style="font-size: 14pt; width: 100%; direction: rtl; border-color: rgba(227, 172, 120, 1);" type="text"
               [(ngModel)]="this.manager.remark"></span>
           <span class="manager-text20"><span>:הערה</span></span>
         </div>

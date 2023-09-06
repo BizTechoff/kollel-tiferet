@@ -3,7 +3,6 @@ import { getRequest } from "../../server/getRequest";
 import { SmsService } from "../../server/sms";
 import { AppController } from "../appController";
 import { Branch } from "../branches/branch";
-import { BranchGroup } from "../branches/branchGroup";
 import { mobileToDb } from "../common/mobileFunc";
 import { terms } from "../terms";
 import { Roles } from "./roles";
@@ -24,10 +23,10 @@ export class SignInController extends ControllerBase {
     })
     verifyCode = '';
 
-    @Fields.boolean<SignInController>({
-        caption: 'כניסת אדמין כמנהל'
+    @Fields.string<SignInController>({
+        caption: 'סניף'
     })
-    adminAsManager = false
+    branch = ''
 
 
     @Fields.boolean<SignInController>({
@@ -41,118 +40,45 @@ export class SignInController extends ControllerBase {
      * 1. The first user that signs in, is created as a user and is determined as admin.
      * 2. When a user that has no password signs in, that password that they've signed in with is set as the users password
      */
-    async signIn2() {
-        let result: UserInfo | undefined;
+    async userBranches() {
+        let result = { error: '', branches: [] as { id: string, name: string }[] }
         const userRepo = remult.repo(User);
-        // //console.log('remult.user', JSON.stringify(remult))
-        // //console.log('userRepo',userRepo)
         let u = await userRepo.findFirst({ mobile: [this.mobile, '1' + this.mobile] }, { useCache: false });
-        // console.log('signIn', u?.mobile, this.mobile)
-        if (!u) {
-            // console.log('!u')
-            if (await userRepo.count() === 0) { //first ever user is the admin
-                u = await userRepo.insert({
-                    mobile: this.mobile,
-                    admin: true,
-                    name: 'admin'
-                })
-                let branch = await remult.repo(Branch).findFirst({ system: true })
-                const userBranchRepo = remult.repo(UserBranch);
-                let ub = await userBranchRepo.insert({
-                    branch: branch,
-                    user: u
-                })
-            }
-        }
+        console.log(1)
         if (u) {
+            console.log(2)
             let uMobile = mobileToDb(u.mobile)
-            // console.log('u', uMobile, this.mobile)
             if (uMobile === this.mobile || uMobile === '1' + this.mobile) {
-
-                if (!u.active) {
-                    throw new Error('משתמש זה איננו פעיל');
-                }
-                let adminVerifyCode = process.env['ADMIN_VERIFY_CODE'] ?? ''
-                if ([u.verifyCode, adminVerifyCode].includes(this.verifyCode)) {
-                    if (this.verifyCode === adminVerifyCode) {
-
-                    } else {
-                        let validVerificationCodeResponseMinutes = 5
-                        let now = new Date();
-                        let minValidTime = new Date(
-                            now.getFullYear(),
-                            now.getMonth(),
-                            now.getDate(),
-                            now.getHours(),
-                            now.getMinutes() - validVerificationCodeResponseMinutes);
-                        if (u.verifyTime < minValidTime) {
-                            throw new Error('קוד זה כבר אינו בתוקף');
+                console.log(3)
+                if (u.active) {
+                    console.log(4)
+                    const userBranchRepo = remult.repo(UserBranch);
+                    for await (const ub of userBranchRepo.query({
+                        where: { user: u }
+                    })) {
+                        if (ub.branch.active) {
+                            result.branches.push({
+                                id: ub.branch.id,
+                                name: ub.branch.name
+                            })
                         }
                     }
-
-                    u.logedIn = new Date()
-                    await u.save()
-                    // console.log('u.firstName',u.firstName)
-                    result = {
-                        id: u.id,
-                        roles: [],
-                        name: u.name,
-                        isAdmin: false,
-                        isDonor: false,
-                        isManager: false,
-                        isVolunteer: false,
-                        isTenant: false,
-                        branch: '',
-                        branchName: '',
-                        lastComponent: '',
-                        group: ''
-                    };
-                    if (!remult.user) {
-                        remult.user = result
-                    }
-                    if (u.admin && !this.adminAsManager) {
-                        result.roles!.push(Roles.admin);
-                        remult.user!.isAdmin = true
-                    }
-                    else if (u.donor) {
-                        result.roles!.push(Roles.donor);
-                        remult.user!.isDonor = true
-                    }
-                    else if (u.manager || this.adminAsManager) {
-                        result.roles!.push(Roles.manager);
-                        remult.user!.isManager = true
-                    }
-                    else if (u.volunteer) {
-                        result.roles!.push(Roles.volunteer);
-                        remult.user!.isVolunteer = true
-                    }
-                    else if (u.tenant) {
-                        result.roles!.push(Roles.tenant);
-                        remult.user!.isTenant = true
-                    }
-                    //set user-branch
-                    let ub = await remult.repo(UserBranch).find({ where: { user: { $id: u.id } } })
-                    if (ub?.length) {
-                        remult.user.branch = ub[0].branch.id
-                        remult.user.branchName = ub[0].branch.name
-                        remult.user.group = BranchGroup.all.id
+                    if (!result.branches.length) {
+                        result.error = 'מספר נייד לא שוייך לסניף'
                     }
                 }
+                else {
+                    result.error = 'מספר נייד אינו פעיל'
+                }
+            }
+            else {
+                result.error = 'מספר נייד לא נמצא'
             }
         }
-
-        if (result) {
-            // console.log('result')
-            const req = getRequest();
-            req.session!['user'] = result;
-            if (this.rememberOnThisDevice) {
-                let day = 24 * 60 * 60 * 1000 // one-day
-                req.sessionOptions.maxAge = 365 * day; //remember for a year
-            }
-            return result;
+        else {
+            result.error = 'מספר נייד לא קיים'
         }
-        // console.log('throw')
-        throw new Error(terms.invalidSignIn);
+        return result
     }
 
     @BackendMethod({ allowed: true })
@@ -211,7 +137,7 @@ export class SignInController extends ControllerBase {
                         if (!remult.user) {
                             remult.user = result.userInfo
                         }
-                        if (u.admin && !this.adminAsManager) {
+                        if (u.admin && !this.branch) {
                             result.userInfo.roles!.push(Roles.admin);
                             remult.user!.isAdmin = true
                         }
@@ -219,7 +145,7 @@ export class SignInController extends ControllerBase {
                             result.userInfo.roles!.push(Roles.donor);
                             remult.user!.isDonor = true
                         }
-                        else if (u.manager || this.adminAsManager) {
+                        else if (u.manager || this.branch) {
                             result.userInfo.roles!.push(Roles.manager);
                             remult.user!.isManager = true
                         }
@@ -232,7 +158,10 @@ export class SignInController extends ControllerBase {
                             remult.user!.isTenant = true
                         }
                         //set user-branch
-                        let ub = await remult.repo(UserBranch).findFirst({ user: { $id: u.id } }, {useCache: false})
+                        let ub = await remult.repo(UserBranch).findFirst({
+                            user: { $id: u.id },
+                            branch: this.branch ? { $id: this.branch } : undefined!
+                        }, { useCache: false })
                         if (ub) {
                             // console.log('u.id',u.id,ub.branch,ub.user,ub)
                             remult.user.branch = ub.branch.id
@@ -242,7 +171,7 @@ export class SignInController extends ControllerBase {
                             result.userInfo.branchName = ub.branch.name
                             result.userInfo.group = ub.branch.group?.id
                         }
-                    } 
+                    }
                     else {
                         result.error = 'משתמש זה איננו פעיל'
                     }

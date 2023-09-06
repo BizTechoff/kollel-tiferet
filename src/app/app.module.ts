@@ -61,6 +61,7 @@ import { VisitsComponent } from './visits/visits/visits.component';
 import { BranchGroupComponent } from './branches/branch-group/branch-group.component';
 import { MediaTextComponent } from './media/media-text/media-text.component';
 import { VisitsReadonlyComponent } from './visits/visits-readonly/visits-readonly.component';
+import { Manager2Component } from './users/manager/manager2/manager2.component';
 
 @NgModule({
   declarations: [
@@ -99,7 +100,8 @@ import { VisitsReadonlyComponent } from './visits/visits-readonly/visits-readonl
     GalleryComponent,
     BranchGroupComponent,
     MediaTextComponent,
-    VisitsReadonlyComponent
+    VisitsReadonlyComponent,
+    Manager2Component
   ],
   imports: [
     BrowserModule,
