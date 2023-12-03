@@ -56,7 +56,7 @@
 
         <div class="album-nav">
 
-            <div *ngIf="this.remult.user?.isManager" style="display: flex;">
+            <div *ngIf="this.remult.user?.isManager && !this.uploading" style="display: flex;">
                 <!-- upload to branch-profile -->
                 <label for="uploadImage" style="display: flex; align-items: center;">
                     <img src="/assets/playground_assets/upload8013-fkng.svg" alt="upload8013" class="album-upload" />

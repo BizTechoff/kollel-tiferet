@@ -15,6 +15,8 @@ import { User } from './users/user';
 import { UserMenuComponent } from './users/user-menu/user-menu.component';
 import { UserVolunteerThanksComponent } from './users/user-volunteer-thanks/user-volunteer-thanks.component';
 import { VisitsFinishedMessagesComponent } from './visits/visits-finished-messages/visits-finished-messages.component';
+import { VisitsExportComponent } from './visits/visits-export/visits-export.component';
+import { AlbumComponent } from './media/album/album.component';
 
 @Component({
   selector: 'app-root',
@@ -104,7 +106,7 @@ export class AppComponent implements OnInit, OnDestroy {
     let isDevMode = await (new AppController()).isDevMode()
     if (isDevMode) {
       // console.log('Helloaaa 1')
-      this.routeHelper.navigateToComponent(VisitsFinishedMessagesComponent)
+      this.routeHelper.navigateToComponent(AlbumComponent)
     } else {
       // console.log('Helloaaa 2')
       // alert(JSON.stringify(remult?.user))

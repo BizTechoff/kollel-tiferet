@@ -20,7 +20,7 @@ export class VisitsExportComponent implements OnInit {
 
   query = new VisitController()
   ext = 'xlsx'
-  allowChangeExt = false
+  allowChangeExt = true
   years = [new Date().getFullYear()] as number[]
 
   constructor(private routeHelper: RouteHelperService,

@@ -1146,6 +1146,10 @@ export class VisitController extends ControllerBase {
                         if (b.totalDelayed + b.totalVisited === b.totalTenants) { }
                         else {
                             m.branches.splice(bi, 1)
+                            m.totalDelayed -= b.totalDelayed
+                            m.totalVisited -= b.totalVisited
+                            m.totalTenants -= b.totalTenants
+                            m.totalPayment -= b.totalPayment
                         }
                         break;
                     }
@@ -1154,6 +1158,10 @@ export class VisitController extends ControllerBase {
                         if (b.totalDelayed + b.totalVisited) { }
                         else {
                             m.branches.splice(bi, 1)
+                            m.totalDelayed -= b.totalDelayed
+                            m.totalVisited -= b.totalVisited
+                            m.totalTenants -= b.totalTenants
+                            m.totalPayment -= b.totalPayment
                         }
                         break;
                     }
@@ -1162,6 +1170,10 @@ export class VisitController extends ControllerBase {
                         if (b.totalDelayed + b.totalVisited === 0) { }
                         else {
                             m.branches.splice(bi, 1)
+                            m.totalDelayed -= b.totalDelayed
+                            m.totalVisited -= b.totalVisited
+                            m.totalTenants -= b.totalTenants
+                            m.totalPayment -= b.totalPayment
                         }
                         break;
 
@@ -1203,6 +1215,10 @@ export class VisitController extends ControllerBase {
                         weeks: [] as { week: string, col: number, visits: number }[]
                     }
                     fm.branches.push(fb)
+                }
+
+                if (this.detailed) {
+                    r += b.visits.length
                 }
 
                 // let maxVisits = 0

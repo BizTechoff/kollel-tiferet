@@ -136,7 +136,7 @@ export class VisitsChartComponent implements OnInit {
   //   await this.retrieve(+1)
   // }
 
-  monthly = true
+  monthly = false
   async retrieve() {
     this.pieChartDataStatuses = [] as SingleDataSet;
     this.pieChartLabelsStatuses = [] as Label[];

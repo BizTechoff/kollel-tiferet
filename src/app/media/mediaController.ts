@@ -114,6 +114,13 @@ export class MediaController extends ControllerBase {
             foundMonth.media.push(m)
         }
 
+        // result.so
+        for (const m of result) {
+            m.branches.sort((b1, b2) => +b2.last - +b1.last)
+        }
+        // result.sort((a,b) => a.)
+
+
         return result
     }
 

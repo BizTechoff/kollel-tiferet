@@ -23,14 +23,131 @@ export class uploader {
 
   links = [] as { file: string, path: string }[]
 
-  constructor(excel: Boolean, visit: Visit, tenant: Tenant, volunteer: User, news: News, date:Date = undefined!) {
+  constructor(excel: Boolean, visit: Visit, tenant: Tenant, volunteer: User, news: News, date: Date = undefined!) {
     this.excel = excel === true ? true : false
     this.visit = visit
     this.tenant = tenant
     this.volunteer = volunteer
     this.news = news
-    this.date=date
+    this.date = date
   }
+
+
+
+
+
+  async handleFiles(files: any[]) {
+    if (!this.branch || !this.branch.id || !this.branch.id.trim().length) {
+      //console.log('a-10')
+      this.branch = await remult.repo(Branch).findId(remult.user?.branch!)
+      // console.log('loadFiles.branch.after', this.branch)
+      //console.log('a-11')
+    }
+
+    var result = [] as string[]
+    // var promises = [] as Promise<boolean>[];
+    for (const f of files) {
+      // let proccess = new Promise<boolean>(async () => {
+      // console.log('busy - 100')
+      let url = await this.handleFile(f)
+      // console.log('busy - 101')
+      if (url?.trim().length) {
+        result.push(url)
+      }
+      // })
+      // console.log('busy - 10')
+      // await proccess
+      // console.log('busy - 11')
+      // promises.push(proccess);
+    }
+    // if (promises.length) {
+    //   console.log('busy - 10',promises.length)
+    //   await Promise.all(promises);
+    //   console.log('busy - 11')
+    // }
+    return result
+  }
+
+  async handleFile(file: any) {
+
+    console.log('handleFile', file)
+
+    // var taken = await this.takenOnDate(file) as Date
+    // return ''
+
+    var signedUrl = await this.signUrl()//with aws
+    if (signedUrl?.trim().length) {
+      console.log('signedUrl', signedUrl)
+      var uploaded = await this.uploadUrl(signedUrl, file)//to aws
+      signedUrl = signedUrl.split('?')[0]
+      if (uploaded) {
+        console.log('uploaded', uploaded)
+        // var taken = await this.takenOnDate(file) as Date
+        await this.addToMedia('', signedUrl, file.type)//, taken)
+      }
+    }
+
+    return signedUrl ?? ''
+
+  }
+
+  async signUrl() {
+    let result = '';
+    const { v4: uuidv4 } = require('uuid');
+    let id = uuidv4()
+
+    let fileName = `${id}`
+    let branchEngName = this.branch.email.trim().split('@')[0]
+    const s3SignUrl = `/api/s3Url?key=${'eshel-app-s3-key'}&f=${encodeURI(fileName)}&branch=${encodeURI(branchEngName)}&excel=${this.excel ? 'true' : 'false'}`;
+    const signRes = await fetch.default(s3SignUrl);
+    if (signRes.ok) {
+      let link = await signRes.json();
+      console.log('link', link)
+      if (link && link.url && link.url.length > 0) {
+        result = link.url//.split('?')[0]
+        console.log('link.result', result, JSON.stringify(link))
+      }
+    } else {
+      console.error(`signUrl.error: { status: ${signRes.status}, statusText: ${signRes.statusText} } `);
+    }
+    return result
+  }
+
+  async uploadUrl(url = '', f: any) {
+    console.debug(`uploadUrl: { url: ${url}, f: ${f.name} }`)
+    var result = false
+    const linkRes = await fetch.default(url, {
+      method: "PUT",
+      body: f
+    })
+
+    if (linkRes.ok) {
+      result = true
+    } else {
+      console.error(`uploadUrl.error: { status: ${linkRes.status}, statusText: ${linkRes.statusText} , all: ${await linkRes.text()}} `);
+    }
+    return result
+  }
+
+  async addToMedia(id = '', link = '', type = '', taken?: Date) {
+    var added = await remult.repo(Media).insert({
+      branch: this.branch,
+      visit: this.visit,
+      tenant: this.tenant,
+      volunteer: this.volunteer,
+      news: this.news,
+      type: type.includes('image') ? MediaType.photo : type.includes('video') ? MediaType.video : MediaType.excel,
+      link: link,
+      taken: taken,
+      id: id
+    })
+    if (added && added.id === id && added.link === link) {
+      return true
+    }
+    return false
+  }
+
+
 
   async loadFiles(files: any) {
     this.links = [] as { file: string, path: string }[]

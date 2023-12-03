@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { remult } from 'remult';
 import { Branch } from '../../branches/branch';
 import { BranchGroup } from '../../branches/branchGroup';
-import { RouteHelperService, openDialog } from '../../common-ui-elements';
+import { BusyService, RouteHelperService, openDialog } from '../../common-ui-elements';
 import { UIToolsService } from '../../common/UIToolsService';
 import { uploader } from '../../common/uploader';
 import { terms } from '../../terms';
@@ -24,7 +24,8 @@ export class AlbumComponent implements OnInit {
 
   constructor(
     private routeHelper: RouteHelperService,
-    private ui: UIToolsService) { }
+    private ui: UIToolsService,
+    private busy: BusyService) { }
   MediaType = MediaType
   terms = terms;
   remult = remult;
@@ -81,32 +82,90 @@ export class AlbumComponent implements OnInit {
   //   }
   // }
 
+
+  uploading = false
   async onFileInput(e: any, target: string) {
 
-    let s3 = new uploader(
-      false,
-      undefined!,
-      undefined!,
-      undefined!,
-      undefined!)
+    try {
+      // console.log('busy - 1')
+      this.uploading = true
 
-    let files = await s3.loadFiles(e.target.files)
-    if (files?.length) {
-      await this.retrieve()
+      await this.busy.doWhileShowingBusy(
+        async () => {
+          // console.log('busy - 2')
+          let s3 = new uploader(
+            false,
+            undefined!,
+            undefined!,
+            undefined!,
+            undefined!)
+
+          // console.log('busy - 3')
+          var files = [] as string[]
+          files.push(... await s3.handleFiles/*loadFiles*/(e.target.files))
+          // console.log('busy - 4')
+          if (files?.length) {
+            // console.log('busy - 5')
+            // await this.retrieve()
+          }
+        }
+      )
+    } finally {
+      this.uploading = false
+      // console.log('busy - 6')
     }
+
+    // let s3 = new uploader(
+    //   false,
+    //   this.visit,
+    //   undefined!,
+    //   undefined!,
+    //   undefined!)
+
+    // await s3.loadFiles(e.target.files) //, target)
   }
 
+
+  // async onFileInput(e: any, target: string) {
+
+  //   let s3 = new uploader(
+  //     false,
+  //     undefined!,
+  //     undefined!,
+  //     undefined!,
+  //     undefined!)
+
+  //   let files = await s3.loadFiles(e.target.files)
+  //   if (files?.length) {
+  //     await this.retrieve()
+  //   }
+  // }
+
   async uploadText() {
-    let result = await this.ui.selectText()
-    if (result.ok) {
-      let success = await this.query.imageFromText(
-        result.text
-      )
-      if (success) {
-        await this.retrieve()
+
+
+    try {
+      // console.log('busy - 1')
+
+      let result = await this.ui.selectText()
+      if (result.ok) {
+        this.uploading = true
+        await this.busy.doWhileShowingBusy(
+          async () => {
+            let success = await this.query.imageFromText(
+              result.text)
+            if (success) {
+              await this.retrieve()
+            }
+            // console.log(`'uploadText': ${success}`)
+          }
+        )
       }
-      // console.log(`'uploadText': ${success}`)
+    } finally {
+      this.uploading = false
+      // console.log('busy - 6')
     }
+
   }
 
   back() {

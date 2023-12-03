@@ -80,6 +80,12 @@ export class Media extends IdEntity {
     active = true
 
     @Fields.date<Media>({
+        caption: 'צולמה',
+        allowApiUpdate: false
+    })
+    taken!: Date
+
+    @Fields.date<Media>({
         caption: 'נוצר',
         allowApiUpdate: false
     })
