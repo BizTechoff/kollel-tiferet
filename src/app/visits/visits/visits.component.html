@@ -8,7 +8,7 @@
           <img src="/assets/playground_assets/vector1915-5neih.svg" alt="Vector1915" class="visits-vector04" />
           <img src="/assets/playground_assets/vector1915-r5bg.svg" alt="Vector1915" class="visits-vector05" />
         </div>
-        <div class="visits-search">
+        <div *ngIf="!this.uploading" class="visits-search">
           <label for="uploadImage">
             <mat-icon for="uploadImage" style="color: white;">photo_camera</mat-icon>
           </label>
@@ -78,10 +78,10 @@
           זה' }} </span>
       </div>
 
-      <div class="visits-cardcontent" *ngFor="let v of this.visits" (click)="this.edit(v.id)"
+      <div class="visits-cardcontent" *ngFor="let v of this.visits"
         [style.borderColor]="this.isNone(v)?  'rgba(227, 172, 120, 1)':'green'"
         [style.borderWidth]="this.isNone(v)?  '2px':'7px'">
-        <div class="visits-cardtitle">
+        <div class="visits-cardtitle" (click)="this.edit(v.id)">
           <div *ngIf="v.tenant" class="visits-tenantnameaddress">
             <div style="display: flex;">
               <span class="visits-text08"><span>{{ v.tenant.name }}</span></span>
@@ -114,6 +114,18 @@
               <img hidden src="/assets/playground_assets/upload1915-d0nh.svg" alt="upload1915" class="visits-upload" />
             </div>
           </div>
+        </div>
+        <div class="visits-cardaction">
+          <button mat-raised-button (click)="this.visited(v)" [style.background-color]="this.isVisited(v)? 'rgba(38, 195, 234, 1)' : 'transparent'">
+            <mat-label>נוכח</mat-label>
+            <img src="/assets/validated.svg" style="width: 20px; height: 20px;" />
+            <!-- <mat-icon></mat-icon> -->
+          </button>
+          <button mat-raised-button (click)="this.delivered(v)" [style.backgroundColor]="this.isDelayed(v)? 'rgba(38, 195, 234, 1)' : 'transparent'">
+            <mat-label>איחר</mat-label>
+            <img src="/assets/playground_assets/late.png" style="width: 20px; height: 20px;" />
+            <!-- <mat-icon></mat-icon> -->
+          </button>
         </div>
         <img *ngIf="v.remark?.trim()!.length" src="/assets/playground_assets/sep1915-grj.svg" alt="sep1915"
           class="visits-sep" />

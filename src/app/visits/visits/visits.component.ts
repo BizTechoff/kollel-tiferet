@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Fields, getFields, remult } from 'remult';
-import { RouteHelperService } from '../../common-ui-elements';
+import { BusyService, RouteHelperService } from '../../common-ui-elements';
 import { DataControl } from '../../common-ui-elements/interfaces';
 import { UIToolsService } from '../../common/UIToolsService';
 import { dateDiff, resetDateTime } from '../../common/dateFunc';
@@ -41,7 +41,8 @@ export class VisitsComponent implements OnInit {
   constructor(
     private routeHelper: RouteHelperService,
     private ui: UIToolsService,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute,
+    private busy: BusyService) {
   }
   terms = terms;
   remult = remult;
@@ -80,23 +81,66 @@ export class VisitsComponent implements OnInit {
     alert('uploadImage coming soon..')
   }
 
+
+  uploading = false
   async onFileInput(e: any, target: string) {
 
-    let s3 = new uploader(
-      false,
-      undefined!,
-      undefined!,
-      undefined!,
-      undefined!,
-      this.selectedDate)
+    try {
+      // console.log('busy - 1')
+      this.uploading = true
 
-    const res = await s3.loadFiles(e.target.files) //, target)
-    console.log('res', res?.length ?? -1)
-    if (res?.length) {
-      this.ui.info('ההעלאה הצליחה')
-      await this.retrieve()
+      await this.busy.doWhileShowingBusy(
+        async () => {
+          // console.log('busy - 2')
+          let s3 = new uploader(
+            false,
+            undefined!,
+            undefined!,
+            undefined!,
+            undefined!)
+
+          // console.log('busy - 3')
+          var files = [] as string[]
+          files.push(... await s3.handleFiles/*loadFiles*/(e.target.files))
+          // console.log('busy - 4')
+          if (files?.length) {
+            this.ui.info(`הועלו ${files.length} בהצלחה`)
+            await this.retrieve()
+          }
+        }
+      )
+    } finally {
+      this.uploading = false
+      // console.log('busy - 6')
     }
+
+    // let s3 = new uploader(
+    //   false,
+    //   this.visit,
+    //   undefined!,
+    //   undefined!,
+    //   undefined!)
+
+    // await s3.loadFiles(e.target.files) //, target)
   }
+
+  // async onFileInput(e: any, target: string) {
+
+  //   let s3 = new uploader(
+  //     false,
+  //     undefined!,
+  //     undefined!,
+  //     undefined!,
+  //     undefined!,
+  //     this.selectedDate)
+
+  //   const res = await s3.loadFiles(e.target.files) //, target)
+  //   console.log('res', res?.length ?? -1)
+  //   if (res?.length) {
+  //     this.ui.info('ההעלאה הצליחה')
+  //     await this.retrieve()
+  //   }
+  // }
 
   presentsCount() {
     return this.visits.filter(
@@ -241,6 +285,33 @@ export class VisitsComponent implements OnInit {
 
   rootmenu() {
     this.routeHelper.navigateToComponent(UserMenuComponent)
+  }
+
+  async visited(visit: Visit) {
+    if (visit) {
+      console.log(visit.status, VisitStatus.visited, visit.status === VisitStatus.visited)
+      if (this.isVisited(visit)) {
+        visit.status = VisitStatus.none
+        visit.statusModified = undefined!
+      }
+      else {
+        visit.status = VisitStatus.visited
+        visit.statusModified = new Date()
+      }
+      await remult.repo(Visit).save(visit)
+    }
+  }
+
+  async delivered(visit: Visit) {
+    if (visit) {
+      if (this.isDelayed(visit)) {
+        visit.status = VisitStatus.none
+      }
+      else {
+        visit.status = VisitStatus.delayed
+      }
+      await remult.repo(Visit).save(visit)
+    }
   }
 
 }

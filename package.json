@@ -1,6 +1,6 @@
 {
   "name": "kollel",
-  "version": "2023.09.06",
+  "version": "2023.12.03",
   "scripts": {
     "dev": "concurrently -k -n \"API,WEB\" -c \"bgBlue.bold,bgGreen.bold\" \"ts-node-dev -P tsconfig.server.json src/server/\" \"ng serve --proxy-config proxy.conf.json --open\"",
     "ng": "ng",
