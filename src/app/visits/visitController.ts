@@ -145,14 +145,12 @@ export class VisitController extends ControllerBase {
         // console.log('SERVER 6',this.fdate, this.tdate, this.detailed, this.onlyDone)
         let rows = await remult.repo(Visit).find({
             where: {
-                branch: {
-                    $id: (await remult.repo(Branch).find({
-                        where: {
-                            active: true,
-                            id: remult.user!.branch
-                        }
-                    })).map(b => b.id)
-                },
+                branch: await remult.repo(Branch).find({
+                    where: {
+                        active: true,
+                        id: remult.user!.branch
+                    }
+                }),
                 date: {
                     "$gte": this.fdate,
                     "$lte": this.tdate

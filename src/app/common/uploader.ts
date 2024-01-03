@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as fetch from 'node-fetch';
+// import fetch from 'node-fetch';
 import { remult } from 'remult';
 import { AppController } from '../appController';
 import { Branch } from '../branches/branch';
@@ -33,7 +33,59 @@ export class uploader {
   }
 
 
+  async handleFile(file: any) {
+    let result = ''
+    if (!file) {
+      alert('Please select a file.');
+      return result;
+    }
 
+    const fileType = file.type.split('/')[1];
+    console.log('fileType', fileType)
+    const { v4: uuidv4 } = require('uuid');
+    let id = uuidv4()
+
+    let fileName = `${id}`
+    let branchEngName = this.branch.email.trim().split('@')[0]
+    const body =
+    {
+      key: 'eshel-app-s3-key',
+      f: encodeURI(fileName),
+      branch: encodeURI(branchEngName),
+      excel: this.excel ? 'true' : 'false'
+    }
+
+    const response = await fetch(
+      '/api-req/s3Url',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body)
+      });
+
+    const { url, error } = await response.json();
+    console.log(`returning end-point url (valid 60 sec): ${url} ${error} `)
+
+    const uploadResponse = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type,
+      },
+      body: file
+    });
+
+    if (uploadResponse.ok) {
+      const imageUrl = url.split('?')[0]
+      await this.addMedia(id, fileName, file.type, imageUrl, this.date)
+      result = imageUrl
+    } else {
+      const error = await uploadResponse.text();
+      result = (`Failed to upload image. Error: ${error}`);
+    }
+    return result
+  }
 
 
   async handleFiles(files: any[]) {
@@ -50,10 +102,13 @@ export class uploader {
       // let proccess = new Promise<boolean>(async () => {
       // console.log('busy - 100')
       let url = await this.handleFile(f)
-      // console.log('busy - 101')
-      if (url?.trim().length) {
-        result.push(url)
-      }
+      result.push(url)
+
+      // let url = await this.handleFile(f)
+      // // console.log('busy - 101')
+      // if (url?.trim().length) {
+      //   result.push(url)
+      // }
       // })
       // console.log('busy - 10')
       // await proccess
@@ -68,8 +123,7 @@ export class uploader {
     return result
   }
 
-  async handleFile(file: any) {
-
+  async handleFile1(file: any) {
     console.log('handleFile', file)
 
     // var taken = await this.takenOnDate(file) as Date
@@ -88,7 +142,6 @@ export class uploader {
     }
 
     return signedUrl ?? ''
-
   }
 
   async signUrl() {
@@ -99,8 +152,10 @@ export class uploader {
     let fileName = `${id}`
     let branchEngName = this.branch.email.trim().split('@')[0]
     const s3SignUrl = `/api/s3Url?key=${'eshel-app-s3-key'}&f=${encodeURI(fileName)}&branch=${encodeURI(branchEngName)}&excel=${this.excel ? 'true' : 'false'}`;
-    const signRes = await fetch.default(s3SignUrl);
-    if (signRes.ok) {
+    const signRes = await fetch(s3SignUrl);
+    // const { key1, url1 } = await signRes.json();
+    // console.log('key1',key1,'url1',url1)
+    if (signRes?.ok) {
       let link = await signRes.json();
       console.log('link', link)
       if (link && link.url && link.url.length > 0) {
@@ -116,7 +171,7 @@ export class uploader {
   async uploadUrl(url = '', f: any) {
     console.debug(`uploadUrl: { url: ${url}, f: ${f.name} }`)
     var result = false
-    const linkRes = await fetch.default(url, {
+    const linkRes = await fetch(url, {
       method: "PUT",
       body: f
     })
@@ -207,7 +262,7 @@ export class uploader {
       const s3SignUrl = `/api/s3Url?key=${'eshel-app-s3-key'}&f=${encodeURI(fileName)}&branch=${encodeURI(branchEngName)}&excel=${this.excel ? 'true' : 'false'}`;
       // //console.log('s3SignUrl', s3SignUrl)
       //console.log('upload.2')
-      const signRes = await fetch.default(s3SignUrl);
+      const signRes = await fetch(s3SignUrl);
 
       // console.log('branchEngName', branchEngName)
       //console.log('upload.3')
@@ -222,7 +277,7 @@ export class uploader {
         // post the image direclty to the s3 bucket
         {
           // console.log('branchEngName 2', branchEngName)
-          const linkRes = await fetch.default(link.url, {
+          const linkRes = await fetch(link.url, {
             method: "PUT",
             body: f
           })
@@ -361,7 +416,7 @@ export class uploader {
       const s3SignUrl = `/api/download?key=${'eshel-app-s3-key'}&f=${encodeURI(fileName)}&branch=${encodeURI(branchEngName)}&excel=${this.excel ? 'true' : 'false'}`;
       // //console.log('s3SignUrl', s3SignUrl)
       //console.log('upload.2')
-      const signRes = await fetch.default(s3SignUrl);
+      const signRes = await fetch(s3SignUrl);
       result = true
       // console.log('branchEngName', branchEngName)
       //console.log('upload.3')

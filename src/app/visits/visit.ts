@@ -68,6 +68,13 @@ export class Visit extends IdEntity {
 
     volunteersNames = ''
 
+    // @Fields.object<Visit,number>({
+    //     serverExpression: (row) => {
+            
+    //     }
+    // })
+    // totalPerMonth = 0
+
     // getv(){return 'VVViVVV'}
 
     // async getVolunteersNames() {

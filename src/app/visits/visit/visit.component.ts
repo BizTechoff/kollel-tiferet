@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { remult } from 'remult';
-import { RouteHelperService } from '../../common-ui-elements';
+import { BusyService, RouteHelperService } from '../../common-ui-elements';
 import { UIToolsService } from '../../common/UIToolsService';
 import { resetDateTime } from '../../common/dateFunc';
 import { uploader } from '../../common/uploader';
@@ -39,7 +39,8 @@ export class VisitComponent implements OnInit {
   constructor(
     private routeHelper: RouteHelperService,
     private route: ActivatedRoute,
-    private ui: UIToolsService) {
+    private ui: UIToolsService,
+    private busy: BusyService) {
     // ,
     // private uploader:uploader
   }
@@ -229,17 +230,59 @@ export class VisitComponent implements OnInit {
   //   //console.log('prev', 'curIndex', this.curIndex, 'visits.length', this.visits.length)
   // }
 
+  uploading = false
   async onFileInput(e: any, target: string) {
 
-    let s3 = new uploader(
-      false,
-      this.visit,
-      undefined!,
-      undefined!,
-      undefined!)
+    try {
+      // console.log('busy - 1')
+      this.uploading = true
 
-    await s3.loadFiles(e.target.files) //, target)
+      await this.busy.doWhileShowingBusy(
+        async () => {
+          // console.log('busy - 2')
+          let s3 = new uploader(
+            false,
+            this.visit,
+            undefined!,
+            undefined!,
+            undefined!)
+
+          // console.log('busy - 3')
+          var files = [] as string[]
+          files.push(... await s3.handleFiles/*loadFiles*/(e.target.files))
+          // console.log('busy - 4')
+          if (files?.length) {
+            this.ui.info(`העלאה הסתיימה בהצלחה`)
+            await this.reload()
+          }
+        }
+      )
+    } finally {
+      this.uploading = false
+      // console.log('busy - 6')
+    }
+
+    // let s3 = new uploader(
+    //   false,
+    //   this.visit,
+    //   undefined!,
+    //   undefined!,
+    //   undefined!)
+
+    // await s3.loadFiles(e.target.files) //, target)
   }
+
+  // async onFileInput(e: any, target: string) {
+
+  //   let s3 = new uploader(
+  //     false,
+  //     this.visit,
+  //     undefined!,
+  //     undefined!,
+  //     undefined!)
+
+  //   await s3.loadFiles(e.target.files) //, target)
+  // }
 
   async uploadToBranch() {
 

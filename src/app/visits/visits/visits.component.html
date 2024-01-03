@@ -90,6 +90,9 @@
               <img *ngIf="this.isDelayed(v)" src="/assets/playground_assets/late.png"
                 style="width: 15px; height: 15px;" />
             </div>
+            <div>
+              <!-- <span>נוכח {{ '0' }} מתוך {{ '2' }} שיעורים החודש </span> -->
+            </div>
             <div *ngIf="v.tenant.address" class="visits-address">
               <span class="visits-text10"><span>{{ v.tenant.address }}</span></span>
               <img src="/assets/playground_assets/location1915-msq3.svg" alt="location1915" class="visits-location1" />
@@ -116,12 +119,14 @@
           </div>
         </div>
         <div class="visits-cardaction">
-          <button mat-raised-button (click)="this.visited(v)" [style.background-color]="this.isVisited(v)? 'rgba(38, 195, 234, 1)' : 'transparent'">
+          <button mat-raised-button (click)="this.visited(v)"
+            [style.background-color]="this.isVisited(v)? 'rgba(38, 195, 234, 1)' : 'transparent'">
             <mat-label>נוכח</mat-label>
             <img src="/assets/validated.svg" style="width: 20px; height: 20px;" />
             <!-- <mat-icon></mat-icon> -->
           </button>
-          <button mat-raised-button (click)="this.delivered(v)" [style.backgroundColor]="this.isDelayed(v)? 'rgba(38, 195, 234, 1)' : 'transparent'">
+          <button mat-raised-button (click)="this.delivered(v)"
+            [style.backgroundColor]="this.isDelayed(v)? 'rgba(38, 195, 234, 1)' : 'transparent'">
             <mat-label>איחר</mat-label>
             <img src="/assets/playground_assets/late.png" style="width: 20px; height: 20px;" />
             <!-- <mat-icon></mat-icon> -->

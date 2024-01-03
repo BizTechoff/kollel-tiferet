@@ -1,5 +1,5 @@
 import * as fs from 'fs'; //
-import * as fetch from 'node-fetch';
+// import * as fetch from 'node-fetch';
 import * as xlsx from 'xlsx';
 
 // const randomBytes = promisify(crypto.randomBytes)
@@ -44,7 +44,6 @@ export async function generateUploadURL(action: string, fName: string, branch: s
             Expires: 60 //sec
         })
         result = await s3.getSignedUrlPromise(action, params)
-        // console.log('signed-url: ' + result)
     }
     return result;
 }
@@ -194,7 +193,7 @@ export async function upload(text = '', branch = '') {
 
         if (url?.trim().length) {
             console.log('url', url)
-            const linkRes = await fetch.default(url, {
+            const linkRes = await fetch(url, {
                 method: "PUT",
                 body: buf
             })

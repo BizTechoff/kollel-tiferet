@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 
-import { WaitComponent } from "./wait.component";
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from "@angular/common/http";
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { finalize } from "rxjs/operators";
+import { WaitComponent } from "./wait.component";
 // @dynamic
 @Injectable()
 export class BusyService {
@@ -81,11 +81,13 @@ export class BusyService {
     showBusy() {
 
         let id = this.id++;
-        if (this.disableWait)
+        if (this.disableWait){
+            // console.log(id, 'disableWait ');
             return () => { };
-        this.log(id, 'start busy ');
+        }
+        // console.log(id, 'start busy ');
         if (this.numOfWaits == 0) {
- 
+
             setTimeout(() => {
 
                 if (this.numOfWaits > 0 && !this.waitRef) {

@@ -100,13 +100,15 @@ export class AlbumComponent implements OnInit {
             undefined!,
             undefined!)
 
+          var tFiles = await s3.handleFiles/*loadFiles*/(e.target.files)
           // console.log('busy - 3')
           var files = [] as string[]
-          files.push(... await s3.handleFiles/*loadFiles*/(e.target.files))
+          files.push(...tFiles)
           // console.log('busy - 4')
           if (files?.length) {
+            this.ui.info(`העלאה הסתיימה בהצלחה`)
             // console.log('busy - 5')
-            // await this.retrieve()
+            await this.retrieve()
           }
         }
       )
@@ -155,6 +157,7 @@ export class AlbumComponent implements OnInit {
             let success = await this.query.imageFromText(
               result.text)
             if (success) {
+              this.ui.info(`העלאה הסתיימה בהצלחה`)
               await this.retrieve()
             }
             // console.log(`'uploadText': ${success}`)

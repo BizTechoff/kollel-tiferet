@@ -4,7 +4,7 @@ import { Fields, getFields, remult } from 'remult';
 import { BusyService, RouteHelperService } from '../../common-ui-elements';
 import { DataControl } from '../../common-ui-elements/interfaces';
 import { UIToolsService } from '../../common/UIToolsService';
-import { dateDiff, resetDateTime } from '../../common/dateFunc';
+import { dateDiff, dateFormat, resetDateTime } from '../../common/dateFunc';
 import { uploader } from '../../common/uploader';
 import { JobController } from '../../jobs/jobController';
 import { NewsController } from '../../news/newsController';
@@ -31,7 +31,7 @@ export class VisitsComponent implements OnInit {
   diffDaysFromToday = 0
 
   @DataControl<VisitsComponent, Date>({
-    valueChange: async (row, col) => await row.retrieve()
+    valueChange: async (row, col) => await row.dateChanged(col?.value)
   })
   @Fields.dateOnly<VisitsComponent>({ caption: ' ' })
   selectedDate = resetDateTime(new Date())
@@ -104,7 +104,7 @@ export class VisitsComponent implements OnInit {
           files.push(... await s3.handleFiles/*loadFiles*/(e.target.files))
           // console.log('busy - 4')
           if (files?.length) {
-            this.ui.info(`הועלו ${files.length} בהצלחה`)
+            this.ui.info(`העלאה הסתיימה בהצלחה`)
             await this.retrieve()
           }
         }
@@ -160,14 +160,14 @@ export class VisitsComponent implements OnInit {
   }
 
   async dateChanged(date: Date) {
-    // console.log('event','dateChanged')
-    console.log('dateChanged', date)
+    console.log('dateChanged', dateFormat(date), dateFormat(this.selectedDate))
     this.selectedDate = date
     await this.retrieve()
   }
 
   retrieving = false
   async retrieve(days = 0) {
+    this.visits.splice(0)
     if (!this.retrieving) {
       this.retrieving = true
       this.selectedDate = resetDateTime(this.selectedDate, days)
@@ -176,7 +176,7 @@ export class VisitsComponent implements OnInit {
       this.query.tdate = this.selectedDate // lastDateOfWeek(today)
       this.query.selected = this.selectedDate
       var res = await this.query.getVisits()
-      this.visits = res.visits
+      this.visits.push(...res.visits)
       this.locked = res.locked //|| true
       this.retrieving = false
     }
@@ -188,7 +188,7 @@ export class VisitsComponent implements OnInit {
       resetDateTime(new Date()),
       false
     )
-    console.log('diffDaysFromToday', this.diffDaysFromToday)
+    console.log('setDiffDays', this.diffDaysFromToday, dateFormat(this.selectedDate), dateFormat(new Date()))
   }
 
   async prevDay() {

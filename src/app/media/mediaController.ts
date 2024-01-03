@@ -134,7 +134,7 @@ export class MediaController extends ControllerBase {
         await row.save()
         return true
     }
-
+ 
     @BackendMethod({ allowed: Allow.authenticated })
     async imageFromText(text: string): Promise<boolean> {
         let b = await remult.repo(Branch).findId(remult.user!.branch)
