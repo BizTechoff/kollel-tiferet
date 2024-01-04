@@ -1,7 +1,7 @@
 <div class="album-container">
     <div class="album-album">
         <!-- <div class="album-top"> -->
-            <!-- <div class="album-cteen-logo" (click)="this.rootmenu()">
+        <!-- <div class="album-cteen-logo" (click)="this.rootmenu()">
                 <div class="album-logo">
                     <div class="album-cteen">
                         <div class="album-carea">
@@ -32,7 +32,7 @@
                     </div>
                 </div>
             </div> -->
-            <!-- <div style="display: flex; flex-direction: column;" (click)="this.rootmenu()">
+        <!-- <div style="display: flex; flex-direction: column;" (click)="this.rootmenu()">
                 <div>
                     <img src="/assets/Logo Colel Chabad.png" alt="Frame14430" class="chabad-colel-logo" />
                 </div>
@@ -51,8 +51,8 @@
                 </div>
             </div>
         </div> -->
-        
-    <!-- <app-branch-group [invert]="true"></app-branch-group> -->
+
+        <!-- <app-branch-group [invert]="true"></app-branch-group> -->
 
         <div class="album-nav">
 
@@ -61,9 +61,12 @@
                 <label for="uploadImage" style="display: flex; align-items: center;">
                     <img src="/assets/playground_assets/upload8013-fkng.svg" alt="upload8013" class="album-upload" />
                 </label>
+                <!-- <input excludeAcceptAllOption=true #fileInput type="file" (input)="onFileInput($event, 'profile')"
+                    accept="video/mp4,video/avi,image/png,image/jpg,image/jpeg" id="uploadImage"
+                    style="display:none" /> -->
+
                 <input excludeAcceptAllOption=true #fileInput type="file" (input)="onFileInput($event, 'profile')"
-                    accept="audio/mp3,video/mp4,video/avi,image/png,image/jpg,image/jpeg" id="uploadImage"
-                    style="display:none" />
+                    accept="video/mp4,video/avi,image/png,image/jpg,image/jpeg" id="uploadImage" style="display:none" />
 
                 <div style="box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); display: flex;">
                     <button (click)="this.uploadText()"
@@ -95,7 +98,7 @@
                             <span class="album-text080">
                                 <span>{{ b.last? 'עודכן: ' + (b.last | date:'HH:mm dd/MM/yyyy') : '' }}</span>
                             </span>
-                            <span class="album-text08"><span>{{ b.branch?.name }}</span></span>
+                            <span class="album-text08"><span>{{ b.branch?b.branch.name :'' }}</span></span>
                         </div>
                         <ul class="image-gallery">
                             <li *ngFor="let m of b.media" (click)="this.mediaClicked(m)">

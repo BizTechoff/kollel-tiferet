@@ -32,6 +32,56 @@ export class uploader {
     this.date = date
   }
 
+  isInternetOk() {
+    let result = [] as string[]
+    if ('connection' in navigator) {
+      const connection = navigator.connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+
+      if (connection) {
+        if ('effectiveType' in connection) {
+          result.push(`Effective network type: ${(connection as any).effectiveType}`);
+        } else {
+          result.push('Effective network type information not available.');
+        }
+
+        // Check if the 'downlink' property exists before accessing it
+        if ('downlink' in connection) {
+          result.push(`Downlink speed: ${(connection as any).downlink} Mbps`)
+        } else {
+          result.push('Downlink speed information not available.');
+        }
+
+        // Check if the 'saveData' property exists before accessing it
+        if ('saveData' in connection) {
+          result.push(`Save data mode: ${(connection as any).saveData}`);
+        } else {
+          result.push('Save data mode information not available.');
+        }
+      }
+    } else {
+      result.push('Network Information API not supported.');
+    }
+    console.info(result.join('\n'))
+    return result
+  }
+
+  async fetchExifMetadata(url = '') {
+    try {
+      const response = await fetch(`api/getExif?url=${encodeURIComponent(url)}`);
+      const metadata = await response.json();
+
+      // Display metadata (modify this according to your needs)
+      const metadataDisplay = document.getElementById('metadata');
+      metadataDisplay!.innerHTML = `
+        <p><strong>Image URL:</strong> ${url}</p>
+        <p><strong>Date Taken:</strong> ${metadata.exif.DateTimeOriginal || 'N/A'}</p>
+        <p><strong>GPS Location:</strong> ${metadata.gps.GPSLatitude || 'N/A'}, ${metadata.gps.GPSLongitude || 'N/A'}</p>
+      `;
+    } catch (error) {
+      console.error(`Error fetching image or extracting metadata:`, error);
+    }
+  }
+
 
   async handleFile(file: any) {
     let result = ''
@@ -39,6 +89,8 @@ export class uploader {
       alert('Please select a file.');
       return result;
     }
+
+
 
     const fileType = file.type.split('/')[1];
     console.log('fileType', fileType)
@@ -78,7 +130,9 @@ export class uploader {
 
     if (uploadResponse.ok) {
       const imageUrl = url.split('?')[0]
-      await this.addMedia(id, fileName, file.type, imageUrl, this.date)
+      const fileExtension = file.name.split('.').pop();
+
+      await this.addMedia(id, fileName, fileExtension, imageUrl, this.date)
       result = imageUrl
     } else {
       const error = await uploadResponse.text();
@@ -88,7 +142,10 @@ export class uploader {
   }
 
 
-  async handleFiles(files: any[]) {
+  async handleFiles(files: any[], allowedExtensions = ['.jpg', '.jpeg', '.png', '.mp4', '.webm'] as string[]) {
+
+    this.isInternetOk()
+
     if (!this.branch || !this.branch.id || !this.branch.id.trim().length) {
       //console.log('a-10')
       this.branch = await remult.repo(Branch).findId(remult.user?.branch!)
@@ -99,21 +156,28 @@ export class uploader {
     var result = [] as string[]
     // var promises = [] as Promise<boolean>[];
     for (const f of files) {
-      // let proccess = new Promise<boolean>(async () => {
-      // console.log('busy - 100')
-      let url = await this.handleFile(f)
-      result.push(url)
 
-      // let url = await this.handleFile(f)
-      // // console.log('busy - 101')
-      // if (url?.trim().length) {
-      //   result.push(url)
-      // }
-      // })
-      // console.log('busy - 10')
-      // await proccess
-      // console.log('busy - 11')
-      // promises.push(proccess);
+      // Alternatively, you can check file extension
+      const fileExtension = f.name.split('.').pop();
+      console.log('fileExtension', fileExtension)
+      if (allowedExtensions.includes(`.${fileExtension.toLowerCase()}`)) {
+
+        // let proccess = new Promise<boolean>(async () => {
+        // console.log('busy - 100')
+        let url = await this.handleFile(f)
+        result.push(url)
+
+        // let url = await this.handleFile(f)
+        // // console.log('busy - 101')
+        // if (url?.trim().length) {
+        //   result.push(url)
+        // }
+        // })
+        // console.log('busy - 10')
+        // await proccess
+        // console.log('busy - 11')
+        // promises.push(proccess);
+      }
     }
     // if (promises.length) {
     //   console.log('busy - 10',promises.length)
@@ -373,9 +437,6 @@ export class uploader {
         // console.log('branchEngName 6')
       }
     }
-    //console.log('a-5')
-    // }
-    // console.log('branchEngName 7')
     //console.log('a-6',JSON.stringify( this.branch))
     await remult.repo(Media).insert({
       branch: this.branch,
@@ -383,10 +444,16 @@ export class uploader {
       tenant: this.tenant,
       volunteer: this.volunteer,
       news: this.news,
-      type: type.includes('image') ? MediaType.photo : type.includes('video') ? MediaType.video : MediaType.excel,
       link: link,
       id: id,
-      date: this.date
+      date: this.date,
+      type: ['jpg', 'jpeg', 'png'].includes(type)
+        ? MediaType.photo
+        : ['mp4', 'avi'].includes(type)
+          ? MediaType.video
+          : ['csv', 'xls', 'xlsx'].includes(type)
+            ? MediaType.excel
+            : MediaType.none
     })
     // console.log('branchEngName 8')
     //console.log('a-7')

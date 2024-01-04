@@ -15,6 +15,7 @@ const s3Client = async () => {
         const secretAccessKey = process.env['AWS_S3_IAM_BTO_APP_SECRET_ACCESS_KEY']!
 
         const aws = require('aws-sdk')
+        // aws.config.logger = console;
         result = new aws.S3({
             region,
             accessKeyId,
@@ -77,10 +78,11 @@ export async function download(fileName = '', branch = '') {
                                     let value = ''
                                     try {
                                         let cell = ws[xlsx.utils.encode_cell({ c: col, r: row })]
-                                        if (cell) { value = cell.v }
+                                        if (cell) {
+                                            value = cell.v
+                                        }
                                     }
-                                    catch (err) { console.error(`[${row},${col}]=${value}`, err) }
-                                    // console.log(`[${col},${row}]=[${row},${col}]=${value}`)
+                                    catch (err) { console.error(`[${row},${col}]=${value}.error: ${err}`) }
                                     values.push(value)
                                 }
                             }

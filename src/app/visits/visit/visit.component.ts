@@ -249,7 +249,8 @@ export class VisitComponent implements OnInit {
 
           // console.log('busy - 3')
           var files = [] as string[]
-          files.push(... await s3.handleFiles/*loadFiles*/(e.target.files))
+          files.push(... await s3.handleFiles(
+            e.target.files))
           // console.log('busy - 4')
           if (files?.length) {
             this.ui.info(`העלאה הסתיימה בהצלחה`)

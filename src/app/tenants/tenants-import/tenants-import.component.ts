@@ -48,14 +48,14 @@ export class TenantsImportComponent implements OnInit {
       undefined!,
       undefined!,
       undefined!)
-    let links = await s3.loadFiles(e?.target.files)
+    let links = await s3.handleFiles(e?.target.files, ['.xlsx'])
     if (links?.length) {
       let branch = await remult.repo(Branch).findId(remult.user?.branch!)
       if (branch) {
         for (const l of links) {
 
           let excel = new ExcelController()
-          excel.file = l.file
+          excel.file = l
           excel.branch = branch.email
           // excel.branch = l.br
           await excel.import()

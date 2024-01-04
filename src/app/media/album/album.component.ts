@@ -100,7 +100,8 @@ export class AlbumComponent implements OnInit {
             undefined!,
             undefined!)
 
-          var tFiles = await s3.handleFiles/*loadFiles*/(e.target.files)
+          var tFiles = await s3.handleFiles(
+            e.target.files)
           // console.log('busy - 3')
           var files = [] as string[]
           files.push(...tFiles)
