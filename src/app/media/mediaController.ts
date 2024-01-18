@@ -4,7 +4,7 @@ import { downloadByLink, upload } from "../../server/aws-s3";
 import { Branch } from "../branches/branch";
 import { BranchGroup } from "../branches/branchGroup";
 import { addDaysToDate, dateDiff, dateFormat, firstDateOfWeek, lastDateOfWeek, resetDateTime } from "../common/dateFunc";
-import { hebrewMonths } from "../terms";
+import { hebrewMonths, hebrewWeekDays } from "../terms";
 import { Roles } from "../users/roles";
 import { Media } from "./media";
 import { MediaType } from "./mediaTypes";
@@ -77,6 +77,7 @@ export class MediaController extends ControllerBase {
             month: string,
             days: {
                 day: string,
+                weekDay: string,
                 branches: { branch: Branch, last: Date, media: Media[] }[]
             }[]
         }[]
@@ -110,17 +111,19 @@ export class MediaController extends ControllerBase {
                     month: month,
                     days: [] as {
                         day: string,
+                        weekDay: string,
                         branches: { branch: Branch, last: Date, media: Media[] }[]
                     }[]
                 }
                 result.push(found)
             }
 
-            let day = dateFormat(m.date)
+            let day = `${dateFormat(m.date)}`
             let foundDay = found.days.find(d => d.day === day)
             if (!foundDay) {
                 foundDay = {
                     day: day,
+                    weekDay: `יום ${hebrewWeekDays[m.date.getDay()]}`,
                     branches: [] as { branch: Branch, last: Date, media: Media[] }[]
                 }
                 found.days.push(foundDay)

@@ -23,6 +23,7 @@ export class AlbumComponent implements OnInit {
     month: string,
     days: {
       day: string,
+      weekDay: string,
       branches: { branch: Branch, last: Date, media: Media[] }[]
     }[]
   }[]

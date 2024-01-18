@@ -97,6 +97,9 @@
                         <span *ngIf="d.branches.length && !remult.user!.isManager" class="album-text080">
                             <span>{{ 'סה"כ: ' + d.branches.length + ' כוללים' }}</span>
                         </span>
+                        <span *ngIf="d.branches.length && remult.user!.isManager" class="album-text080">
+                            <span>{{ d.weekDay }}</span>
+                        </span>
                         <!-- <span *ngIf="w.branches.length && remult.user!.isManager" class="album-text080">
                         <span>{{ 'סה"כ: ' + w.branches.length + ' תמונות' }}</span>
                     </span> -->

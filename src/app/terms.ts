@@ -56,6 +56,16 @@ export const hebrewMonths = [
     'דצמבר'
 ]
 
+export const hebrewWeekDays = [
+    'ראשון',//index 0
+    'שני',
+    'שלישי',
+    'רביעי',
+    'חמישי',
+    'שישי',
+    'מוצ"ש'
+]
+
 declare module 'remult' {
     export interface UserInfo {
         isAdmin: boolean;
