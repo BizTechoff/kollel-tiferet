@@ -11,7 +11,7 @@ import { User } from '../users/user';
 import { Visit } from '../visits/visit';
 
 @Injectable()
-export class uploader {
+export class uploader {//client-side
 
   excel = false
   branch!: Branch
@@ -90,8 +90,6 @@ export class uploader {
       return result;
     }
 
-
-
     const fileType = file.type.split('/')[1];
     console.log('fileType', fileType)
     const { v4: uuidv4 } = require('uuid');
@@ -107,26 +105,39 @@ export class uploader {
       excel: this.excel ? 'true' : 'false'
     }
 
-    const response = await fetch(
-      '/api-req/s3Url',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body)
-      });
-
+    let response!: Response
+    try {
+      response = await fetch(
+        '/api-req/s3Url',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body)
+        });
+    }
+    catch (err) {
+      console.error('upload ERROR: ' + err)
+      throw new Error("שגיאת אינטרנט")
+    }
     const { url, error } = await response.json();
     console.log(`returning end-point url (valid 60 sec): ${url} ${error} `)
 
-    const uploadResponse = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': file.type,
-      },
-      body: file
-    });
+    let uploadResponse!: Response
+    try {
+      uploadResponse = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file
+      });
+    }
+    catch (err) {
+      console.error('upload ERROR: ' + err)
+      throw new Error("שגיאת אינטרנט")
+    }
 
     if (uploadResponse.ok) {
       const imageUrl = url.split('?')[0]

@@ -19,7 +19,13 @@ import { MediaType } from '../mediaTypes';
 })
 export class AlbumComponent implements OnInit {
 
-  media = [] as { month: string, branches: { branch: Branch, last: Date, media: Media[] }[] }[]
+  media = [] as {
+    month: string,
+    days: {
+      day: string,
+      branches: { branch: Branch, last: Date, media: Media[] }[]
+    }[]
+  }[]
   query = new MediaController()
 
   constructor(
@@ -55,12 +61,14 @@ export class AlbumComponent implements OnInit {
   async mediaClicked(clicked: Media) {
     openDialog(GalleryComponent, self => {
       for (const w of this.media) {
-        for (const b of w.branches) {
-          for (const m of b.media) {
-            if (m.id === clicked.id) {
-              self.args.media = b.media
-              self.args.current = m
-              break;
+        for (const d of w.days) {
+          for (const b of d.branches) {
+            for (const m of b.media) {
+              if (m.id === clicked.id) {
+                self.args.media = b.media
+                self.args.current = m
+                break;
+              }
             }
           }
         }

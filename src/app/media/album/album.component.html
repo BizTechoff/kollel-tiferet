@@ -68,10 +68,10 @@
                 <input excludeAcceptAllOption=true #fileInput type="file" (input)="onFileInput($event, 'profile')"
                     accept="video/mp4,video/avi,image/png,image/jpg,image/jpeg" id="uploadImage" style="display:none" />
 
-                <div style="box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); display: flex;">
+                <div style="box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); display: flex; padding: 10px;">
                     <button (click)="this.uploadText()"
-                        style="margin-top: 5px; color: rgba(38, 195, 234, 1); border-radius: 15px; background-color: white; border: none;">
-                        <mat-icon style="font-size:18px; height:12px; width:12px;">edit_note</mat-icon>
+                        style="color: rgba(38, 195, 234, 1); border-radius: 15px; background-color: white; border: none;">
+                        <mat-icon>edit_note</mat-icon>
                     </button>
                 </div>
             </div>
@@ -82,56 +82,67 @@
                 (click)="this.back()" />
         </div>
         <div>
-            <div *ngFor="let w of this.media">
-                <div class="album-title-week">
-                    <span *ngIf="w.branches.length && !remult.user!.isManager" class="album-text080">
-                        <span>{{ 'סה"כ: ' + w.branches.length + ' כוללים' }}</span>
+            <div *ngFor="let m of this.media">
+                <div class="album-title-month">
+                    <span *ngIf="m.days.length" class="album-text080">
+                        <span>{{ 'סה"כ: ' + m.days.length + ' שיעורים' }}</span>
                     </span>
                     <!-- <span *ngIf="w.branches.length && remult.user!.isManager" class="album-text080">
                         <span>{{ 'סה"כ: ' + w.branches.length + ' תמונות' }}</span>
                     </span> -->
-                    <span class="album-text08"><span>{{ w.month }}</span></span>
+                    <span class="album-text08"><span>{{ m.month }}</span></span>
                 </div>
-                <div *ngFor="let b of w.branches">
-                    <div class="album-crad">
-                        <div *ngIf="w.branches.length && !remult.user!.isManager" class="album-title-branch">
-                            <span class="album-text080">
-                                <span>{{ b.last? 'עודכן: ' + (b.last | date:'HH:mm dd/MM/yyyy') : '' }}</span>
-                            </span>
-                            <span class="album-text08"><span>{{ b.branch?b.branch.name :'' }}</span></span>
-                        </div>
-                        <ul class="image-gallery">
-                            <li *ngFor="let m of b.media" (click)="this.mediaClicked(m)">
+                <div *ngFor="let d of m.days">
+                    <div class="album-title-week">
+                        <span *ngIf="d.branches.length && !remult.user!.isManager" class="album-text080">
+                            <span>{{ 'סה"כ: ' + d.branches.length + ' כוללים' }}</span>
+                        </span>
+                        <!-- <span *ngIf="w.branches.length && remult.user!.isManager" class="album-text080">
+                        <span>{{ 'סה"כ: ' + w.branches.length + ' תמונות' }}</span>
+                    </span> -->
+                        <span class="album-text08"><span>{{ d.day }}</span></span>
+                    </div>
+                    <div *ngFor="let b of d.branches">
+                        <div class="album-crad">
+                            <div *ngIf="d.branches.length && !remult.user!.isManager" class="album-title-branch">
+                                <span class="album-text080">
+                                    <span>{{ 'סה"כ: ' + b.media.length + ' תמונות' }}</span>
+                                </span>
+                                <span class="album-text08"><span>{{ b.branch ? b.branch.name : '' }}</span></span>
+                            </div>
+                            <ul class="image-gallery">
+                                <li *ngFor="let m of b.media" (click)="this.mediaClicked(m)">
 
-                                <ng-container *ngIf="m.type.id === 'video'">
-                                    <mat-icon class="overlay-options">play_circle</mat-icon>
-                                    <!-- <span class="overlay-date">{{ m.created | date:'HH:mm dd/MM/yyyy' }}</span> -->
-                                    <video oncontextmenu="return false;" crossorigin="anonymous"
-                                        controlsList="nodownload">
-                                        <source [src]="m.link">
-                                        <!-- <source [src]="m.link + '#t=1'"> -->
-                                        Your browser does not support the video tag.
-                                    </video>
-                                    <!-- <mat-icon class="overlay-options">videocam</mat-icon> -->
-                                </ng-container>
+                                    <ng-container *ngIf="m.type.id === 'video'">
+                                        <mat-icon class="overlay-options">play_circle</mat-icon>
+                                        <!-- <span class="overlay-date">{{ m.created | date:'HH:mm dd/MM/yyyy' }}</span> -->
+                                        <video oncontextmenu="return false;" crossorigin="anonymous"
+                                            controlsList="nodownload">
+                                            <source [src]="m.link">
+                                            <!-- <source [src]="m.link + '#t=1'"> -->
+                                            Your browser does not support the video tag.
+                                        </video>
+                                        <!-- <mat-icon class="overlay-options">videocam</mat-icon> -->
+                                    </ng-container>
 
-                                <ng-container *ngIf="m.type.id === 'photo'">
-                                    <!-- <span class="overlay-date">{{ m.created | date:'HH:mm dd/MM/yyyy' }}</span> -->
-                                    <img oncontextmenu="return false;" crossorigin="anonymous" [src]='m.link'>
-                                </ng-container>
+                                    <ng-container *ngIf="m.type.id === 'photo'">
+                                        <!-- <span class="overlay-date">{{ m.created | date:'HH:mm dd/MM/yyyy' }}</span> -->
+                                        <img oncontextmenu="return false;" crossorigin="anonymous" [src]='m.link'>
+                                    </ng-container>
 
-                                <!-- <img [src]='m.link' alt="" loading="lazy"> -->
-                                <!-- <div class="overlay-options">
+                                    <!-- <img [src]='m.link' alt="" loading="lazy"> -->
+                                    <!-- <div class="overlay-options">
                                     <span>{{ m.created | date:'dd/MM/yyyy' }}</span>
                                     <div (click)="this.close()">
                                         <mat-icon>close</mat-icon>
                                     </div>
                                 </div>  -->
-                                <!-- <div class="overlay">
+                                    <!-- <div class="overlay">
                                 <img [src]='m.link' alt="">
                             </div> -->
-                            </li>
-                        </ul>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>

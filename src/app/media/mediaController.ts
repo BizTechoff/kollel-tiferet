@@ -3,7 +3,7 @@ import { downloadByLink, upload } from "../../server/aws-s3";
 // import { upload } from "../../server/aws-s3";
 import { Branch } from "../branches/branch";
 import { BranchGroup } from "../branches/branchGroup";
-import { addDaysToDate, dateDiff, firstDateOfWeek, lastDateOfWeek, resetDateTime } from "../common/dateFunc";
+import { addDaysToDate, dateDiff, dateFormat, firstDateOfWeek, lastDateOfWeek, resetDateTime } from "../common/dateFunc";
 import { hebrewMonths } from "../terms";
 import { Roles } from "../users/roles";
 import { Media } from "./media";
@@ -73,6 +73,87 @@ export class MediaController extends ControllerBase {
 
     @BackendMethod({ allowed: Allow.authenticated })
     async getPhotos() {
+        let result = [] as {
+            month: string,
+            days: {
+                day: string,
+                branches: { branch: Branch, last: Date, media: Media[] }[]
+            }[]
+        }[]
+        for await (const m of remult.repo(Media).query({
+            where: {
+                active: true,
+                branch: (remult.user!.isAdmin || remult.user!.isDonor)
+                    ? await remult.repo(Branch).find({
+                        where: {
+                            system: false,
+                            active: true,
+                            group: this.group === BranchGroup.all
+                                ? undefined!
+                                : this.group
+                        }
+                    })
+                    : { $id: remult.user?.branch! }
+            },
+            orderBy: { date: 'desc', branch: "asc", created: 'desc' }
+        })) {
+
+            let month = `חודש ${hebrewMonths[m.date.getMonth()]}`
+            let year = m.date.getFullYear()
+            if (year !== (new Date()).getFullYear()) {
+                month += ` ${year}`
+            }
+
+            let found = result.find(w => w.month === month)
+            if (!found) {
+                found = {
+                    month: month,
+                    days: [] as {
+                        day: string,
+                        branches: { branch: Branch, last: Date, media: Media[] }[]
+                    }[]
+                }
+                result.push(found)
+            }
+
+            let day = dateFormat(m.date)
+            let foundDay = found.days.find(d => d.day === day)
+            if (!foundDay) {
+                foundDay = {
+                    day: day,
+                    branches: [] as { branch: Branch, last: Date, media: Media[] }[]
+                }
+                found.days.push(foundDay)
+            }
+
+
+
+            let foundMonth = foundDay.branches.find(b => b.branch.id === m.branch.id)
+            if (!foundMonth) {
+                foundMonth = { branch: m.branch, last: undefined!, media: [] as Media[] }
+                foundDay.branches.push(foundMonth)
+            }
+            if (!foundMonth.last || m.date > foundMonth.last) {
+                foundMonth.last = m.date
+            }
+            foundMonth.media.push(m)
+        }
+
+        // result.so
+        for (const m of result) {
+            m.days.sort((a, b) => b.day.localeCompare(a.day))
+            for (const d of m.days) {
+                d.branches.sort((a, b) => a.branch.name.localeCompare(b.branch.name))
+            }
+        }
+        // result.sort((a,b) => a.)
+
+
+        return result
+    }
+
+    @BackendMethod({ allowed: Allow.authenticated })
+    async getPhotos2() {
         let result = [] as { month: string, branches: { branch: Branch, last: Date, media: Media[] }[] }[]
         for await (const m of remult.repo(Media).query({
             where: {
@@ -134,7 +215,7 @@ export class MediaController extends ControllerBase {
         await row.save()
         return true
     }
- 
+
     @BackendMethod({ allowed: Allow.authenticated })
     async imageFromText(text: string): Promise<boolean> {
         let b = await remult.repo(Branch).findId(remult.user!.branch)
